@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"  # si usás Vite dev
+      # - "80:80"    # si usás nginx prod
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # db:   
+  #   image: mongo:7   # o mysql:8
+  #   container_name: mydb
+  #   ports:
+  #     - "27017:27017"  # mongo
+  #     - "3306:3306"    # mysql
+  #   volumes:
+  #     - db_data:/data/db
+
+volumes:
+  db_data:
