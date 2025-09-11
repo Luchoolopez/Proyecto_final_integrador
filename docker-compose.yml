@@ -4,31 +4,39 @@ services:
     build: ./backend
     container_name: backend
     ports:
-      - "3000:3000"
+      - "${PORT}:3000"
     env_file:
-      - ./backend/.env
+      - .env
     volumes:
       - ./backend:/app
       - /app/node_modules
+    depends_on:
+      - mysql
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     container_name: frontend
     ports:
-      - "5173:5173"  # si usás Vite dev
-      # - "80:80"    # si usás nginx prod
+      - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
 
-  # db:   
-  #   image: mongo:7   # o mysql:8
-  #   container_name: mydb
-  #   ports:
-  #     - "27017:27017"  # mongo
-  #     - "3306:3306"    # mysql
-  #   volumes:
-  #     - db_data:/data/db
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql  # ← Corregí la ruta
+    restart: unless-stopped
 
 volumes:
-  db_data:
+  mysql_data: 
