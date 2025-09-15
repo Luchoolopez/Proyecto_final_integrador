@@ -1,12 +1,12 @@
 import express from 'express';
-import cors from 'cors'
+import corsConfig from './config/cors';
 import config from './config/config';
 import { router } from './routes';
-import { dbConnect } from './config/mysql';
+import { dbConnect } from './config/database';
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(corsConfig);
 app.use(router);
 
 app.listen(config.port, async()=> {
