@@ -1,3 +1,4 @@
+//con este archivo no hace falta exportar cada ruta individualmente al server.ts
 import { Router } from "express";
 import { readdirSync } from "fs";
 
