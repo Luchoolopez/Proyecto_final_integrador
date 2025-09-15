@@ -1,0 +1,22 @@
+//con este archivo no hace falta exportar cada ruta individualmente al server.ts
+import { Router } from "express";
+import { readdirSync } from "fs";
+
+const PATH_ROUTER = `${__dirname}`;
+const router = Router();
+
+const cleanFileName = (fileName:string) => {
+    const file = fileName.split('.').shift();
+    return file;
+}
+
+readdirSync(PATH_ROUTER).filter((fileName) => {
+    const cleanName = cleanFileName(fileName);
+    if(cleanName !== 'index'){
+        import(`./${cleanName}`).then((moduleRouter) => {
+            router.use(`/${cleanName}`, moduleRouter.Router)
+        })
+    }
+})
+
+export { router }

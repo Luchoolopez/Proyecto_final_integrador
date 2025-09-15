@@ -6,7 +6,10 @@ services:
     ports:
       - "${PORT}:3000"
     env_file:
-      - .env
+      - ./backend/.env
+    environment:
+      - DB_HOST=mysql_db
+      - DB_PORT=3306
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -35,8 +38,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql  # ← Corregí la ruta
+      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql  
     restart: unless-stopped
 
 volumes:
-  mysql_data: 
+  mysql_data:

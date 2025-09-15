@@ -1,14 +1,15 @@
 import express from 'express';
-import { Request, Response } from 'express';
+import corsConfig from './config/cors';
 import config from './config/config';
+import { router } from './routes';
+import { dbConnect } from './config/database';
 const app = express();
 
 app.use(express.json());
+app.use(corsConfig);
+app.use(router);
 
-app.get('/', (req: Request, res: Response) => {
-    res.send("hola mundo")
-})
-
-app.listen(config.port, ()=> {
+app.listen(config.port, async()=> {
     console.log(`Servidor corriendo en el puerto ${config.port}`);
+    await dbConnect();
 })
