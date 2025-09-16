@@ -37,7 +37,7 @@ async function connectWithRetry(attempts = 5, delay = 3000) {
             console.log("✅ DB conectada con Sequelize");
             return true;
         } catch (error) {
-            console.error(`❌ Intento ${i}/${attempts} - Error conectando a la DB:`, error);
+            console.error(`❌ Intento ${i}/${attempts} - Error conectando a la DB`);
             
             if (i === attempts) {
                 throw error;
@@ -49,4 +49,4 @@ async function connectWithRetry(attempts = 5, delay = 3000) {
     }
 }
 
-export { sequelize, connectWithRetry }
+export { connectWithRetry }
