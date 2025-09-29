@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8
-    container_name: mysql_db
+    container_name: ecommerce_mysql_db
     ports:
       - "3307:3306"  # Cambié a 3307 para evitar conflicto con MySQL local
     environment:
@@ -30,7 +30,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - DB_HOST=mysql_db  # ← ¡IMPORTANTE! Usar el nombre del servicio
+      - DB_HOST=mysql  # ← ¡IMPORTANTE! Usar el nombre del servicio
       - DB_PORT=3306
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_USER}

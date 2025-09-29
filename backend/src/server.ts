@@ -1,20 +1,15 @@
-import express from 'express';
-import corsConfig from './config/cors';
-import config from './config/config';
-import { router } from './routes';
-import {  connectWithRetry} from './config/database';
-const app = express();
+import config from "./config/config";
+import { connectWithRetry } from "./config/database";
+import { makeApp } from "./app";
 
-app.use(express.json());
-app.use(corsConfig);
-app.use(router);
+const app = makeApp();
 
-app.listen(config.port, async()=> {
-    console.log(`Servidor corriendo en el puerto ${config.port}`);
-    try{
+app.listen(config.port, async () => {
+    console.log(`🚀 Servidor corriendo en el puerto: ${config.port}`);
+    try {
         await connectWithRetry();
-        console.log("DB conectado")
-    }catch(error){
-        console.error("Error conectando a la DB:", error);
+        console.log("✅ DB conectada");
+    } catch (error) {
+        console.error("❌ Error conectando a la DB:", error);
     }
-})
+});
