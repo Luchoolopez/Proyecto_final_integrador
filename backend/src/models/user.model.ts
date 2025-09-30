@@ -32,8 +32,48 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
 User.init(
     {
         id: {
-            type:DataTypes
+            type:DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        nombre: {
+            type:DataTypes.STRING(100),
+            allowNull:false,
+        },
+        email: {
+            type:DataTypes.STRING(100),
+            allowNull:false,
+            unique:true
+        },
+        password:{
+            type: DataTypes.STRING(255),
+            allowNull:false,
+        },
+        telefono:{
+            type: DataTypes.STRING(20),
+            allowNull: true,
+        },
+        activo: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
+        fecha_ultimo_acceso:{
+            type:DataTypes.DATE,
+            allowNull:true,
+        },
+        fecha_creacion:{
+            type:DataTypes.DATE,
+            allowNull:false,
+            defaultValue: DataTypes.NOW
         },
     },
-
-)
+    {
+        sequelize,
+        tableName: 'usuarios',
+        modelName: 'user',
+        timestamps: true, //esto maneja automaticamente el createdAt y updatedAt
+        createdAt: 'fecha_creacion',
+        updatedAt: 'fecha_actualizacion'
+    }
+);
