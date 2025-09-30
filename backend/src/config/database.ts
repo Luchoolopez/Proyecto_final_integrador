@@ -49,4 +49,4 @@ async function connectWithRetry(attempts = 5, delay = 3000) {
     }
 }
 
-export { connectWithRetry }
+export { sequelize, connectWithRetry }
