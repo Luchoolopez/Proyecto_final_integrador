@@ -1,0 +1,13 @@
+export const USER_CONSTANTS = {
+    DEFAULT_PAGE: 1,
+    DEFAULT_LIMIT: 10,
+    MAX_LIMIT: 100,
+    PASSWORD_MIN_LENGTH: 6
+} as const;
+
+export const ERROR_MESSAGES = {
+    USER_NOT_FOUND: 'Usuario no encontrado',
+    EMAIL_ALREADY_EXISTS: 'El email ya está registrado',
+    INVALID_CREDENTIALS: 'Credenciales inválidas',
+    UNAUTHORIZED: 'No autorizado'
+} as const;
