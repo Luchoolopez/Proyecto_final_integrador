@@ -8,6 +8,9 @@ export const USER_CONSTANTS = {
 export const ERROR_MESSAGES = {
     USER_NOT_FOUND: 'Usuario no encontrado',
     EMAIL_ALREADY_EXISTS: 'El email ya está registrado',
+    WRONG_FORMAT_EMAIL: 'Email con formato invalido',
+    WRONG_FORMAT_PHONE: 'Telefono con formato invalido',
+    WRONG_FORMAT_PASSWORD: 'Contraseña con formato invalido',
     INVALID_CREDENTIALS: 'Credenciales inválidas',
     UNAUTHORIZED: 'No autorizado'
 } as const;
