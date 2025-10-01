@@ -6,7 +6,7 @@ import { UserFormatter } from "../utils/user/user.formatter";
 import { USER_CONSTANTS, ERROR_MESSAGES } from "../utils/user/user.constants";
 
 export class UserService {
-    async createUser(userData: { nombre: string; email: string; password: string; telefono?: string | null; activo?: boolean; }): Promise<any> {
+    async createUser(userData: { nombre: string; email: string; password: string; rol:'usuario' | 'admin'; telefono?: string | null; activo?: boolean; }): Promise<any> {
         try {
             if(!UserValidators.isValidEmail(userData.email)){
                 throw new Error('Email invalido')
@@ -20,6 +20,11 @@ export class UserService {
                 throw new Error('Teléfono con formato invalido')
             };
 
+            const rol = userData.rol ?? 'usuario';
+            if(!['usuario', 'admin'].includes(rol)){
+                throw new Error(ERROR_MESSAGES.INVALID_ROL)
+            }
+
             //verificar que el mail sea unico
             const emailExists = await UserValidators.emailExists(userData.email);
             if(emailExists){
@@ -29,7 +34,9 @@ export class UserService {
             //crear usuario
             const userToCreate = {
                 ...userData,
+                rol,
                 activo: userData.activo ?? true
+
             };
             const user = await User.create(userToCreate);
             return UserFormatter.formatUserResponse(user);
@@ -66,6 +73,12 @@ export class UserService {
 
             if(sanitizedData.password && !UserValidators.isValidPassword(sanitizedData.password)){
                 throw new Error(`La contrasenia debe tener al menos ${USER_CONSTANTS.PASSWORD_MIN_LENGTH} caracteres`);
+            }
+
+            if(sanitizedData.rol){
+                if(!['usuario', 'admin'].includes(sanitizedData.rol)){
+                    throw new Error(ERROR_MESSAGES.INVALID_ROL);
+                }
             }
 
             await user.update(sanitizedData);

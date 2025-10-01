@@ -20,6 +20,7 @@ export const UserValidators = {
         const sanitized = { ...userData };
         //elimina campos que no tendrian que ser actualizables
         delete sanitized.id;
+        delete sanitized.rol;
         delete sanitized.fecha_creacion;
         delete sanitized.fecha_ultimo_acceso;
         return sanitized

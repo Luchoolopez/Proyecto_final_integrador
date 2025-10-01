@@ -5,6 +5,7 @@ export class UserFormatter {
             nombre: user.nombre,
             email: user.email,
             telefono: user.telefono,
+            rol: user.rol,
             activo: user.activo,
             fecha_creacion: user.fecha_creacion,
             fecha_ultimo_acceso: user.fecha_ultimo_acceso
