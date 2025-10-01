@@ -10,6 +10,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    rol ENUM('usuario','admin') DEFAULT 'usuario', 
     telefono VARCHAR(20),
     activo BOOLEAN DEFAULT TRUE,
     fecha_ultimo_acceso TIMESTAMP NULL,
