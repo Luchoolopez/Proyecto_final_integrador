@@ -13,5 +13,6 @@ export const ERROR_MESSAGES = {
     WRONG_FORMAT_PASSWORD: 'Contraseña con formato invalido',
     INVALID_ROL: 'Rol invalido',
     INVALID_CREDENTIALS: 'Credenciales inválidas',
+    INVALID_PASSWORD: 'Contraseña invalida',
     UNAUTHORIZED: 'No autorizado'
 } as const;

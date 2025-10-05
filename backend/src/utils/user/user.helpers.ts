@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt';
+
 export class ServiceHelpers {
     //permite facilitar el manejo de errores
     static handleServiceError(error: unknown, serviceName: string): never {
@@ -19,4 +21,13 @@ export class ServiceHelpers {
         const {password, ...userWithoutPassword} = user;
         return userWithoutPassword
     }
+
+    static comparePassword(plain:string, hash:string):Promise<boolean> {
+        return bcrypt.compare(plain, hash);
+    }
+
+    static hashPassword(plain:string):Promise<string>{
+        const saltRounds = 10;
+        return bcrypt.hash(plain, saltRounds);
+    };
 }
