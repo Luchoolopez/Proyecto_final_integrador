@@ -14,5 +14,8 @@ export const ERROR_MESSAGES = {
     INVALID_ROL: 'Rol invalido',
     INVALID_CREDENTIALS: 'Credenciales inválidas',
     INVALID_PASSWORD: 'Contraseña invalida',
-    UNAUTHORIZED: 'No autorizado'
+    INVALID_ID: 'Rol invalido',
+    UNAUTHORIZED: 'No autorizado',
+    GET_USER_ERROR: 'Error al obtener el usuario'
+
 } as const;

@@ -122,7 +122,4 @@ export class UserService {
             throw ServiceHelpers.handleServiceError(error, 'UserService.deleteUser');
         }
     }
-
-
-
 }
