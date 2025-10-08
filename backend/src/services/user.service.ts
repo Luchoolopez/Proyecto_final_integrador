@@ -33,7 +33,7 @@ export class UserService {
         }
     }
 
-    async getUsers(): Promise<any[]> {
+    async getUsers(): Promise<User[]> {
         try {
             const users = await User.findAll();
             return UserFormatter.formatUserListResponse(users);
@@ -42,7 +42,7 @@ export class UserService {
         }
     }
 
-    async updateUser(id: number, updateData: any): Promise<any> {
+    async updateUser(id: number, updateData: any): Promise<User> {
         try {
             const user = await User.findByPk(id);
             if (!user) {
