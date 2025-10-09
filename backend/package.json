@@ -16,16 +16,21 @@
   "type": "commonjs",
   "dependencies": {
     "@types/cors": "^2.8.19",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.0",
+    "nanoid": "^5.1.6",
     "sequelize": "^6.37.7",
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.1",
     "@types/sequelize": "^4.28.20",
     "@types/supertest": "^6.0.3",
