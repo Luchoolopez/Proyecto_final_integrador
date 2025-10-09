@@ -10,7 +10,9 @@ export function makeApp() {
     app.use(corsConfig);
 
     // Rutas
-    app.use(router);
+    app.use("/api", router);
 
+    app.use((req, res) => res.status(404).json({ message: "Not Found" }));
+    
     return app;
 }
