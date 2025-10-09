@@ -1,36 +1,50 @@
 import { Router } from "express";
 import { readdirSync } from "fs";
 
-const PATH_ROUTER = `${__dirname}`;
+const PATH_ROUTER = __dirname;
 const router = Router();
 
-const basenameNoExt = (fileName: string) => fileName.replace(/\.(ts|js)$/, "");
-const cleanFileName = (base: string) => base.split(".")[0]!;
+const cleanFileName = (fileName: string): string | undefined => {
+    const file = fileName.split('.').shift();
+    return file;
+}
 
-readdirSync(PATH_ROUTER)
-  .filter((fileName) => /.+\.routes\.(ts|js)$/.test(fileName))
-  .forEach((fileName) => {
-    const base = basenameNoExt(fileName);   
-    const mount = cleanFileName(base);     
-
-    import(`./${base}`)
-      .then((moduleRouter) => {
-        const subRouter =
-          moduleRouter.default ?? moduleRouter.router ?? moduleRouter.Router;
-
-        if (!subRouter) {
-          console.warn(`[routes] ./${base} no exporta un Router válido`);
-          return;
+// Cargar rutas de forma síncrona
+const loadRoutes = () => {
+    const files = readdirSync(PATH_ROUTER);
+    
+    console.log('📁 Archivos encontrados en routes/:', files);
+    
+    files.forEach((fileName) => {
+        // ✅ SOLO procesar archivos .js que NO sean .map ni .d.ts
+        if (!fileName.endsWith('.js') || fileName.includes('.map') || fileName.includes('.d.ts')) {
+            return;
         }
 
-        router.use(`/api/${mount}`, subRouter);
-        console.log(`[routes] Montado: /api/${mount} -> ./${base}`);
-      })
-      .catch((err) => {
-        console.error(`[routes] Error importando ./${base}:`, err);
-      });
-  });
+        const cleanName = cleanFileName(fileName);
+        
+        // Ignorar index.js
+        if (cleanName && cleanName !== 'index') {
+            try {
+                console.log(`🔍 Cargando: ${fileName}`);
+                const routeModule = require(`./${cleanName}`);
+                
+                if (routeModule.Router) {
+                    console.log(`✅ Ruta registrada: ${cleanName}`);
+                    router.use(`/${cleanName}`, routeModule.Router);
+                } else if (routeModule.default) {
+                    console.log(`✅ Ruta registrada (default): /api/${cleanName}`);
+                    router.use(`/${cleanName}`, routeModule.default);
+                } else {
+                    console.log(`⚠️  El módulo ${cleanName} no tiene exportación válida`);
+                }
+            } catch (error) {
+                console.error(`❌ Error cargando ruta ${cleanName}:`, error);
+            }
+        }
+    });
+};
 
-router.get("/health", (_req, res) => res.json({ ok: true }));
+loadRoutes();
 
 export { router };
