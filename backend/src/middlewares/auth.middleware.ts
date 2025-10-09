@@ -1,38 +1,79 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { ERROR_MESSAGES } from '../utils/user/user.constants';
+import { TokenManager } from '../utils/auth/token.manager';
+import { AuthHelpers } from '../utils/auth/auth.helpers';
+import { User } from '../models/user.model';
+import { AUTH_ERROR_MESSAGES } from '../utils/auth/auth.constants';
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
-      res.status(401).json({ message: ERROR_MESSAGES.UNAUTHORIZED });
-      return;
+// Extender la interfaz Request para incluir el usuario
+declare global {
+    namespace Express {
+        interface Request {
+            user?: any;
+        }
+    }
+}
+
+export class AuthMiddleware {
+    static async authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const token = AuthHelpers.extractTokenFromHeader(req.headers.authorization);
+
+            if (!token) {
+                res.status(401).json({
+                    success: false,
+                    message: AUTH_ERROR_MESSAGES.MISSING_TOKEN,
+                });
+                return;
+            }
+
+            const decoded = TokenManager.verifyAccessToken(token);
+
+            const user = await User.findByPk(decoded.id);
+            if (!user || !user.activo) {
+                res.status(401).json({
+                    success: false,
+                    message: AUTH_ERROR_MESSAGES.UNAUTHORIZED,
+                });
+                return;
+            }
+
+            req.user = AuthHelpers.sanitizeUserForResponse(user);
+            next();
+        } catch (error) {
+            if (error instanceof Error) {
+                res.status(401).json({
+                    success: false,
+                    message: error.message,
+                });
+                return;
+            }
+
+            res.status(401).json({
+                success: false,
+                message: AUTH_ERROR_MESSAGES.UNAUTHORIZED,
+            });
+        }
     }
 
-    const [scheme, token] = authHeader.split(' ');
-    if (scheme !== 'Bearer' || !token) {
-      res.status(401).json({ message: ERROR_MESSAGES.UNAUTHORIZED });
-      return;
+    static authorizeRoles(...roles: ('usuario' | 'admin')[]) {
+        return (req: Request, res: Response, next: NextFunction): void => {
+            if (!req.user) {
+                res.status(401).json({
+                    success: false,
+                    message: AUTH_ERROR_MESSAGES.UNAUTHORIZED,
+                });
+                return;
+            }
+
+            if (!roles.includes(req.user.rol)) {
+                res.status(403).json({
+                    success: false,
+                    message: 'No tienes permisos para realizar esta acción',
+                });
+                return;
+            }
+
+            next();
+        };
     }
-
-    const secret = process.env.JWT_ACCESS_SECRET;
-    if (!secret) {
-      console.error('Falta JWT_ACCESS_SECRET en variables de entorno');
-      res.status(500).json({ message: 'Error de configuración del servidor' });
-      return;
-    }
-
-    const decoded = jwt.verify(token, secret) as any;
-
-    (req as any).user = {
-      id: decoded.sub,             
-      email: decoded.email,
-      role: decoded.rol ?? 'usuario',
-    };
-
-    next();
-  } catch (error) {
-    res.status(401).json({ message: ERROR_MESSAGES.UNAUTHORIZED });
-  }
-};
+}
