@@ -19,27 +19,6 @@ CREATE TABLE usuarios (
 );
 
 -- ======================================
--- TABLA REFRESH TOKENS (manejo de sesiones)
--- ======================================
-CREATE TABLE IF NOT EXISTS refresh_tokens (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    jti VARCHAR(64) NOT NULL UNIQUE,           -- id del token (JWT ID)
-    hash_token CHAR(64) NOT NULL UNIQUE,       -- SHA-256 del refresh token
-    expira_en DATETIME NOT NULL,
-    revocado_en DATETIME DEFAULT NULL,
-    ip VARCHAR(64) NULL,
-    agente_usuario VARCHAR(255) NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_refresh_user FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
-
--- Índices
-CREATE INDEX IF NOT EXISTS idx_refresh_usuario_activo ON refresh_tokens (usuario_id, revocado_en);
-CREATE INDEX IF NOT EXISTS idx_refresh_expira_en ON refresh_tokens (expira_en);
-
--- ======================================
 -- TABLA DIRECCIONES (un usuario puede tener varias)
 -- ======================================
 CREATE TABLE direcciones (
