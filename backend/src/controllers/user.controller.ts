@@ -11,7 +11,7 @@ export class UserController {
         this.userService = new UserService();
     }
 
-    async getUser(req: Request, res: Response): Promise<Response> {
+    getUser = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { id } = req.params;
             if (!id || isNaN(Number(id))) {
@@ -46,9 +46,9 @@ export class UserController {
                 message: 'Error al obtener el usuario'
             });
         }
-    }
+    };
 
-    async getUsers(req: Request, res: Response): Promise<Response> {
+    getUsers = async (req: Request, res: Response): Promise<Response> => {
         try {
             const users = await this.userService.getUsers();
             return res.status(200).json({
@@ -62,9 +62,9 @@ export class UserController {
                 message: 'Error al obtener los usuarios'
             })
         }
-    }
+    };
 
-    async updateUser(req: Request, res: Response): Promise<Response> {
+    updateUser = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { id } = req.params;
             if (!id || isNaN(Number(id))) {
@@ -98,9 +98,9 @@ export class UserController {
                 message: ERROR_MESSAGES.GET_USER_ERROR
             });
         }
-    }
+    };
 
-    async changePassword(req: Request, res: Response): Promise<Response> {
+    changePassword = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { id } = req.params;
             const { oldPassword, newPassword } = req.body;
@@ -137,9 +137,9 @@ export class UserController {
                 message: 'Error al cambiar la contrasenia'
             });
         }
-    }
+    };
 
-    async deleteUser(req: Request, res: Response): Promise<Response> {
+    deleteUser = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { id } = req.params;
             if (!id || isNaN(Number(id))) {
@@ -166,5 +166,5 @@ export class UserController {
                 error: error
             })
         }
-    }
+    };
 }

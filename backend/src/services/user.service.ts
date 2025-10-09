@@ -5,18 +5,6 @@ import { ServiceHelpers } from "../utils/user/user.helpers";
 import { UserFormatter } from "../utils/user/user.formatter";
 import { USER_CONSTANTS, ERROR_MESSAGES } from "../utils/user/user.constants";
 
-/*
-GET    /api/users/profile             # Obtener datos usuario logueado
-PUT    /api/users/profile             # Actualizar datos
-DELETE /api/users/profile             # Eliminar cuenta
-PUT    /api/users/password            # Cambiar contraseña (logueado)
-POST   /api/users/forgot-password     # Solicitar reset password
-POST   /api/users/reset-password      # Confirmar reset password
-GET    /api/users/verify-email        # Verificar email
-POST   /api/users/resend-verification # Reenviar verificación
-*/
-
-
 export class UserService {
     async getUser(id: number): Promise<User | null> {
         try {
