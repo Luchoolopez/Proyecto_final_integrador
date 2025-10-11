@@ -1,22 +1,50 @@
-//con este archivo no hace falta exportar cada ruta individualmente al server.ts
 import { Router } from "express";
 import { readdirSync } from "fs";
 
-const PATH_ROUTER = `${__dirname}`;
+const PATH_ROUTER = __dirname;
 const router = Router();
 
-const cleanFileName = (fileName:string) => {
+const cleanFileName = (fileName: string): string | undefined => {
     const file = fileName.split('.').shift();
     return file;
 }
 
-readdirSync(PATH_ROUTER).filter((fileName) => {
-    const cleanName = cleanFileName(fileName);
-    if(cleanName !== 'index'){
-        import(`./${cleanName}`).then((moduleRouter) => {
-            router.use(`/${cleanName}`, moduleRouter.Router)
-        })
-    }
-})
+// Cargar rutas de forma síncrona
+const loadRoutes = () => {
+    const files = readdirSync(PATH_ROUTER);
+    
+    console.log('📁 Archivos encontrados en routes/:', files);
+    
+    files.forEach((fileName) => {
+        // ✅ SOLO procesar archivos .js que NO sean .map ni .d.ts
+        if (!fileName.endsWith('.js') || fileName.includes('.map') || fileName.includes('.d.ts')) {
+            return;
+        }
 
-export { router }
+        const cleanName = cleanFileName(fileName);
+        
+        // Ignorar index.js
+        if (cleanName && cleanName !== 'index') {
+            try {
+                console.log(`🔍 Cargando: ${fileName}`);
+                const routeModule = require(`./${cleanName}`);
+                
+                if (routeModule.Router) {
+                    console.log(`✅ Ruta registrada: ${cleanName}`);
+                    router.use(`/${cleanName}`, routeModule.Router);
+                } else if (routeModule.default) {
+                    console.log(`✅ Ruta registrada (default): /api/${cleanName}`);
+                    router.use(`/${cleanName}`, routeModule.default);
+                } else {
+                    console.log(`⚠️  El módulo ${cleanName} no tiene exportación válida`);
+                }
+            } catch (error) {
+                console.error(`❌ Error cargando ruta ${cleanName}:`, error);
+            }
+        }
+    });
+};
+
+loadRoutes();
+
+export { router };

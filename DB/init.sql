@@ -14,7 +14,8 @@ CREATE TABLE usuarios (
     telefono VARCHAR(20),
     activo BOOLEAN DEFAULT TRUE,
     fecha_ultimo_acceso TIMESTAMP NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ======================================
