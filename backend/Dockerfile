@@ -22,8 +22,6 @@ RUN npm install --only=production
 # Copiar dist desde la etapa anterior
 COPY --from=builder /app/dist ./dist
 
-# Copiar .env si lo necesitás
-COPY .env .env
 
 EXPOSE 3000
 CMD ["node", "dist/server.js"]
