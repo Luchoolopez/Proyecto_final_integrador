@@ -9,7 +9,6 @@
     "test": "jest",
     "dev": "nodemon --watch src --exec npx ts-node src/server.ts",
     "lint": "eslint 'src/**/*.ts'",
-    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
