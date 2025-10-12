@@ -74,24 +74,24 @@ export class UserService {
     }
 
     async changePassword(id: number, oldPassword: string, newPassword: string): Promise<void> {
-        try{
-            if(!id){
+        try {
+            if (!id) {
                 throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
             }
             const user = await User.findByPk(id);
-            if(!user){
+            if (!user) {
                 throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
             }
 
             const isMatch = await ServiceHelpers.comparePassword(oldPassword, user.password);
-            if(!isMatch){
+            if (!isMatch) {
                 throw new Error(ERROR_MESSAGES.INVALID_PASSWORD);
             }
 
             user.password = await ServiceHelpers.hashPassword(newPassword);
             await user.save();
 
-        }catch(error){
+        } catch (error) {
             throw ServiceHelpers.handleServiceError(error, 'UserService.changePassword');
         }
     }

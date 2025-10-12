@@ -9,42 +9,37 @@ const cleanFileName = (fileName: string): string | undefined => {
     return file;
 }
 
-// Cargar rutas de forma síncrona
-const loadRoutes = () => {
+// Función asíncrona para cargar las rutas
+const loadRoutes = async () => {
     const files = readdirSync(PATH_ROUTER);
-    
-    console.log('📁 Archivos encontrados en routes/:', files);
-    
-    files.forEach((fileName) => {
-        // ✅ SOLO procesar archivos .js que NO sean .map ni .d.ts
-        if (!fileName.endsWith('.js') || fileName.includes('.map') || fileName.includes('.d.ts')) {
-            return;
-        }
-
+    // Usamos for...of porque sí espera a los await internos, a diferencia de forEach
+    for (const fileName of files) {
         const cleanName = cleanFileName(fileName);
-        
-        // Ignorar index.js
+
+        // Ignorar el archivo actual (index) y archivos que no sean de rutas
         if (cleanName && cleanName !== 'index') {
             try {
-                console.log(`🔍 Cargando: ${fileName}`);
-                const routeModule = require(`./${cleanName}`);
-                
-                if (routeModule.Router) {
-                    console.log(`✅ Ruta registrada: ${cleanName}`);
-                    router.use(`/${cleanName}`, routeModule.Router);
-                } else if (routeModule.default) {
-                    console.log(`✅ Ruta registrada (default): /api/${cleanName}`);
-                    router.use(`/${cleanName}`, routeModule.default);
+                // Usamos import() dinámico que funciona mejor con ES Modules
+                const module = await import(`./${cleanName}`);
+                const moduleRouter = module.router || module.default;
+
+                if (moduleRouter) {
+                    console.log(`✅ Ruta cargada y registrada: /api/${cleanName}`);
+                    router.use(`/${cleanName}`, moduleRouter);
                 } else {
-                    console.log(`⚠️  El módulo ${cleanName} no tiene exportación válida`);
+                    console.warn(`⚠️  El módulo de ruta ${cleanName} no exporta un 'router' o un 'default'.`);
                 }
             } catch (error) {
-                console.error(`❌ Error cargando ruta ${cleanName}:`, error);
+                console.error(`❌ Error al cargar la ruta /${cleanName}:`, error);
             }
         }
-    });
+    }
 };
 
+// NOTA: La carga dinámica de rutas de esta manera es compleja.
+// En un entorno real, a menudo se importan explícitamente para evitar estos problemas.
+// Por ejemplo: import authRouter from './auth'; router.use('/auth', authRouter);
+// Sin embargo, para que tu código actual funcione, llamamos a la función.
 loadRoutes();
 
 export { router };
