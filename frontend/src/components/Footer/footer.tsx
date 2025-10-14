@@ -7,7 +7,7 @@ export const Footer = () => {
         <footer className="footer text-black pt-5 pb-4">
             <Container>
                 <Row>
-                    <Col md={4} className=" footer-description mb-4">
+                    <Col md={4} className="mb-4">
                         <h5>FloydStyle</h5>
                         <p>
                             Ropa con estilo único para personas auténticas.
@@ -15,7 +15,7 @@ export const Footer = () => {
                         </p>
                     </Col>
 
-\                    <Col md={4} className="mb-4">
+                    <Col md={4} className="mb-4">
                         <h5>Links Rápidos</h5>
                         <ul className="list-unstyled">
                             <li><a href="/about" className="footer-link">Sobre Nosotros</a></li>

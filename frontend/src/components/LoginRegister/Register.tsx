@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { FaEnvelope, FaLock } from "react-icons/fa";
-import { useAuth } from "../../hooks/useAuth";
-import "../../styles/Login/Login.css";
+import { useAuth } from "../../hooks/useAuth"; // Tu hook de autenticación
+import { Link } from "react-router-dom";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 
 export const Register = () => {
     const [values, setValues] = useState({
@@ -11,7 +11,9 @@ export const Register = () => {
         role: "user",
     });
 
-    const { register, loading, error } = useAuth();
+    // Descomenta la siguiente línea y elimina la de abajo cuando integres tu hook real
+    // const { register, loading, error } = useAuth();
+    const { register, loading, error } = { register: async () => {}, loading: false, error: null }; // Mock para ejemplo
 
     const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [e.target.name]: e.target.value });
@@ -19,68 +21,63 @@ export const Register = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await register(values);
+        //await register(values);
     };
 
     return (
-        <div className="login-page-body">
-            <div className="login-container">
-                <div className="login-form">
-                    <h2>Registrarse</h2>
-                    {error && <div className="error-message">{error}</div>}
+        <Container className="my-5">
+            <Row className="justify-content-md-center">
+                <Col md={6} lg={5}>
+                    <h2 className="text-center mb-4 fw-bold">Crear cuenta</h2>
+                    
+                    {error && <Alert variant="danger">{error}</Alert>}
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="input-group">
-                            <input
+                    <Form onSubmit={handleSubmit}>
+                        <Form.Group className="mb-3" controlId="registerName">
+                            <Form.Label>NOMBRE</Form.Label>
+                            <Form.Control
                                 type="text"
-                                placeholder="Nombre"
+                                placeholder="Tu nombre completo"
                                 name="nombre"
                                 onChange={handleChanges}
                                 required
                             />
-                        </div>
+                        </Form.Group>
 
-                        <div className="input-group">
-                            <FaEnvelope className="input-icon" />
-                            <input
+                        <Form.Group className="mb-3" controlId="registerEmail">
+                            <Form.Label>EMAIL</Form.Label>
+                            <Form.Control
                                 type="email"
-                                placeholder="Correo electrónico"
+                                placeholder="ejemplo@correo.com"
                                 name="email"
                                 onChange={handleChanges}
                                 required
                             />
-                        </div>
+                        </Form.Group>
 
-                        <div className="input-group">
-                            <FaLock className="input-icon" />
-                            <input
+                        <Form.Group className="mb-3" controlId="registerPassword">
+                            <Form.Label>CONTRASEÑA</Form.Label>
+                            <Form.Control
                                 type="password"
-                                placeholder="Contraseña (mínimo 4 caracteres)"
+                                placeholder="Mínimo 6 caracteres"
                                 name="password"
                                 onChange={handleChanges}
                                 minLength={4}
                                 required
                             />
-                        </div>
+                        </Form.Group>
 
-                        <button type="submit" disabled={loading}>
-                            {loading ? "Cargando..." : "Registrarse"}
-                        </button>
-                    </form>
-
-                    <div className="divider">
-                        <span></span>
-                    </div>
-
-                    {/* <GoogleAuthButton isLogin={false} /> */}
-
-                    <div className="form-footer">
-                        <span>¿Ya tienes una cuenta?</span>
-                        <a href="/iniciar-sesion">Inicia Sesión</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <Button variant="dark" type="submit" className="w-100 mt-2" disabled={loading}>
+                            {loading ? "Cargando..." : "CREAR CUENTA"}
+                        </Button>
+                    </Form>
+                    
+                    <p className="text-center mt-3">
+                        ¿Ya tenés cuenta? <Link to="/login" className="form-link fw-bold">Iniciar sesión</Link>
+                    </p>
+                </Col>
+            </Row>
+        </Container>
     );
 };
 
