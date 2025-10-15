@@ -1,5 +1,6 @@
 import express from "express";
-import corsConfig from "./config/cors";
+//import corsConfig from "./config/cors";
+import cors from 'cors';
 import { router } from "./routes";
 
 export function makeApp() {
@@ -7,7 +8,7 @@ export function makeApp() {
 
     // Middlewares
     app.use(express.json());
-    app.use(corsConfig);
+    app.use(cors());
 
     // Rutas
     app.use("/api", router);
