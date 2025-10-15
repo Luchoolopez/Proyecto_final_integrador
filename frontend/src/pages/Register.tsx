@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { useAuth } from "../../hooks/useAuth"; // Tu hook de autenticación
+import { useAuthContext } from '../context/AuthContext';
 import { Link } from "react-router-dom";
 import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
+import type { RegisterData } from "../types/user";
 
 export const Register = () => {
-    const [values, setValues] = useState({
+    const [values, setValues] = useState<RegisterData>({
         nombre: "",
         email: "",
         password: "",
-        role: "user",
     });
 
-    // Descomenta la siguiente línea y elimina la de abajo cuando integres tu hook real
-    // const { register, loading, error } = useAuth();
-    const { register, loading, error } = { register: async () => {}, loading: false, error: null }; // Mock para ejemplo
+    const { register, loading, error } = useAuthContext();
 
     const handleChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
         setValues({ ...values, [e.target.name]: e.target.value });
@@ -21,7 +19,7 @@ export const Register = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        //await register(values);
+        await register(values);
     };
 
     return (
@@ -34,41 +32,22 @@ export const Register = () => {
 
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3" controlId="registerName">
-                            <Form.Label>NOMBRE</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Tu nombre completo"
-                                name="nombre"
-                                onChange={handleChanges}
-                                required
-                            />
+                           <Form.Label>NOMBRE</Form.Label>
+                           <Form.Control type="text" placeholder="Tu nombre completo" name="nombre" onChange={handleChanges} required />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="registerEmail">
                             <Form.Label>EMAIL</Form.Label>
-                            <Form.Control
-                                type="email"
-                                placeholder="ejemplo@correo.com"
-                                name="email"
-                                onChange={handleChanges}
-                                required
-                            />
+                            <Form.Control type="email" placeholder="ejemplo@correo.com" name="email" onChange={handleChanges} required />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="registerPassword">
                             <Form.Label>CONTRASEÑA</Form.Label>
-                            <Form.Control
-                                type="password"
-                                placeholder="Mínimo 6 caracteres"
-                                name="password"
-                                onChange={handleChanges}
-                                minLength={4}
-                                required
-                            />
+                            <Form.Control type="password" placeholder="Mínimo 6 caracteres" name="password" onChange={handleChanges} required />
                         </Form.Group>
 
                         <Button variant="dark" type="submit" className="w-100 mt-2" disabled={loading}>
-                            {loading ? "Cargando..." : "CREAR CUENTA"}
+                            {loading ? "Creando cuenta..." : "CREAR CUENTA"}
                         </Button>
                     </Form>
                     

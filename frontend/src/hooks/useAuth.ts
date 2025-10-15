@@ -1,81 +1,80 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios"; // Importa AxiosError
 import { useNavigate } from "react-router-dom";
 
-interface LoginValues {
-    email: string;
-    password: string;
+import type { LoginData, RegisterData, AuthResponse } from "../types/user"; 
+
+interface ApiError {
+    message: string;
 }
 
-interface RegisterValues {
-    nombre: string;
-    email: string;
-    password: string;
-    role?: string;
-}
+const API_URL = "http://localhost:3000/api/auth";
 
 export const useAuth = () => {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    // Aquí podrías obtener la función para actualizar el usuario de tu AuthContext
+    // const { setUser } = useAuthContext(); 
 
-    // LOGIN
-    const login = async (values: LoginValues) => {
+    const login = async (values: LoginData) => {
         setLoading(true);
-        setError("");
+        setError(null);
 
         try {
-            const response = await axios.post("http://localhost:3000/api/auth/login", values);
+            const { data } = await axios.post<AuthResponse>(`${API_URL}/login`, values);
 
-            if (response.data && response.data.token) {
-                localStorage.setItem("token", response.data.token);
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
+            localStorage.setItem("user", JSON.stringify(data.user));
 
-                if (response.data.user) {
-                    localStorage.setItem("user", JSON.stringify(response.data.user));
-                }
+            navigate("/", { replace: true });
 
-                navigate("/", { replace: true });
-                window.location.reload();
-            } else {
-                setError("Credenciales incorrectas");
-            }
-        } catch {
-            setError("Error en la autenticación. Por favor, inténtalo de nuevo.");
+        } catch (err) {
+            const axiosError = err as AxiosError<ApiError>;
+            const errorMessage = axiosError.response?.data?.message || "Error en el login. Inténtalo de nuevo.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
-    // REGISTER
-    const register = async (values: RegisterValues) => {
+    const register = async (values: RegisterData) => {
         setLoading(true);
-        setError("");
+        setError(null);
 
-        if (values.password.length < 4) {
-            setError("La contraseña debe tener al menos 4 caracteres");
+        if (values.password.length < 6) {
+            setError("La contraseña debe tener al menos 6 caracteres");
             setLoading(false);
             return;
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/api/auth/register", {
-                ...values,
-                tempPassword: false,
-            });
+            await axios.post(`${API_URL}/register`, values);
+            navigate("/login");
 
-            if (response.status === 201) {
-                navigate("/login");
-            }
-        } catch {
-            setError("Error en el registro. Por favor, inténtalo de nuevo.");
+        } catch (err) {
+            const axiosError = err as AxiosError<ApiError>;
+            const errorMessage = axiosError.response?.data?.message || "Error en el registro. Inténtalo de nuevo.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
+    const logout = () => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        // setUser(null); // Limpia el estado global
+        navigate("/login", { replace: true });
+    };
+
+
     return {
         login,
         register,
+        logout, 
         loading,
         error,
     };

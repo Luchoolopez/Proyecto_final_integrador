@@ -1,21 +1,19 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Login from '../components/LoginRegister/Login.tsx';
-import Register from '../components/LoginRegister/Register.tsx';
+import { Routes, Route } from 'react-router-dom';
+import Login from '../pages/Login.tsx';
+import Register from '../pages/Register.tsx';
 import Home from '../pages/Home.tsx';
 import "../App.css";
-import {MainLayout} from '../layouts/MainLayout.tsx';
+import { MainLayout } from '../layouts/MainLayout.tsx';
 
 export function AppRouter() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<MainLayout/>}>
-                    <Route path='/' element={<Home />} />
-                    <Route path='/login' element={<Login />} />
-                    <Route path='/register' element={<Register />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+        <Routes>
+            <Route element={<MainLayout />}>
+                <Route path='/' element={<Home />} />
+                <Route path='/login' element={<Login />} />
+                <Route path='/register' element={<Register />} />
+            </Route>
+        </Routes>
     )
 }
 
