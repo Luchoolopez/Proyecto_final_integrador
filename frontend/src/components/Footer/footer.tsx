@@ -8,7 +8,7 @@ export const Footer = () => {
             <Container>
                 <Row>
                     <Col md={4} className="mb-4">
-                        <h5>FloydStyle</h5>
+                        <h5>Concept & Hab</h5>
                         <p>
                             Ropa con estilo único para personas auténticas.
                             Diseños que marcan la diferencia.
@@ -37,7 +37,7 @@ export const Footer = () => {
                 <hr className="bg-light" />
                 <Row>
                     <Col className="text-center">
-                        <p className="mb-0">&copy; {new Date().getFullYear()} FloydStyle. Todos los derechos reservados.</p>
+                        <p className="mb-0">&copy; {new Date().getFullYear()} Concept & Hab. Todos los derechos reservados.</p>
                     </Col>
                 </Row>
             </Container>
