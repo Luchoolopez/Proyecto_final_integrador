@@ -6,12 +6,11 @@ import './header.style.css';
 
 export const Header = () => {
     return (
-        // Usamos sticky="top" para que el header se quede fijo al hacer scroll
         <Navbar bg="light" expand="lg" className="header" sticky="top">
             <Container fluid>
-                <Navbar.Brand href="/" className="d-none d-lg-block">FloydStyle</Navbar.Brand>
+                <Navbar.Brand href="/" className="d-none d-lg-block">Concept & Hab</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-lg-none border-0" />
-                <Navbar.Brand href="/" className="d-lg-none mobile-logo">FloydStyle</Navbar.Brand>
+                <Navbar.Brand href="/" className="d-lg-none mobile-logo">Concept & Hab</Navbar.Brand>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mx-auto">
                         <Nav.Link href="/new">NEW IN</Nav.Link>
