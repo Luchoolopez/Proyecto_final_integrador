@@ -8,8 +8,19 @@ export function makeApp() {
 
     // Middlewares
     app.use(express.json());
-    app.use(cors());
 
+    // Configuración explícita de CORS
+    const corsOptions = {
+        origin: 'http://localhost:5173', // El origen de tu frontend
+        methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
+        credentials: true, // Permite el envío de cookies y cabeceras de autorización
+        allowedHeaders: "Content-Type, Authorization", // Cabeceras permitidas
+        optionsSuccessStatus: 204 // Para que las peticiones OPTIONS respondan con 204
+    };
+    app.use(cors(corsOptions));
+
+    app.use(express.urlencoded({extended: true}))
+    
     // Rutas
     app.use("/api", router);
 
