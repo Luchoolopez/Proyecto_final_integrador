@@ -5,19 +5,19 @@ import './Carousel.style.css';
 // con los de tus imágenes reales que están en la carpeta `public`.
 const carouselImages = [
     {
-        src: '/carousel_1.jpeg', 
+        src: '/carousel/carousel_1.jpeg', 
         alt: 'Descripción de la primera imagen para accesibilidad',
     },
     {
-        src: '/carousel_2.jpeg',
+        src: '/carousel/carousel_2.jpeg',
         alt: 'Descripción de la segunda imagen para accesibilidad',
     },
     {
-        src: '/carousel_3.jpeg',
+        src: '/carousel/carousel_3.jpeg',
         alt: 'Descripción de la tercera imagen para accesibilidad',
     },
     {
-        src: '/carousel_4.jpeg',
+        src: '/carousel/carousel_4.jpeg',
         alt: 'Descripción de la cuarta imagen para accesibilidad',
     }
 ];

@@ -1,0 +1,5 @@
+.product-card-img {
+  width: 100%;
+  height: 1000px; /* O la altura que prefieras */
+  object-fit: cover; /* Esto evita que la imagen se estire o deforme */
+}
