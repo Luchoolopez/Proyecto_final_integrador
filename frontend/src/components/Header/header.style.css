@@ -15,7 +15,6 @@
     font-weight: bold;
     font-size: 30px;
     color: var(--bs-navbar-brand-color) !important;
-    padding-right: 25px;
 }
 
 .header .navbar-nav .nav-link {
@@ -56,29 +55,46 @@
 }
 
 
-/* Estilos para pantallas pequeñas (móvil) - menores a 992px */
+
 @media (max-width: 991.98px) {
-    /* Centra el logo de forma absoluta en la vista móvil */
-    .mobile-logo {
-        left: 50%;
-        transform: translateX(-50%);
-        position: absolute;
+    .header {
+        padding: 0.5rem 0;
+        min-height: auto;
+    }
+    
+    .header .container-fluid {
+        align-items: flex-start;
+    }
+    
+    .mobile-header-layout {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
     }
 
-    /* Ajustes para el menú colapsado */
+
+    .mobile-header-top {
+        text-align: center; 
+        width: 100%;
+        margin-bottom: 0.5rem; 
+    }
+
+    .mobile-header-bottom {
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        width: 100%;
+    }
+
     .navbar-collapse {
         position: absolute;
-        top: 100%; /* Se posiciona justo debajo del header */
+        top: 100%; 
         left: 0;
         width: 100%;
-        /* CAMBIO: Usamos la variable para el color de fondo del body. */
         background-color: var(--bs-body-bg);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         padding: 1rem;
         z-index: 1000;
-    }
-
-    .navbar-nav {
-        align-items: center; /* Centra los items del menú colapsado */
+        border-bottom: 1px solid var(--bs-border-color);
     }
 }
