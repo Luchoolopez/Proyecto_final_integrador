@@ -4,7 +4,7 @@ import './footer.style.css';
 
 export const Footer = () => {
     return (
-        <footer className="footer text-black pt-5 pb-4">
+        <footer className="footer bg-body-tertiary text-center pt-5 pb-4">
             <Container>
                 <Row>
                     <Col md={4} className="mb-4">
@@ -34,7 +34,7 @@ export const Footer = () => {
                         </div>
                     </Col>
                 </Row>
-                <hr className="bg-light" />
+                <hr />
                 <Row>
                     <Col className="text-center">
                         <p className="mb-0">&copy; {new Date().getFullYear()} Concept & Hab. Todos los derechos reservados.</p>

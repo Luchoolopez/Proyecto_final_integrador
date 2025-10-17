@@ -3,10 +3,14 @@ import { CiUser } from "react-icons/ci";
 import { IoSearchOutline } from "react-icons/io5";
 import { FiShoppingCart } from "react-icons/fi";
 import './header.style.css';
+import { ThemeToggleButton } from '../ThemeToggleButton';
 
 export const Header = () => {
     return (
-        <Navbar bg="light" expand="lg" className="header" sticky="top">
+        // CAMBIOS:
+        // 1. Quitamos `bg="light"` para que Bootstrap aplique el color de fondo del tema actual.
+        // 2. Dejamos `className="header"` para nuestros estilos personalizados.
+        <Navbar expand="lg" className="header" sticky="top">
             <Container fluid>
                 <Navbar.Brand href="/" className="d-none d-lg-block">Concept & Hab</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" className="d-lg-none border-0" />
@@ -29,6 +33,8 @@ export const Header = () => {
                     <Nav.Link href="#search" className="nav-icon"><IoSearchOutline size={30} /></Nav.Link>
                     <Nav.Link href="/login" className="nav-icon"><CiUser size={30} /></Nav.Link>
                     <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={30} /></Nav.Link>
+                    {/* 2. Añadimos el botón para cambiar el tema aquí */}
+                    <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                 </Nav>
             </Container>
         </Navbar>

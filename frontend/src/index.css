@@ -18,3 +18,26 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* src/index.css o tu archivo de estilos principal */
+
+/* 1. DEFINIR VARIABLES DE COLOR PERSONALIZADAS PARA TUS COMPONENTES */
+/* Estas son variables que TÚ creas para usarlas en tus propios componentes. */
+
+/* Tema claro (por defecto o explícito) */
+:root, [data-bs-theme="light"] {
+  --custom-bg-color: #f8f9fa; /* Un gris muy claro */
+  --custom-text-color: #212529; /* Negro estándar */
+  --custom-card-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Tema oscuro */
+[data-bs-theme="dark"] {
+  --custom-bg-color: #121212; /* Un negro más profundo que el de Bootstrap */
+  --custom-text-color: #e9ecef; /* Un blanco suave */
+  --custom-card-border: rgba(255, 255, 255, 0.15);
+}
+
+
+
+
