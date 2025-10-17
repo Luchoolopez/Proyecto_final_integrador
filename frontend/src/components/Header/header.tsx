@@ -17,13 +17,13 @@ export const Header = () => {
                 <Navbar.Brand href="/" className="d-lg-none mobile-logo">Concept & Hab</Navbar.Brand>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mx-auto">
-                        <Nav.Link href="/new">NEW IN</Nav.Link>
-                        <Nav.Link href="/sale">SALE</Nav.Link>
-                        <NavDropdown title="MEN / NO GENDER" id="men-dropdown">
+                        <Nav.Link href="/new"><span>NEW IN</span></Nav.Link>
+                        <Nav.Link href="/sale"><span>SALE</span></Nav.Link>
+                        <NavDropdown title={<span>MEN / NO GENDER</span>} id="men-dropdown">
                             <NavDropdown.Item href="/men/tshirts">T-Shirts</NavDropdown.Item>
                             <NavDropdown.Item href="/men/pants">Pants</NavDropdown.Item>
                         </NavDropdown>
-                        <NavDropdown title="WOMEN" id="women-dropdown">
+                        <NavDropdown title={<span>WOMEN</span>} id="women-dropdown">
                             <NavDropdown.Item href="/women/tops">Tops</NavDropdown.Item>
                             <NavDropdown.Item href="/women/dresses">Dresses</NavDropdown.Item>
                         </NavDropdown>
