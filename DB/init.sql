@@ -53,23 +53,39 @@ CREATE TABLE categorias (
 CREATE TABLE productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sku VARCHAR(50) UNIQUE,
-    nombre VARCHAR(150) NOT NULL,
+    nombre VARCHAR(150) NOT NULL,  -- "REMERA OVER HEADS NEGRO"
+    genero ENUM('Hombre', 'Mujer', 'Unisex') DEFAULT 'Unisex',
     descripcion TEXT,
-    precio DECIMAL(10,2) NOT NULL,
-    descuento DECIMAL(5,2) DEFAULT 0, -- porcentaje
-    stock INT DEFAULT 0,
-    peso DECIMAL(6,3), -- en kilogramos
+    precio_base DECIMAL(10,2) NOT NULL,  -- Precio base sin descuento
+    descuento DECIMAL(5,2) DEFAULT 0,    -- Descuento que aplica a TODAS las variantes de talle
+    peso DECIMAL(6,3),    -- en kilogramos
     categoria_id INT,
     imagen_principal VARCHAR(255),
+    es_nuevo BOOLEAN DEFAULT FALSE,
+    es_destacado BOOLEAN DEFAULT FALSE,
     meta_title VARCHAR(200),
     meta_description VARCHAR(300),
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE SET NULL,
-    CONSTRAINT chk_stock CHECK (stock >= 0),
-    CONSTRAINT chk_precio CHECK (precio >= 0),
+    CONSTRAINT chk_precio_base CHECK (precio_base >= 0),
     CONSTRAINT chk_descuento CHECK (descuento >= 0 AND descuento <= 100)
+);
+
+-- ======================================
+-- TABLA VARIANTES_PRODUCTO  (TALLES)
+-- ======================================
+CREATE TABLE variantes_producto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    talle VARCHAR(10) NOT NULL,  -- "XS", "S", "M", "L", "XL", "XXL"
+    sku_variante VARCHAR(100) UNIQUE,  -- "REMERA-OVERHEADS-NEGRO-M"
+    stock INT NOT NULL DEFAULT 0,
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_producto_talle (producto_id, talle),  -- No puede haber dos "M" para el mismo producto
+    CONSTRAINT chk_stock_variante CHECK (stock >= 0)
 );
 
 -- ======================================
@@ -118,14 +134,15 @@ CREATE TABLE pedidos (
 CREATE TABLE detalles_pedido (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pedido_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    sku_producto VARCHAR(50), -- guardamos el SKU por si el producto se elimina
-    nombre_producto VARCHAR(150), -- guardamos el nombre por si el producto se elimina
+    variante_id INT NOT NULL,  -- CAMBIO: ahora apunta a la variante
+    sku_variante VARCHAR(100),  -- Guardamos SKU de la variante por seguridad
+    nombre_producto VARCHAR(150),
+    talle VARCHAR(10),  -- NUEVO: guardamos el talle
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10,2) NOT NULL,
     descuento_aplicado DECIMAL(5,2) DEFAULT 0,
     FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
+    FOREIGN KEY (variante_id) REFERENCES variantes_producto(id) ON DELETE RESTRICT,
     CONSTRAINT chk_cantidad CHECK (cantidad > 0),
     CONSTRAINT chk_precio_unitario CHECK (precio_unitario >= 0)
 );
@@ -136,13 +153,13 @@ CREATE TABLE detalles_pedido (
 CREATE TABLE carritos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
-    producto_id INT NOT NULL,
+    variante_id INT NOT NULL,  -- apunta a la variante (producto + talle)
     cantidad INT DEFAULT 1,
     fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_product (usuario_id, producto_id),
+    FOREIGN KEY (variante_id) REFERENCES variantes_producto(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_variant (usuario_id, variante_id),
     CONSTRAINT chk_cantidad_carrito CHECK (cantidad > 0)
 );
 
