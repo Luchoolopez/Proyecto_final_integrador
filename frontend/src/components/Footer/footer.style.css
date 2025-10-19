@@ -1,0 +1,15 @@
+.footer{
+    background-color: #ffffff !important; 
+    border-top: 1px solid rgb(33, 33, 33) ;
+}
+
+
+
+.list-unstyled a{
+    color: black;
+    text-decoration: none;
+}
+
+.social-icons a {
+    color: black;
+}
