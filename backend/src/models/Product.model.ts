@@ -1,18 +1,19 @@
 import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '../config/database'; 
+import { sequelize } from '../config/database';
 
-// Interfaz para los atributos del producto
-interface ProductAttributes {
+export interface ProductAttributes {
   id: number;
-  sku: string;
+  sku?: string;
   nombre: string;
+  genero?: 'Hombre' | 'Mujer' | 'Unisex';
   descripcion?: string;
-  precio: number;
+  precio_base: number;
   descuento?: number;
-  stock: number;
   peso?: number;
-  categoria_id?: number;
+  categoriaId?: number;
   imagen_principal?: string;
+  es_nuevo?: boolean;
+  es_destacado?: boolean;
   meta_title?: string;
   meta_description?: string;
   activo?: boolean;
@@ -20,25 +21,39 @@ interface ProductAttributes {
   fecha_actualizacion?: Date;
 }
 
-// Atributos opcionales para la creación (id, fechas se generan automáticamente)
-interface ProductCreationAttributes extends Optional<ProductAttributes, 'id' | 'descuento' | 'stock' | 'peso' | 'categoria_id' | 'imagen_principal' | 'meta_title' | 'meta_description' | 'activo' | 'fecha_creacion' | 'fecha_actualizacion'> {}
+export interface ProductCreationAttributes
+  extends Optional<
+    ProductAttributes,
+    | 'id'| 'sku'| 'genero'| 'descripcion'| 'descuento'| 'peso'| 'categoriaId'
+    | 'imagen_principal'| 'es_nuevo'| 'es_destacado'| 'meta_title'
+    | 'meta_description'| 'activo' | 'fecha_creacion'| 'fecha_actualizacion'
+  > {}
 
-export class Product extends Model<ProductAttributes, ProductCreationAttributes> implements ProductAttributes {
+export class Product extends Model<ProductAttributes, ProductCreationAttributes>
+  implements ProductAttributes
+{
   public id!: number;
-  public sku!: string;
+  public sku?: string;
   public nombre!: string;
+  public genero?: 'Hombre' | 'Mujer' | 'Unisex';
   public descripcion?: string;
-  public precio!: number;
+  public precio_base!: number;
   public descuento?: number;
-  public stock!: number;
   public peso?: number;
-  public categoria_id?: number;
+  public categoriaId?: number;
   public imagen_principal?: string;
+  public es_nuevo?: boolean;
+  public es_destacado?: boolean;
   public meta_title?: string;
   public meta_description?: string;
   public activo?: boolean;
   public fecha_creacion?: Date;
   public fecha_actualizacion?: Date;
+
+  public getPrecioFinal(): number {
+    const descuento = this.descuento || 0;
+    return Math.round(this.precio_base * (1 - descuento / 100) * 100) / 100;
+  }
 }
 
 Product.init(
@@ -50,80 +65,42 @@ Product.init(
     },
     sku: {
       type: DataTypes.STRING(50),
-      allowNull: false,
       unique: true,
     },
     nombre: {
       type: DataTypes.STRING(150),
       allowNull: false,
     },
-    descripcion: {
-      type: DataTypes.TEXT,
-      allowNull: true,
+    genero: {
+      type: DataTypes.ENUM('Hombre', 'Mujer', 'Unisex'),
+      defaultValue: 'Unisex',
     },
-    precio: {
+    descripcion: DataTypes.TEXT,
+    precio_base: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      validate: {
-        min: 0,
-      },
+      validate: { min: 0 },
     },
     descuento: {
       type: DataTypes.DECIMAL(5, 2),
-      allowNull: true,
       defaultValue: 0,
-      validate: {
-        min: 0,
-        max: 100,
-      },
+      validate: { min: 0, max: 100 },
     },
-    stock: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        min: 0,
-      },
-    },
-    peso: {
-      type: DataTypes.DECIMAL(6, 3),
-      allowNull: true,
-    },
-    categoria_id: {
+    peso: DataTypes.DECIMAL(6, 3),
+    categoriaId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'categorias',
-        key: 'id',
-      },
+      references: { model: 'categorias', key: 'id' },
+      field: 'categoria_id', 
     },
-    imagen_principal: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    meta_title: {
-      type: DataTypes.STRING(200),
-      allowNull: true,
-    },
-    meta_description: {
-      type: DataTypes.STRING(300),
-      allowNull: true,
-    },
-    activo: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    },
-    fecha_creacion: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    fecha_actualizacion: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
+    imagen_principal: DataTypes.STRING(255),
+    es_nuevo: { type: DataTypes.BOOLEAN, defaultValue: false },
+    es_destacado: { type: DataTypes.BOOLEAN, defaultValue: false },
+    meta_title: DataTypes.STRING(200),
+    meta_description: DataTypes.STRING(300),
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true },
+    fecha_creacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    fecha_actualizacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
   {
     sequelize,

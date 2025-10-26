@@ -1,0 +1,73 @@
+import { DataTypes, Model, Optional } from 'sequelize';
+import { sequelize } from '../config/database';
+
+export interface ProductImageAttributes {
+  id: number;
+  producto_id: number;
+  imagen: string;
+  alt_text?: string;
+  orden?: number;
+  activo?: boolean;
+  fecha_creacion?: Date;
+}
+
+export interface ProductImageCreationAttributes
+  extends Optional<ProductImageAttributes, 'id' | 'alt_text' | 'orden' | 'activo' | 'fecha_creacion'> {}
+
+export class ProductImage
+  extends Model<ProductImageAttributes, ProductImageCreationAttributes>
+  implements ProductImageAttributes
+{
+  public id!: number;
+  public producto_id!: number;
+  public imagen!: string;
+  public alt_text?: string;
+  public orden?: number;
+  public activo?: boolean;
+  public fecha_creacion?: Date;
+}
+
+ProductImage.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    producto_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'productos', key: 'id' },
+      onDelete: 'CASCADE',
+    },
+    imagen: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: 'URL de la imagen en Cloudinary',
+    },
+    alt_text: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+      comment: 'Texto alternativo para SEO',
+    },
+    orden: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      comment: 'Orden de aparición en galería',
+    },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    fecha_creacion: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'ProductImage',
+    tableName: 'producto_imagenes',
+    timestamps: false, // solo tiene fecha_creacion
+  }
+);
