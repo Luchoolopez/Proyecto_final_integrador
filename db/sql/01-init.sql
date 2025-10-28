@@ -99,6 +99,7 @@ CREATE TABLE producto_imagenes (
     imagen VARCHAR(255) NOT NULL,
     alt_text VARCHAR(200),
     orden INT DEFAULT 0,
+    es_principal BOOLEAN DEFAULT FALSE,
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
