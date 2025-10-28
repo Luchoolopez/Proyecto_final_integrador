@@ -24,9 +24,12 @@ export class ProductImage
   public imagen!: string;
   public alt_text?: string;
   public orden?: number;
-  public activo?: boolean;
-  public fecha_creacion?: Date;
-  public es_principal?: boolean;
+  public activo!: boolean;
+  public fecha_creacion!: Date;
+  public es_principal!: boolean;
+  // timestamps!
+  public readonly createdAt!: Date; 
+  public readonly updatedAt!: Date; 
 }
 
 ProductImage.init(
@@ -67,15 +70,13 @@ ProductImage.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
-    fecha_creacion: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
     sequelize,
     modelName: 'ProductImage',
     tableName: 'producto_imagenes',
-    timestamps: false, // solo tiene fecha_creacion
+    timestamps: true,
+    createdAt: 'fecha_creacion',
+    updatedAt: 'fecha_actualizacion',
   }
 );

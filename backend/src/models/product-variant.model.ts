@@ -27,8 +27,12 @@ export class ProductVariant extends Model<ProductVariantAttributes, ProductVaria
   public sku_variante?: string;
   public stock!: number;
   public activo?: boolean;
-  public fecha_creacion?: Date;
-  public fecha_actualizacion?: Date;
+  public fecha_creacion!: Date;
+  public fecha_actualizacion!: Date;
+
+   // timestamps!
+  public readonly createdAt!: Date; 
+  public readonly updatedAt!: Date; 
 
   public isAvailable(): boolean {
     return this.activo === true && this.stock > 0;
@@ -65,8 +69,6 @@ ProductVariant.init(
       validate: { min: 0 },
     },
     activo: { type: DataTypes.BOOLEAN, defaultValue: true },
-    fecha_creacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-    fecha_actualizacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
   {
     sequelize,

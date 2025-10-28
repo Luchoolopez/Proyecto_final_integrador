@@ -47,8 +47,12 @@ export class Product extends Model<ProductAttributes, ProductCreationAttributes>
   public meta_title?: string;
   public meta_description?: string;
   public activo?: boolean;
-  public fecha_creacion?: Date;
-  public fecha_actualizacion?: Date;
+  public fecha_creacion!: Date;
+  public fecha_actualizacion!: Date;
+
+  // timestamps!
+  public readonly createdAt!: Date; 
+  public readonly updatedAt!: Date; 
 
   public getPrecioFinal(): number {
     const descuento = this.descuento || 0;
@@ -99,8 +103,6 @@ Product.init(
     meta_title: DataTypes.STRING(200),
     meta_description: DataTypes.STRING(300),
     activo: { type: DataTypes.BOOLEAN, defaultValue: true },
-    fecha_creacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-    fecha_actualizacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
   {
     sequelize,
