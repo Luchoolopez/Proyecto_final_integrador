@@ -37,7 +37,7 @@ Category.init(
         },
 
         descripcion: {
-            type: DataTypes.Text,
+            type: DataTypes.TEXT,
             allowNull: false,
         },
 
