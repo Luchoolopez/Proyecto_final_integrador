@@ -83,6 +83,8 @@ CREATE TABLE variantes_producto (
     sku_variante VARCHAR(100) UNIQUE,  -- "REMERA-OVERHEADS-NEGRO-M"
     stock INT NOT NULL DEFAULT 0,
     activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
     UNIQUE KEY unique_producto_talle (producto_id, talle),  -- No puede haber dos "M" para el mismo producto
     CONSTRAINT chk_stock_variante CHECK (stock >= 0)
@@ -99,6 +101,7 @@ CREATE TABLE producto_imagenes (
     orden INT DEFAULT 0,
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 );
 
