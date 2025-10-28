@@ -1,7 +1,7 @@
 import { Category } from "../models/category.model";
 import { ServiceHelpers } from "../utils/user/user.helpers";
 import { sequelize } from "../config/database";
-//import { Product } from "../models/product.model";
+import { Product } from "../models/product.model";
 import { ForeignKeyConstraintError } from "sequelize/types";
 
 interface CategoryData {
@@ -99,7 +99,7 @@ export class CategoryService {
 
             // 2. Verificar si existen productos asociados a esta categoría
             const productCount = await Product.count({
-                where: { categoria_id: id },
+                where: { categoriaId: id },
                 transaction // Realizar el conteo dentro de la misma transacción
             });
 
