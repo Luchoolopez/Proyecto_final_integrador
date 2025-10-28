@@ -243,7 +243,7 @@ INSERT INTO producto_imagenes (producto_id, imagen, alt_text, orden) VALUES
 -- 5. USUARIOS DE EJEMPLO
 -- ======================================
 INSERT INTO usuarios (nombre, email, password, rol, telefono) VALUES
-('Administrador', 'admin@tiendaropa.com', '$2b$10$K7L/8Y1t40zH2G.B3/4iFOJTKfz.1J2M8X5W6Y0Z1A2B3C4D5E6F7G', 'admin', '+54 11 1234-5678'),
+('Administrador', 'admin@tiendaropa.com', '$2a$12$M6tl8zr7rih5HJPj.9lMjedKweScAWTYgWhOHKacIvlxEFT7CjBYC', 'admin', '+54 11 1234-5678'),
 ('Laura Martínez', 'laura.martinez@email.com', '$2b$10$K7L/8Y1t40zH2G.B3/4iFOJTKfz.1J2M8X5W6Y0Z1A2B3C4D5E6F7G', 'usuario', '+54 11 9876-5432'),
 ('Carlos Gómez', 'carlos.gomez@email.com', '$2b$10$K7L/8Y1t40zH2G.B3/4iFOJTKfz.1J2M8X5W6Y0Z1A2B3C4D5E6F7G', 'usuario', '+54 11 5555-1234'),
 ('Sofía Rodríguez', 'sofia.rodriguez@email.com', '$2b$10$K7L/8Y1t40zH2G.B3/4iFOJTKfz.1J2M8X5W6Y0Z1A2B3C4D5E6F7G', 'usuario', '+54 9 11 7777-8888');
