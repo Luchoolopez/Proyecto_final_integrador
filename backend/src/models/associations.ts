@@ -58,19 +58,21 @@ export function setupAssociations() {
 export const includeVariants = {
   model: ProductVariant,
   as: 'variantes',
-  where: { activo: true },
+  attributes: ['id', 'talle', 'stock', 'sku_variante', 'activo'],
   required: false,
 };
 
 export const includeAllVariants = {
   model: ProductVariant,
   as: 'variantes',
+  attributes: ['id', 'talle', 'stock', 'sku_variante', 'activo'],
   required: false,
 };
 
 export const includeImages = {
   model: ProductImage,
   as: 'imagenes',
+  attributes: ['id', 'producto_id', 'imagen', 'alt_text', 'orden', 'activo'],
   where: { activo: true },
   required: false,
 };

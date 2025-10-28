@@ -9,10 +9,11 @@ export interface ProductImageAttributes {
   orden?: number;
   activo?: boolean;
   fecha_creacion?: Date;
+  es_principal?: boolean;
 }
 
 export interface ProductImageCreationAttributes
-  extends Optional<ProductImageAttributes, 'id' | 'alt_text' | 'orden' | 'activo' | 'fecha_creacion'> {}
+  extends Optional<ProductImageAttributes, 'id' | 'alt_text' | 'orden' | 'activo' | 'fecha_creacion' | 'es_principal'> {}
 
 export class ProductImage
   extends Model<ProductImageAttributes, ProductImageCreationAttributes>
@@ -25,6 +26,7 @@ export class ProductImage
   public orden?: number;
   public activo?: boolean;
   public fecha_creacion?: Date;
+  public es_principal?: boolean;
 }
 
 ProductImage.init(
@@ -37,6 +39,7 @@ ProductImage.init(
     producto_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'producto_id',
       references: { model: 'productos', key: 'id' },
       onDelete: 'CASCADE',
     },
@@ -54,6 +57,11 @@ ProductImage.init(
       type: DataTypes.INTEGER,
       defaultValue: 0,
       comment: 'Orden de aparición en galería',
+    },
+    es_principal: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: 'Indica si esta imagen es la principal del producto',
     },
     activo: {
       type: DataTypes.BOOLEAN,
