@@ -13,7 +13,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./DB/init.sql:/docker-entrypoint-initdb.d/10_init.sql
+      - ./DB/init_data.sql:/docker-entrypoint-initdb.d/20_init_data.sql
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
