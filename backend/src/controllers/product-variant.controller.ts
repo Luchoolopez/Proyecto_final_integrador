@@ -9,8 +9,8 @@ import {
 export const productVariantController = {
   async getByProduct(req: Request, res: Response) {
     try {
-      const producto_id = Number(req.params.producto_id);
-      const variants = await productVariantService.getVariantsByProduct(producto_id);
+      const productoId = Number(req.params.productoId);
+      const variants = await productVariantService.getVariantsByProduct(productoId);
       res.json(variants);
     } catch (error: any) {
       res.status(400).json({ error: error.message });

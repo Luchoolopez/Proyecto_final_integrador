@@ -5,7 +5,7 @@ import { productSchema, updateProductSchema } from '../validations/product.valid
 export const productController = {
   async getAll(req: Request, res: Response) {
     try {
-      const products = await productService.getAllProducts();
+      const products = await productService.getProducts();
       res.json(products);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -25,7 +25,11 @@ export const productController = {
   async create(req: Request, res: Response) {
     try {
       const parsed = productSchema.parse(req.body);
-      const product = await productService.createProduct(parsed);
+      const product = await productService.createProduct({
+        producto: parsed,
+        variantes: req.body.variantes,
+        imagenes: req.body.imagenes,
+      });
       res.status(201).json(product);
     } catch (error: any) {
       res.status(400).json({ error: error.message });

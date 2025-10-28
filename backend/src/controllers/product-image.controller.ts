@@ -8,8 +8,8 @@ import {
 export const productImageController = {
   async getByProduct(req: Request, res: Response) {
     try {
-      const producto_id = Number(req.params.producto_id);
-      const images = await productImageService.getImagesByProduct(producto_id);
+      const productoId = Number(req.params.productoId);
+      const images = await productImageService.getImagesByProduct(productoId);
       res.json(images);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
