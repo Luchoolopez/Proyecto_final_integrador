@@ -11,5 +11,5 @@ export const productVariantSchema = z.object({
 export const updateProductVariantSchema = productVariantSchema.partial();
 
 export const stockUpdateSchema = z.object({
-  cantidad: z.number().min(0, 'Cantidad inválida'),
+  cantidad: z.number(),
 });
