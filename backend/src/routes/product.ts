@@ -1,29 +1,36 @@
-// import express from 'express';
 import { Router } from "express";
 import { productController } from '../controllers/product.controller';
 import { productVariantController } from '../controllers/product-variant.controller';
 import { productImageController } from '../controllers/product-image.controller';
-
-// const router = express.Router();
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 const productRouter = Router();
 
-// Productos
+// Rutas publicas de Productos
 productRouter.get('/', productController.getAll);
 productRouter.get('/:id', productController.getById);
+
+// Rutas publicas de Variantes
+productRouter.get('/variants/:productoId', productVariantController.getByProduct);
+
+// Rutas protegidas
+productRouter.use(AuthMiddleware.authenticate);
+// Aplicar middleware de autorización (solo admin) a las rutas que modifican datos
+productRouter.use(AuthMiddleware.authorizeRoles('admin'));
+
+// Rutas protegidas de Productos
 productRouter.post('/', productController.create);
 productRouter.put('/:id', productController.update);
 productRouter.delete('/:id', productController.delete);
 
-// Variantes
-productRouter.get('/variants/product/:producto_id', productVariantController.getByProduct);
+// Rutas protegidas de Variantes
 productRouter.post('/variants', productVariantController.create);
 productRouter.put('/variants/:id', productVariantController.update);
 productRouter.patch('/variants/:id/stock', productVariantController.updateStock);
-productRouter.delete('/variants/:id', productVariantController.delete);
+// productRouter.delete('/variants/:id', productVariantController.delete);
 
-// Imagenes
-productRouter.get('/images/product/:producto_id', productImageController.getByProduct);
+// Rutas protegidas de Imagenes
+productRouter.get('/images/:productoId', productImageController.getByProduct);
 productRouter.post('/images', productImageController.create);
 productRouter.put('/images/:id', productImageController.update);
 productRouter.delete('/images/:id', productImageController.delete);
