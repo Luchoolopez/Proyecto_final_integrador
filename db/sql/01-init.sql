@@ -263,11 +263,10 @@ CREATE INDEX idx_pedidos_numero ON pedidos(numero_pedido);
 
 -- Índices para detalles de pedido
 CREATE INDEX idx_detalles_pedido ON detalles_pedido(pedido_id);
-CREATE INDEX idx_detalles_producto ON detalles_pedido(producto_id);
 
 -- Índices para carritos
 CREATE INDEX idx_carritos_usuario ON carritos(usuario_id);
-CREATE INDEX idx_carritos_producto ON carritos(producto_id);
+CREATE INDEX idx_carritos_variante ON carritos(variante_id);
 
 -- Índices para direcciones
 CREATE INDEX idx_direcciones_usuario ON direcciones(usuario_id);
@@ -309,9 +308,9 @@ CREATE TRIGGER after_detalle_pedido_insert
 AFTER INSERT ON detalles_pedido
 FOR EACH ROW
 BEGIN
-    UPDATE productos 
+    UPDATE variantes_producto 
     SET stock = stock - NEW.cantidad 
-    WHERE id = NEW.producto_id;
+    WHERE id = NEW.variante_id;
 END//
 DELIMITER ;
 
@@ -326,17 +325,22 @@ SELECT
     p.sku,
     p.nombre,
     p.descripcion,
-    p.precio,
+    p.precio_base AS precio,
     p.descuento,
-    ROUND(p.precio * (1 - p.descuento/100), 2) as precio_final,
-    p.stock,
+    ROUND(p.precio_base * (1 - p.descuento / 100), 2) AS precio_final,
+    COALESCE(SUM(vp.stock), 0) AS stock_total,
     p.peso,
     p.imagen_principal,
-    c.nombre as categoria_nombre,
+    c.nombre AS categoria_nombre,
     p.activo,
     p.fecha_creacion
 FROM productos p
-LEFT JOIN categorias c ON p.categoria_id = c.id;
+LEFT JOIN categorias c ON p.categoria_id = c.id
+LEFT JOIN variantes_producto vp ON vp.producto_id = p.id
+GROUP BY 
+    p.id, p.sku, p.nombre, p.descripcion, p.precio_base, 
+    p.descuento, p.peso, p.imagen_principal, c.nombre, 
+    p.activo, p.fecha_creacion;
 
 -- Vista de pedidos con información del usuario
 CREATE VIEW vista_pedidos_completa AS
