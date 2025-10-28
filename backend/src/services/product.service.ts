@@ -180,7 +180,7 @@ class ProductService {
     if (variantes.length > 0) {
       await Promise.all(
         variantes.map(v =>
-          ProductVariant.create({ producto_id: producto.id, ...v })
+          ProductVariant.create({ productoId: producto.id, ...v })
         )
       );
     }
@@ -218,7 +218,7 @@ class ProductService {
     if (!producto) throw new Error('Producto no encontrado');
 
     await producto.update({ activo: false });
-    await ProductVariant.update({ activo: false }, { where: { producto_id: id } });
+    await ProductVariant.update({ activo: false }, { where: { productoId: id } });
     return { message: 'Producto desactivado correctamente' };
   }
 

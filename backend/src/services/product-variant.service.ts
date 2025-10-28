@@ -12,9 +12,9 @@ class ProductVariantService {
   /**
    * Obtener todas las variantes activas de un producto
    */
-  async getVariantsByProduct(producto_id: number) {
+  async getVariantsByProduct(productoId: number) {
     const variantes = await ProductVariant.findAll({
-      where: { producto_id, activo: true },
+      where: { productoId, activo: true },
       order: [['talle', 'ASC']],
     });
 
@@ -36,16 +36,16 @@ class ProductVariantService {
    * Crear una nueva variante
    */
   async createVariant(data: VariantData) {
-    const { producto_id, talle } = data;
+    const { producto_id, talle } = data; 
 
-    if (!producto_id || !talle) {
-      throw new Error('El producto_id y talle son obligatorios');
+    if (!producto_id || !talle) { 
+      throw new Error('El productoId y talle son obligatorios');
     }
 
     const variante = await ProductVariant.create({
-      producto_id,
+      productoId: producto_id, 
       talle,
-      sku_variante: data.sku_variante || null,
+      sku_variante: data.sku_variante, 
       stock: data.stock ?? 0,
       activo: data.activo ?? true,
     });

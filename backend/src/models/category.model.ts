@@ -63,4 +63,3 @@ Category.init(
     //as: 'products' // Un alias opcional para usar al incluir (eager loading)
 
 );
-
