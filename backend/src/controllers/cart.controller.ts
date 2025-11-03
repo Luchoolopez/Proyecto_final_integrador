@@ -28,8 +28,34 @@ export class CartController {
         }
     };
 
-    addItem = async (req:Request, res: Response): Promise<Response> => {
-        try{
+    getCartItem = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const usuario_id = req.user.id;
+            const { id } = req.params;
+
+            if (!id || isNaN(Number(id))) {
+                return res.status(400).json({
+                    success: false,
+                    message: ERROR_MESSAGES.INVALID_ID
+                })
+            }
+
+            const item = await this.cartService.getCartItem(Number(id), usuario_id);
+            return res.status(200).json({
+                success: true,
+                data: item
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: ERROR_MESSAGES.GET_CART_ITEM_ERROR,
+                error: error
+            });
+        }
+    };
+
+    addItem = async (req: Request, res: Response): Promise<Response> => {
+        try {
             const usuario_id = req.user.id;
             const parseBody = createCartItemSchema.parse(req.body);
 
@@ -44,8 +70,8 @@ export class CartController {
                 message: 'Item agregado al carrito',
                 data: newItem
             });
-        }catch(error){
-            if(error instanceof ZodError){
+        } catch (error) {
+            if (error instanceof ZodError) {
                 return res.status(400).json({
                     success: false,
                     message: 'Datos invalidos',
@@ -60,12 +86,12 @@ export class CartController {
         }
     };
 
-    updateItem = async(req:Request, res:Response): Promise<Response> => {
-        try{
+    updateItemQuantity = async (req: Request, res: Response): Promise<Response> => {
+        try {
             const usuario_id = req.user.id;
             const { id } = req.params;
 
-            if(!id || isNaN(Number(id))){
+            if (!id || isNaN(Number(id))) {
                 return res.status(400).json({
                     success: false,
                     message: ERROR_MESSAGES.INVALID_ID
@@ -83,8 +109,8 @@ export class CartController {
                 message: 'Cantidad actualizada',
                 data: updatedItem
             });
-        }catch(error){
-            if(error instanceof ZodError){
+        } catch (error) {
+            if (error instanceof ZodError) {
                 return res.status(400).json({
                     success: false,
                     message: 'Datos invalidos',
@@ -94,6 +120,23 @@ export class CartController {
             return res.status(500).json({
                 success: false,
                 message: 'Error al actualizar el item',
+                error: error
+            })
+        }
+    };
+
+    clearCart = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const usuario_id = req.user.id;
+            await this.cartService.clearCart(usuario_id);
+            return res.status(200).json({
+                success: true,
+                message: 'Carrito vaciado exitosamente'
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: ERROR_MESSAGES.CLEAR_CART_ERROR,
                 error: error
             })
         }

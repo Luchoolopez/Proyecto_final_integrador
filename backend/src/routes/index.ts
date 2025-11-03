@@ -36,10 +36,7 @@ const loadRoutes = async () => {
     }
 };
 
-// NOTA: La carga dinámica de rutas de esta manera es compleja.
-// En un entorno real, a menudo se importan explícitamente para evitar estos problemas.
-// Por ejemplo: import authRouter from './auth'; router.use('/auth', authRouter);
-// Sin embargo, para que tu código actual funcione, llamamos a la función.
+
 loadRoutes();
 
 export { router };
