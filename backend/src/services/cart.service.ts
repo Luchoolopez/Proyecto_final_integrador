@@ -110,6 +110,14 @@ export class CartService {
         }
     }
 
+    async clearCart(usuario_id: number): Promise<void>{
+        try{
+            await Cart.destroy({where: {usuario_id}});
+        }catch(error){
+            throw new Error(ERROR_MESSAGES.CLEAR_CART_ERROR)
+        }
+    }
+
     async removeItem(cart_item_id: number, usuario_id: number): Promise<Cart | undefined> {
         try {
             const item = await Cart.findOne({ where: { id: cart_item_id, usuario_id } });
