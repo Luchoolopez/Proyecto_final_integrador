@@ -20,6 +20,23 @@ export class CartService {
         }
     }
 
+    async getCartItem(cart_item_id: number, usuario_id: number): Promise<Cart | null> {
+        try {
+            const item = await Cart.findOne({
+                where: { id: cart_item_id, usuario_id },
+                include: [
+                    {
+                        model: ProductVariant,
+                        as: 'variante',
+                    }
+                ]
+            });
+            return item;
+        } catch (error) {
+            throw new Error(ERROR_MESSAGES.GET_CART_ITEM_ERROR);
+        }
+    }
+
     async addItem(usuario_id: number, variante_id: number, cantidad: number = 1): Promise<Cart | undefined> {
         try {
             const variant = await ProductVariant.findByPk(usuario_id);

@@ -7,4 +7,7 @@ export const ERROR_MESSAGES = {
     ADD_ITEM_ERROR: 'Error al agregar el item al carrito',
     UPDATE_ITEM_ERROR: 'Error al actualizar el item del carrito',
     REMOVE_ITEM_ERROR: 'Error al eliminar el item del carrito',
+    GET_CART_ITEM_ERROR: 'Error al obtener el item del carrito',
+    CLEAR_CART_ERROR: 'Error al limpiar el carrito',
+    VALIDATE_STOCK_ERROR: 'Error al validar el stock de los productos'
 };
