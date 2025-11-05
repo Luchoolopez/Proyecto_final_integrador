@@ -12,6 +12,7 @@ export class CartController {
 
     getCart = async (req: Request, res: Response): Promise<Response> => {
         try {
+            console.log("fui llamado, id: ", req.user?.id);
             const usuario_id = req.user.id;
             const cartItems = await this.cartService.getCart(usuario_id);
             return res.status(200).json({
@@ -20,9 +21,13 @@ export class CartController {
                 data: cartItems
             });
         } catch (error) {
+            let errorMessage = "Error al agregar el item";
+            if(error instanceof Error){
+                errorMessage = error.message;
+            }
             return res.status(500).json({
                 sucess: false,
-                message: ERROR_MESSAGES.GET_CART_ERROR,
+                message: errorMessage,
                 error: error
             });
         }

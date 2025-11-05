@@ -15,3 +15,4 @@ cartRouter.delete('/:id', cartController.removeItem);
 cartRouter.delete('/', cartController.clearCart);
 
 export default cartRouter;
+export { cartRouter as Router };

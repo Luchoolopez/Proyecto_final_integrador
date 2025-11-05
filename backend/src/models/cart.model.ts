@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/database";
+import { ProductVariant } from "./product-variant.model";
 
 interface CartAttributes {
     id: number;
@@ -48,7 +49,7 @@ Cart.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1,
-            validate:{
+            validate: {
                 min: 1
             }
         },
@@ -69,3 +70,9 @@ Cart.init(
         ]
     }
 )
+
+Cart.belongsTo(ProductVariant, {
+    foreignKey: 'variante_id',
+    as: 'variante'
+});
+

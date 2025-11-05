@@ -39,7 +39,7 @@ export class CartService {
 
     async addItem(usuario_id: number, variante_id: number, cantidad: number = 1): Promise<Cart | undefined> {
         try {
-            const variant = await ProductVariant.findByPk(usuario_id);
+            const variant = await ProductVariant.findByPk(variante_id);
             if (!variant || variant.stock < 1) {
                 throw new Error(ERROR_MESSAGES.VARIANT_NOT_FOUND);
             }
