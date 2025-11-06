@@ -1,28 +1,25 @@
 import { useState } from "react";
-import axios, { AxiosError } from "axios"; // Importa AxiosError
+import { AxiosError } from "axios"; 
 import { useNavigate } from "react-router-dom";
 
-import type { LoginData, RegisterData, AuthResponse } from "../types/user"; 
+import type { LoginData, RegisterData } from "../types/user"; 
+import { authService } from "../api/authService";
 
 interface ApiError {
     message: string;
 }
 
-const API_URL = "http://localhost:3000/api/auth";
-
 export const useAuth = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    // Aquí podrías obtener la función para actualizar el usuario de tu AuthContext
-    // const { setUser } = useAuthContext(); 
 
     const login = async (values: LoginData) => {
         setLoading(true);
         setError(null);
 
         try {
-            const { data } = await axios.post<AuthResponse>(`${API_URL}/login`, values);
+            const data = await authService.login(values)
 
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
@@ -50,7 +47,7 @@ export const useAuth = () => {
         }
 
         try {
-            await axios.post(`${API_URL}/register`, values);
+            await authService.register(values);
             navigate("/login");
 
         } catch (err) {
