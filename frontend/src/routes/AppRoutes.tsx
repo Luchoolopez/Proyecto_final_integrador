@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/Login.tsx';
 import Register from '../pages/Register.tsx';
 import Home from '../pages/Home.tsx';
+import CartPage from '../pages/CartPage.tsx';
 import "../App.css";
 import { MainLayout } from '../layouts/MainLayout.tsx';
 
@@ -12,6 +13,7 @@ export function AppRouter() {
                 <Route path='/' element={<Home />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
+                <Route path='/cart' element={<CartPage />} />
             </Route>
         </Routes>
     )

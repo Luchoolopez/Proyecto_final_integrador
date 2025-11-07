@@ -1,13 +1,15 @@
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
 import { CiUser } from "react-icons/ci";
 import { IoSearchOutline } from "react-icons/io5";
 import { FiShoppingCart } from "react-icons/fi";
 import './header.style.css';
 import { ThemeToggleButton } from '../ThemeToggleButton';
 import { useSearch } from '../../context/SearchContext';
+import { useCartContext } from '../../context/CartContext';
 
 export const Header = () => {
     const { openSearch } = useSearch();
+    const { itemCount, openCart } = useCartContext();
 
     return (
         <Navbar expand="lg" className="header" sticky="top">
@@ -28,7 +30,14 @@ export const Header = () => {
                     <Nav className="flex-row">
                         <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={30} /></Nav.Link>
                         <Nav.Link href="/login" className="nav-icon"><CiUser size={30} /></Nav.Link>
-                        <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={30} /></Nav.Link>
+                        <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
+                            <FiShoppingCart size={30} />
+                            {itemCount > 0 && (
+                                <Badge pill bg="danger" style={{ position: 'absolute', top: 0, right: 0 }}>
+                                    {itemCount}
+                                </Badge>
+                            )}
+                        </Nav.Link>
                         <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                     </Nav>
                 </div>
@@ -42,7 +51,14 @@ export const Header = () => {
                         <Nav className="flex-row">
                             <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={26} /></Nav.Link>
                             <Nav.Link href="/login" className="nav-icon"><CiUser size={26} /></Nav.Link>
-                            <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={26} /></Nav.Link>
+                            <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
+                                <FiShoppingCart size={26} />
+                                {itemCount > 0 && (
+                                    <Badge pill bg="danger" style={{ position: 'absolute', top: 0, right: 0, fontSize: '0.6em' }}>
+                                        {itemCount}
+                                    </Badge>
+                                )}
+                            </Nav.Link>
                             <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                         </Nav>
                     </div>
