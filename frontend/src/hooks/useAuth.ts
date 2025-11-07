@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AxiosError } from "axios"; 
 import { useNavigate } from "react-router-dom";
 
-import type { LoginData, RegisterData } from "../types/user"; 
+import type { LoginData, RegisterData, User, AuthResponse } from "../types/user"; 
 import { authService } from "../api/authService";
 
 interface ApiError {
@@ -14,23 +14,34 @@ export const useAuth = () => {
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const login = async (values: LoginData) => {
+    const login = async (values: LoginData): Promise<User> => {
         setLoading(true);
         setError(null);
 
         try {
-            const data = await authService.login(values)
+            const response: AuthResponse = await authService.login(values);
+            const {user, accessToken, refreshToken} = response.data;
 
-            localStorage.setItem("accessToken", data.accessToken);
-            localStorage.setItem("refreshToken", data.refreshToken);
-            localStorage.setItem("user", JSON.stringify(data.user));
+            if(!user || !accessToken){
+                throw new Error("Respuesta de API invalida, fatlan 'user' o 'accessToken' dentro de 'Data'")
+            }
 
-            navigate("/", { replace: true });
+            localStorage.setItem("accessToken",accessToken);
+            localStorage.setItem("refreshToken", refreshToken);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            return user;
 
         } catch (err) {
             const axiosError = err as AxiosError<ApiError>;
-            const errorMessage = axiosError.response?.data?.message || "Error en el login. Inténtalo de nuevo.";
+            const errorMessage = axiosError.response?.data?.message || (err as Error).message ||"Error en el login. Inténtalo de nuevo.";
             setError(errorMessage);
+
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("user");
+
+            throw new Error(errorMessage)
         } finally {
             setLoading(false);
         }

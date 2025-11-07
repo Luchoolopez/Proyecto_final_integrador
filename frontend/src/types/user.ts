@@ -20,8 +20,14 @@ export interface RegisterData extends LoginData {
     telefono?: string; 
 }
 
-export interface AuthResponse {
+export interface AuthData {
     accessToken: string;
     refreshToken: string;
     user: User;
+}
+
+export interface AuthResponse{
+    success: boolean;
+    message: string;
+    data: AuthData;
 }
