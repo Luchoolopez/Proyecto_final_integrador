@@ -38,6 +38,8 @@ services:
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=100
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -57,9 +59,14 @@ services:
     ports:
       - "5173:5173"
       - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=100
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
     depends_on:
       - backend
     restart: unless-stopped
