@@ -18,7 +18,7 @@ export const Header = () => {
             navigate('/login');
             return
         }
-        navigate('/profile')
+        navigate('/account');
 
     } 
 
