@@ -10,6 +10,7 @@ import { MainLayout } from '../layouts/MainLayout.tsx';
 {/*importaciones del admin*/}
 import { AdminLayout } from '../layouts/admin/AdminLayout.tsx';
 import { AdminRoute } from './AdminRoute.tsx';
+import { Profile } from '../pages/Profile.tsx';
 
 
 export function AppRouter() {
@@ -19,6 +20,7 @@ export function AppRouter() {
                 <Route path='/' element={<Home />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
+                <Route path='/profile' element={<Profile/>}/>
             </Route>
 
             <Route element={<AdminRoute/>}>
