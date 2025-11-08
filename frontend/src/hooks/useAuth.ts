@@ -20,7 +20,7 @@ export const useAuth = () => {
 
         try {
             const response: AuthResponse = await authService.login(values);
-            const {user, accessToken, refreshToken} = response.data;
+            const {user, accessToken, refreshToken} = response;
 
             if(!user || !accessToken){
                 throw new Error("Respuesta de API invalida, fatlan 'user' o 'accessToken' dentro de 'Data'")

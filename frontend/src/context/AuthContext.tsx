@@ -16,14 +16,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const { login: apiLogin, register, logout: apiLogout, loading, error } = useAuth();
+    const { login: apiLogin, register, logout: apiLogout, loading: apiLoading, error } = useAuth();
     const [user, setUser] = useState<User | null>(null);
+    const [initializing, setInitializing] = useState(true);
 
     useEffect(() => {
         try {
             const storedUser = localStorage.getItem('user');
+            const accessToken = localStorage.getItem('accessToken');
 
-            if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
+            if (storedUser && storedUser !== 'undefined' && storedUser !== 'null' && accessToken) {
                 setUser(JSON.parse(storedUser));
             } else {
                 setUser(null);
@@ -32,6 +34,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.error("Error al parsear el usuario de localStorage", e);
             localStorage.removeItem('user');
             setUser(null);
+        }finally{
+            setInitializing(false);
         }
     }, []);
 
@@ -57,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login: handleLogin,
         register,
         logout: handleLogout,
-        loading,
+        loading: apiLoading || initializing,
         error,
     };
 
