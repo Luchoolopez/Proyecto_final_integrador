@@ -20,8 +20,9 @@ export const Header = () => {
             navigate('/login');
             return;
         }
-        navigate('/profile'); 
-    };
+        navigate('/account');
+
+    } 
 
     return (
         <Navbar expand="lg" className="header" sticky="top">
