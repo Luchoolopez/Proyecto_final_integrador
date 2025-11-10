@@ -35,7 +35,7 @@ export const Account = () => {
             </div>
 
             <div className="mt-3 mb-5">
-                <Button variant="outline-light" className="w-10 logout-btn" onClick={logout}>
+                <Button variant="outline-dark" className="w-10 logout-btn" onClick={logout}>
                     Cerrar sesión
                 </Button>
             </div>
