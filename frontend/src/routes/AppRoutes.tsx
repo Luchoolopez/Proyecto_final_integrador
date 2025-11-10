@@ -24,7 +24,6 @@ export function AppRouter() {
                 <Route path='/register' element={<Register />} />
                 <Route path='/account' element={<Account/>}/>
                 <Route path='/cart' element={<CartPage />} />
-                <Route path='/profile' element={<Profile/>}/>
                 <Route path='/productos' element={<ProductListPage />} />
                 <Route path='/producto/:id' element={<ProductDetailPage />} />
             </Route>
