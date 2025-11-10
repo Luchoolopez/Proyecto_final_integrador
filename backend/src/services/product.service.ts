@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import {
   Product,
   ProductVariant,
@@ -87,12 +87,17 @@ class ProductService {
         { sku: { [Op.like]: `%${busqueda}%` } },
       ];
     }
+    
+    const precioFinalSQL = Sequelize.literal('precio_base * (1 - descuento / 100)');
 
     if (precio_min || precio_max) {
       const precioConditions: any = {};
       if (precio_min) precioConditions[Op.gte] = precio_min;
       if (precio_max) precioConditions[Op.lte] = precio_max;
-      where.precio_base = precioConditions;
+      where[Op.and] = [
+        ...(where[Op.and] || []),
+        Sequelize.where(precioFinalSQL, precioConditions)
+      ];
     }
 
     const include: any[] = [
@@ -102,7 +107,16 @@ class ProductService {
     ];
 
     if (talles && talles.length > 0) {
-      include[0].where = { talle: { [Op.in]: talles }, activo: true, stock: { [Op.gt]: 0 } };
+      include[0] = {
+        ...includeVariants,
+        where: { talle: { [Op.in]: talles }, activo: true, stock: { [Op.gt]: 0 } },
+        required: true,
+      };
+    }
+
+    let order: any = [[orderBy, orderDir]];
+    if (orderBy === 'precio_base') {
+      order = [[precioFinalSQL, orderDir]];
     }
 
     const { rows, count } = await Product.findAndCountAll({
@@ -110,7 +124,7 @@ class ProductService {
       include,
       limit,
       offset,
-      order: [[orderBy, orderDir]],
+      order,
       distinct: true,
     });
 

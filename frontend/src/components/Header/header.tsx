@@ -1,22 +1,24 @@
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
 import { CiUser } from "react-icons/ci";
 import { IoSearchOutline } from "react-icons/io5";
 import { FiShoppingCart } from "react-icons/fi";
 import './header.style.css';
 import { ThemeToggleButton } from '../ThemeToggleButton';
 import { useSearch } from '../../context/SearchContext';
+import { useCartContext } from '../../context/CartContext';
 import { useAuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const Header = () => {
     const { openSearch } = useSearch();
+    const { itemCount, openCart } = useCartContext();
     const { isAuthenticated } = useAuthContext();
     const navigate = useNavigate();
 
     const handleLoginBtn = () => {
-        if(!isAuthenticated){
+        if (!isAuthenticated) {
             navigate('/login');
-            return
+            return;
         }
         navigate('/account');
 
@@ -39,9 +41,17 @@ export const Header = () => {
                         </NavDropdown>
                     </Nav>
                     <Nav className="flex-row">
-                        <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={30} /></Nav.Link>
-                        <Nav.Link className="nav-icon" onClick={handleLoginBtn}><CiUser size={30} /></Nav.Link>
-                        <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={30} /></Nav.Link>
+                        <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={30} /></Nav.Link>                        
+                        <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }}><CiUser size={30} /></Nav.Link>
+                        <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
+                            <FiShoppingCart size={30} />
+                            {itemCount > 0 && (
+                                <Badge pill bg="danger" style={{ position: 'absolute', top: 0, right: 0 }}>
+                                    {itemCount}
+                                </Badge>
+                            )}
+                        </Nav.Link>
+
                         <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                     </Nav>
                 </div>
@@ -53,9 +63,17 @@ export const Header = () => {
                     <div className="mobile-header-bottom">
                         <Navbar.Toggle aria-controls="basic-navbar-nav" className="border-0" />
                         <Nav className="flex-row">
-                            <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={26} /></Nav.Link>{/*Busqueda*/}
-                            <Nav.Link className="nav-icon" onClick={handleLoginBtn}><CiUser size={26} /></Nav.Link> {/*Registrarse*/}
-                            <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={26} /></Nav.Link>
+                            <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={26} /></Nav.Link>
+                            <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }}><CiUser size={26} /></Nav.Link>                            
+                            <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
+                                <FiShoppingCart size={26} />
+                                {itemCount > 0 && (
+                                    <Badge pill bg="danger" style={{ position: 'absolute', top: 0, right: 0, fontSize: '0.6em' }}>
+                                        {itemCount}
+                                    </Badge>
+                                )}
+                            </Nav.Link>
+                            
                             <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                         </Nav>
                     </div>

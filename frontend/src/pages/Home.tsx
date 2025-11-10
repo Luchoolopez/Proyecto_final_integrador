@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Carousel } from "../components/Carousel";
 import { useAuthContext } from "../context/AuthContext";
-import {ProductCard} from "../components/ProductCard/ProductCard"; 
+import {ProductCard} from "../components/Products/ProductCard"; 
 import { MOCK_PRODUCTS } from '../mocks/mockProduct';
 import { type Product } from '../types/Product';
 
