@@ -1,20 +1,41 @@
-import { ProductVariant } from "../models";
+import { Product, ProductVariant } from "../models"; 
 import { Cart } from "../models/cart.model";
 import { ERROR_MESSAGES } from "../utils/cart/cart.constants";
 
 export class CartService {
     async getCart(usuario_id: number): Promise<Cart[]> {
         try {
-            const cartItems = await Cart.findAll({
+            const cartItemsRaw = await Cart.findAll({
                 where: { usuario_id },
                 include: [
                     {
                         model: ProductVariant,
                         as: 'variante',
+                        include: [ 
+                            {
+                                model: Product,
+                                as: 'producto'
+                            }
+                        ]
                     }
                 ]
             });
-            return cartItems
+
+            const cartItems = cartItemsRaw.map(item => {
+                const itemJSON = item.toJSON() as any; 
+                
+                if (itemJSON.variante && itemJSON.variante.producto) {
+                    const prod = itemJSON.variante.producto;
+                    const precio_base = Number(prod.precio_base);
+                    const descuento = Number(prod.descuento || 0);
+
+                    itemJSON.variante.producto.precio_final = precio_base * (1 - descuento / 100);
+                }
+                return itemJSON;
+            });
+
+            return cartItems;
+
         } catch (error) {
             throw new Error(ERROR_MESSAGES.GET_CART_ERROR);
         }
@@ -22,16 +43,31 @@ export class CartService {
 
     async getCartItem(cart_item_id: number, usuario_id: number): Promise<Cart | null> {
         try {
-            const item = await Cart.findOne({
+            const itemRaw = await Cart.findOne({
                 where: { id: cart_item_id, usuario_id },
                 include: [
                     {
                         model: ProductVariant,
                         as: 'variante',
+                        include: [
+                            { model: Product, as: 'producto' }
+                        ]
                     }
                 ]
             });
-            return item;
+
+            if (!itemRaw) return null;
+
+            const itemJSON = itemRaw.toJSON() as any;
+            if (itemJSON.variante && itemJSON.variante.producto) {
+                const prod = itemJSON.variante.producto;
+                const precio_base = Number(prod.precio_base);
+                const descuento = Number(prod.descuento || 0);
+                itemJSON.variante.producto.precio_final = precio_base * (1 - descuento / 100);
+            }
+            
+            return itemJSON;
+
         } catch (error) {
             throw new Error(ERROR_MESSAGES.GET_CART_ITEM_ERROR);
         }
@@ -131,17 +167,3 @@ export class CartService {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
