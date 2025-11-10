@@ -4,9 +4,12 @@ import { AddressCard } from "../components/Account/AddressCard/AddressCard"
 import { Link } from "react-router-dom"
 import { PurchaseCard } from "../components/Account/PurchaseCard/PurchaseCard"
 import { useAuthContext } from "../context/AuthContext"
+import { useTheme } from "../context/ThemeContext"
 
 export const Account = () => {
     const { logout } = useAuthContext();
+    const { theme } = useTheme();
+
     return (
         <div className="container mt-4">
             <Breadcrumb className="breadcrum-principal text-decoration-none">
@@ -35,7 +38,7 @@ export const Account = () => {
             </div>
 
             <div className="mt-3 mb-5">
-                <Button variant="outline-dark" className="w-10 logout-btn" onClick={logout}>
+                <Button variant={theme === "light" ? "outline-dark" : "outline-light"} className="w-10 logout-btn" onClick={logout}>
                     Cerrar sesión
                 </Button>
             </div>
