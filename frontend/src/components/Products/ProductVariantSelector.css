@@ -1,0 +1,12 @@
+.btn-group > .btn.rounded-0 {
+  position: relative;
+}
+
+.strikethrough-line {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  border-top: 1px solid currentColor;
+  transform: rotate(-10deg);
+}
