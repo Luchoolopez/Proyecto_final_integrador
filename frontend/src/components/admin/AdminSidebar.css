@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;600;700&display=swap');
+
+.admin-sidebar {
+  width: 280px;
+  font-family: "Roboto Condensed", sans-serif;
+  padding: 20px 0;
+}
+
+/* === Logo === */
+.admin-logo {
+  display: flex;
+  justify-content: center;
+}
+
+.admin-logo-img {
+  width: 100px;
+  height: auto;
+  border-radius: 50%;
+  background-color: #fff;
+  padding: 8px;
+}
+
+/* === Usuario === */
+.admin-sidebar-title {
+  font-size: 22px;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+/* === Links === */
+.admin-sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.admin-nav-link {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px !important;
+  text-decoration: none;
+  color: #adb5bd !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.admin-nav-link:hover {
+  background-color: #495057;
+  color: #fff !important;
+  transform: translateX(3px);
+}
+
+.admin-nav-icon {
+  font-size: 18px;
+  color: #adb5bd;
+}
+
+.logout-btn {
+  border: 1px solid #6c757d;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #fff;
+}

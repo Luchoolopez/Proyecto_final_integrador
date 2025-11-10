@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
-    "dev": "nodemon --watch src --exec npx ts-node src/server.ts",
+    "dev": "nodemon --watch src --ext ts,js --exec \"ts-node -r tsconfig-paths/register src/server.ts\"",
     "lint": "eslint 'src/**/*.ts'",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -29,6 +29,7 @@
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.6",
     "sequelize": "^6.37.7",
+    "tsconfig-paths": "^4.2.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

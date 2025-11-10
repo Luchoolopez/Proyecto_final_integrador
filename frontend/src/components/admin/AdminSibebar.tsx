@@ -1,0 +1,53 @@
+import { Nav, Button } from "react-bootstrap";
+import { useAuthContext } from "../../context/AuthContext";
+import { MdDashboard } from "react-icons/md";
+import { FaBoxOpen, FaTag } from "react-icons/fa";
+import { LuClipboardList } from "react-icons/lu";
+import { HiMiniUsers } from "react-icons/hi2";
+import "./AdminSidebar.css";
+
+export const AdminSidebar = () => {
+  const { user, logout } = useAuthContext();
+
+  return (
+    <Nav as="nav" className="admin-sidebar vh-100 bg-dark border-end d-flex flex-column justify-content-between p-3">
+      <div>
+        <div className="mb-4 text-center">
+          <h3 className="admin-sidebar-title text-uppercase fw-bold text-white mb-0">
+            {user?.nombre}
+          </h3>
+          <small className="text-secondary">{user?.rol}</small>
+        </div>
+
+        <div className="admin-sidebar-links d-flex flex-column gap-2">
+          <Nav.Link href="/dashboard" className="admin-nav-link text-white">
+            <MdDashboard className="admin-nav-icon" />
+            <span>Dashboard</span>
+          </Nav.Link>
+          <Nav.Link href="/productos" className="admin-nav-link text-white">
+            <FaBoxOpen className="admin-nav-icon" />
+            <span>Productos</span>
+          </Nav.Link>
+          <Nav.Link href="/categorias" className="admin-nav-link text-white">
+            <FaTag className="admin-nav-icon" />
+            <span>Categorías</span>
+          </Nav.Link>
+          <Nav.Link href="/ordenes" className="admin-nav-link text-white">
+            <LuClipboardList className="admin-nav-icon" />
+            <span>Órdenes</span>
+          </Nav.Link>
+          <Nav.Link href="/usuarios" className="admin-nav-link text-white">
+            <HiMiniUsers className="admin-nav-icon" />
+            <span>Usuarios</span>
+          </Nav.Link>
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <Button variant="outline-light" className="w-100 logout-btn" onClick={logout}>
+          Cerrar sesión
+        </Button>
+      </div>
+    </Nav>
+  );
+};

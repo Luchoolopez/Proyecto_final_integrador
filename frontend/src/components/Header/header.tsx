@@ -10,6 +10,22 @@ import { useCartContext } from '../../context/CartContext';
 export const Header = () => {
     const { openSearch } = useSearch();
     const { itemCount, openCart } = useCartContext();
+import { useAuthContext } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+export const Header = () => {
+    const { openSearch } = useSearch();
+    const { isAuthenticated } = useAuthContext();
+    const navigate = useNavigate();
+
+    const handleLoginBtn = () => {
+        if(!isAuthenticated){
+            navigate('/login');
+            return
+        }
+        navigate('/profile')
+
+    } 
 
     return (
         <Navbar expand="lg" className="header" sticky="top">
@@ -38,6 +54,8 @@ export const Header = () => {
                                 </Badge>
                             )}
                         </Nav.Link>
+                        <Nav.Link className="nav-icon" onClick={handleLoginBtn}><CiUser size={30} /></Nav.Link>
+                        <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={30} /></Nav.Link>
                         <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                     </Nav>
                 </div>
@@ -59,6 +77,9 @@ export const Header = () => {
                                     </Badge>
                                 )}
                             </Nav.Link>
+                            <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={26} /></Nav.Link>{/*Busqueda*/}
+                            <Nav.Link className="nav-icon" onClick={handleLoginBtn}><CiUser size={26} /></Nav.Link> {/*Registrarse*/}
+                            <Nav.Link href="/cart" className="nav-icon"><FiShoppingCart size={26} /></Nav.Link>
                             <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                         </Nav>
                     </div>

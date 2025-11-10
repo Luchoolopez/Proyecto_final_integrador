@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useAuthContext } from '../context/AuthContext';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import { Container, Row, Col, Form, Button, Breadcrumb, InputGroup, Alert } from "react-bootstrap";
-import type { LoginData } from "../types/user";
+import type { LoginData, User } from "../types/user";
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -11,11 +11,25 @@ export const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const { login, loading, error } = useAuthContext();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const values: LoginData = { email, password };
-        await login(values);
+        try{
+            const user = await login(values) as User | void;
+            if(user){
+                if(user.rol === 'admin'){
+                    navigate('/admin');
+                }else{
+                    navigate('/')
+                }
+            }
+        }catch(error){
+            console.error("Error al iniciar sesion", error);
+        }
+
+
     };
 
     return (

@@ -36,7 +36,6 @@ const loadRoutes = async () => {
     }
 };
 
-
 loadRoutes();
 
 export { router };
