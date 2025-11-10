@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { SearchProvider } from './context/SearchContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { CartProvider } from './context/CartContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')!).render(
       <AuthProvider>
         <SearchProvider>
           <ThemeProvider>
+            <CartProvider>
             <App />
+            </CartProvider>
           </ThemeProvider>
         </SearchProvider>
       </AuthProvider>
