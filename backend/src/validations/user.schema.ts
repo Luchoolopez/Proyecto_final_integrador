@@ -7,3 +7,5 @@ export const userSchema = z.object({
     rol: z.enum(['usuario', 'admin']   ),
     telefono: z.string().max(20).optional().or(z.literal('')),
 })
+
+export const updateUserSchema = userSchema.partial();

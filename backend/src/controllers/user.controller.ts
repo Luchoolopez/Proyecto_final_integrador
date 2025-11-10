@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
-import { userSchema } from "../validations/user.schema";
+import { userSchema, updateUserSchema } from "../validations/user.schema";
 import { ERROR_MESSAGES } from "../utils/user/user.constants";
 import { ZodError } from "zod";
 
@@ -73,7 +73,7 @@ export class UserController {
                     message: ERROR_MESSAGES.INVALID_ID
                 });
             }
-            const parsed = userSchema.parse(req.body);
+            const parsed = updateUserSchema.parse(req.body);
             const updated = await this.userService.updateUser(Number(id), parsed);
             if (!updated) {
                 return res.status(400).json({
