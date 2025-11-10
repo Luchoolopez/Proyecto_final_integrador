@@ -1,5 +1,3 @@
-// src/components/ProductCard/ProductCard.tsx
-
 import React from "react";
 import { Card, Badge, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
