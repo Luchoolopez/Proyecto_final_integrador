@@ -12,7 +12,7 @@ export const UserCard = () => {
         <div className="card">
             <div className="card-header d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">Mis datos</h5>
-                <Link to="/info" className="text-secondary text-decoration-none">Editar {'>'}</Link>
+                <Link to="/account/info" className="text-secondary text-decoration-none">Editar {'>'}</Link>
             </div>
             <ul className="list-group list-group-flush">
                 <li className="list-group-item d-flex align-items-center">

@@ -13,6 +13,7 @@ import ProductDetailPage from '../pages/ProductDetailPage.tsx';
 import { AdminLayout } from '../layouts/admin/AdminLayout.tsx';
 import { AdminRoute } from './AdminRoute.tsx';
 import { Account } from '../pages/Account.tsx';
+import { EditAccount } from '../pages/EditAccount.tsx';
 
 
 export function AppRouter() {
@@ -23,6 +24,7 @@ export function AppRouter() {
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
                 <Route path='/account' element={<Account/>}/>
+                <Route path='/account/info' element={<EditAccount/>}/>
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/productos' element={<ProductListPage />} />
                 <Route path='/producto/:id' element={<ProductDetailPage />} />

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 import { PurchaseCard } from "../components/Account/PurchaseCard/PurchaseCard"
 import { useAuthContext } from "../context/AuthContext"
 import { useTheme } from "../context/ThemeContext"
+import "../styles/Account.css";
 
 export const Account = () => {
     const { logout } = useAuthContext();
@@ -21,7 +22,7 @@ export const Account = () => {
                 </Breadcrumb.Item>
             </Breadcrumb>
 
-            <h1 className="text-center my-4">MI CUENTA</h1>
+            <h1 className="title-divider text-center my-4">MI CUENTA</h1>
 
             <div className="row mb-5">
 
