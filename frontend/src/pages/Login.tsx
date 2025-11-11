@@ -99,7 +99,7 @@ export const Login = () => {
                             <Link to="/recuperar-contrasena" className="form-link">¿Olvidaste tu contraseña?</Link>
                         </div>
 
-                        <Button variant="dark" type="submit" className="w-100" disabled={loading}>
+                        <Button variant="dark" type="submit" className="w-100 border" disabled={loading}>
                             {loading ? "Cargando..." : "INICIAR SESIÓN"}
                         </Button>
                     </Form>

@@ -1,4 +1,3 @@
-// frontend/src/features/cart/CartOffcanvas.tsx
 import React from 'react';
 import { Offcanvas, Button, Alert, Card, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -57,7 +56,7 @@ export const CartOffcanvas = () => {
                 <div className="text-center mt-5">
                     <h5>Tu carrito está vacío</h5>
                     <p>Aún no has añadido productos.</p>
-                    <Button as={Link} to="/productos" variant="dark" onClick={closeCart}>
+                    <Button as={Link} className='btn-buy border' to="/productos" variant="dark" onClick={closeCart}>
                         Ir a comprar
                     </Button>
                 </div>
