@@ -59,7 +59,9 @@ export const useAuth = () => {
 
         try {
             await authService.register(values);
-            navigate("/login");
+            navigate("/login", { 
+                state: { successMessage: "¡Registrado correctamente! Ya podés iniciar sesión." } 
+            });
 
         } catch (err) {
             const axiosError = err as AxiosError<ApiError>;

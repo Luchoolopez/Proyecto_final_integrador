@@ -7,18 +7,14 @@ import { type Product } from '../types/Product';
 import { type Variant } from '../types/Variant';
 import { ProductImageGallery } from '../components/Products/ProductImageGallery';
 import { ProductVariantSelector } from '../components/Products/ProductVariantSelector';
-import { useAuthContext } from '../context/AuthContext'; 
 import { useCartContext } from '../context/CartContext'; 
 import { formatPrice } from '../utils/formatPrice';
-import { useNavigate } from 'react-router-dom';
 
 import '../components/Products/ProductVariantSelector.css';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { addItem, openCart } = useCartContext(); 
-  const { isAuthenticated } = useAuthContext();
+  const { addItem } = useCartContext(); 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,17 +62,9 @@ const ProductDetailPage = () => {
   };
 
   const handleAddToCart = async () => {
-    // Verificar si el usuario está autenticado
-    if (!isAuthenticated) {
-      navigate('/login'); // Redirigir a login si no lo está
-      return;
-    }
-
-    // Verificar si hay una variante seleccionada
     if (product && selectedVariant) {
       try {
-        await addItem(selectedVariant.id, quantity);
-        openCart(); 
+        await addItem(product, selectedVariant, quantity);
       } catch (err) {
         console.error("Error al agregar item:", err);
         alert("Hubo un error al agregar el producto al carrito.");
