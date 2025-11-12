@@ -19,6 +19,8 @@ interface ProductApiParams {
   talles?: string[];  
   precio_min?: number;
   precio_max?: number;
+  categoria_id?: number;
+  con_descuento?: boolean;
 }
 
 export interface ProductFilters {
@@ -27,7 +29,9 @@ export interface ProductFilters {
   precio: {
     min: number | undefined;
     max: number | undefined;
-  }
+  };
+  categoria_id: number | undefined;
+  con_descuento?: boolean | undefined;
 }
 
 export const productService = {
@@ -42,6 +46,8 @@ export const productService = {
       ...(filters.talles.length > 0 && { talles: filters.talles }),
       ...(filters.precio.min !== undefined && { precio_min: filters.precio.min }),
       ...(filters.precio.max !== undefined && { precio_max: filters.precio.max }),
+      ...(filters.categoria_id !== undefined && { categoria_id: filters.categoria_id }),
+      ...(filters.con_descuento === true && { con_descuento: true }),
     };
 
     const response = await axios.get(API_URL, { params });
