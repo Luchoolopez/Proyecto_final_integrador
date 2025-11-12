@@ -19,6 +19,7 @@ interface ProductFilters {
   busqueda?: string;
   es_nuevo?: boolean;
   es_destacado?: boolean;
+  con_descuento?: boolean;
   activo?: boolean;
 }
 
@@ -61,6 +62,7 @@ class ProductService {
       busqueda,
       es_nuevo,
       es_destacado,
+      con_descuento,
       activo = true,
     } = filters;
 
@@ -75,6 +77,7 @@ class ProductService {
 
     const where: any = { activo };
 
+    if (con_descuento) where.descuento = { [Op.gt]: 0 };
     if (categoria_id) where.categoria_id = categoria_id;
     if (genero) where.genero = genero;
     if (es_nuevo !== undefined) where.es_nuevo = es_nuevo;

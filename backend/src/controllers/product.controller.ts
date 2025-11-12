@@ -19,7 +19,8 @@ async getAll(req: Request, res: Response) {
         busqueda,
         es_nuevo,
         es_destacado,
-        activo
+        activo,
+        con_descuento
       } = req.query;
 
       // Construir el objeto de filtros
@@ -32,6 +33,7 @@ async getAll(req: Request, res: Response) {
         ...(busqueda && { busqueda: String(busqueda) }),
         ...(es_nuevo !== undefined && { es_nuevo: es_nuevo === 'true' }),
         ...(es_destacado !== undefined && { es_destacado: es_destacado === 'true' }),
+        ...(con_descuento !== undefined && { con_descuento: con_descuento === 'true' }),
         ...(activo !== undefined ? { activo: activo === 'true' } : { activo: true }) 
       };
 
