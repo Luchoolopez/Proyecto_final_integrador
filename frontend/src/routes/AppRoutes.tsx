@@ -27,6 +27,7 @@ export function AppRouter() {
                 <Route path='/account/info' element={<EditAccount/>}/>
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/productos' element={<ProductListPage />} />
+                <Route path='/productos/:categoriaNombre' element={<ProductListPage />} />
                 <Route path='/producto/:id' element={<ProductDetailPage />} />
             </Route>
 
