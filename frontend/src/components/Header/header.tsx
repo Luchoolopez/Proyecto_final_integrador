@@ -1,4 +1,5 @@
 import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { CiUser } from "react-icons/ci";
 import { IoSearchOutline } from "react-icons/io5";
 import { FiShoppingCart } from "react-icons/fi";
@@ -7,13 +8,24 @@ import { ThemeToggleButton } from '../ThemeToggleButton';
 import { useSearch } from '../../context/SearchContext';
 import { useCartContext } from '../../context/CartContext';
 import { useAuthContext } from '../../context/AuthContext';
+import { useCategoryContext } from '../../context/CategoryContext';
 import { useNavigate } from 'react-router-dom';
+
+// funcion helper para convertir "Buzos y Sweaters" en "buzos-y-sweaters"
+const slugify = (text: string) => {
+  return text.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'y');
+};
 
 export const Header = () => {
     const { openSearch } = useSearch();
     const { itemCount, openCart } = useCartContext();
     const { isAuthenticated } = useAuthContext();
+    const { categories } = useCategoryContext();
     const navigate = useNavigate();
+
+    // filtrar las categorias que se quieren mostrar
+    const userRequestedCategories = ["Remeras", "Pantalones", "Buzos y Sweaters", "Camisas", "Calzado", "Accesorios"];
+    const menuCategories = categories.filter(c => userRequestedCategories.includes(c.nombre));
 
     const handleLoginBtn = () => {
         if (!isAuthenticated) {
@@ -23,18 +35,35 @@ export const Header = () => {
         navigate('/profile'); 
     };
 
+    const renderCategoryLinks = () => {
+      if (!menuCategories.length) {
+        return <NavDropdown.Item disabled>Cargando categorías...</NavDropdown.Item>;
+      }
+      return menuCategories.map(category => (
+        <NavDropdown.Item 
+          key={category.id} 
+          as={Link} 
+          to={`/productos/${slugify(category.nombre)}`}
+        >
+          {category.nombre}
+        </NavDropdown.Item>
+      ));
+    };
+
     return (
         <Navbar expand="lg" className="header" sticky="top">
             <Container fluid>
                 <div className="d-none d-lg-flex w-100 justify-content-between align-items-center">
                     <Navbar.Brand href="/">Concept & Hab</Navbar.Brand>
                     <Nav className="mx-auto">
-                        <Nav.Link href="/new"><span>NEW IN</span></Nav.Link>
-                        <Nav.Link href="/sale"><span>SALE</span></Nav.Link>
+                        <Nav.Link as={Link} to="/productos/descuentos"><span>SALE</span></Nav.Link>
+                        
                         <NavDropdown title={<span>MEN / NO GENDER</span>} id="men-dropdown">
-                            <NavDropdown.Item href="/men/tshirts">T-Shirts</NavDropdown.Item>
-                            <NavDropdown.Item href="/men/pants">Pants</NavDropdown.Item>
+                          {renderCategoryLinks()}
+                          <NavDropdown.Divider />
+                          <NavDropdown.Item as={Link} to="/productos">Ver Todo</NavDropdown.Item>
                         </NavDropdown>
+
                         <NavDropdown title={<span>WOMEN</span>} id="women-dropdown">
                             <NavDropdown.Item href="/women/dresses">Dresses</NavDropdown.Item>
                         </NavDropdown>
@@ -80,12 +109,14 @@ export const Header = () => {
 
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mx-auto d-lg-none text-center pt-3">
-                        <Nav.Link href="/new"><span>NEW IN</span></Nav.Link>
-                        <Nav.Link href="/sale"><span>SALE</span></Nav.Link>
+                        <Nav.Link as={Link} to="/productos/descuentos"><span>SALE</span></Nav.Link>
+
                         <NavDropdown title={<span>MEN / NO GENDER</span>} id="men-dropdown-mobile">
-                            <NavDropdown.Item href="/men/tshirts">T-Shirts</NavDropdown.Item>
-                            <NavDropdown.Item href="/men/pants">Pants</NavDropdown.Item>
+                          {renderCategoryLinks()}
+                          <NavDropdown.Divider />
+                          <NavDropdown.Item as={Link} to="/productos">Ver Todo</NavDropdown.Item>
                         </NavDropdown>
+
                         <NavDropdown title={<span>WOMEN</span>} id="women-dropdown-mobile">
                             <NavDropdown.Item href="/women/dresses">Dresses</NavDropdown.Item>
                         </NavDropdown>
