@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, ListGroup } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
+import { useCategoryContext } from '../../context/CategoryContext';
 
 const TALL_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -14,6 +16,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   onTalleChange, 
   onPriceChange 
 }) => {
+  const { categoriaNombre } = useParams<{ categoriaNombre?: string }>();
+  const { categories, loading: loadingCategories } = useCategoryContext();
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
 
@@ -23,10 +27,64 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     onPriceChange(min, max);
   };
 
+  const categoryToUrl = (categoryName: string) => {
+    return categoryName.toLowerCase().replace(/\s+/g, '-');
+  };
+
+  const isCategoryActive = (categoryName: string) => {
+    if (!categoriaNombre) return false;
+    const urlFriendlyName = categoryToUrl(categoryName);
+    return categoriaNombre === urlFriendlyName;
+  };
+
   return (
     <div>
       <h4 className="mb-3 fw-bold">Filtrar por</h4>
       
+      {/* Filtro de Categorías */}
+      <div className="mb-4">
+        <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Categorías</h5>
+        {loadingCategories ? (
+          <p className="text-muted small">Cargando categorías...</p>
+        ) : (
+          <ListGroup variant="flush">
+            {/* Opción "Todas" */}
+            <ListGroup.Item 
+              as={Link}
+              to="/productos"
+              action
+              className={`border-0 px-0 py-2 ${!categoriaNombre || categoriaNombre === 'descuentos' ? 'text-grey' : ''}`}
+              style={{ 
+                fontWeight: !categoriaNombre || categoriaNombre === 'descuentos' ? '600' : '400',
+                textDecoration: 'none'
+              }}
+            >
+              Todas las categorías
+            </ListGroup.Item>
+            
+            {/* Lista de categorías */}
+            {categories.map((category) => (
+              <ListGroup.Item
+                key={category.id}
+                as={Link}
+                to={`/productos/${categoryToUrl(category.nombre)}`}
+                action
+                className={`border-0 px-0 py-2 ${isCategoryActive(category.nombre) ? 'text-grey' : ''}`}
+                style={{ 
+                  fontWeight: isCategoryActive(category.nombre) ? '600' : '400',
+                  textDecoration: 'none'
+                }}
+              >
+                {category.nombre}
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        )}
+      </div>
+
+      <hr className="my-4" />
+      
+      {/* Filtro de Talle */}
       <div className="mb-4">
         <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Talle</h5>
         <Form>
@@ -45,7 +103,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       </div>
 
       <hr className="my-4" />
-
+      
+      {/* Filtro de Precio */}
       <div className="mb-4">
         <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Precio</h5>
         <Form>

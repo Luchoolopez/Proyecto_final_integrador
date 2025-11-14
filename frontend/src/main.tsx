@@ -1,4 +1,5 @@
-import { StrictMode, Suspense } from 'react'
+// frontend/src/main.tsx
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
@@ -7,21 +8,22 @@ import { AuthProvider } from './context/AuthContext'
 import { SearchProvider } from './context/SearchContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { CartProvider } from './context/CartContext'
+import { CategoryProvider } from './context/CategoryContext' 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <Suspense fallback={<div>Cargando...</div>}>
-        <AuthProvider>
-          <SearchProvider>
-            <ThemeProvider>
-              <CartProvider>
+      <AuthProvider>
+        <SearchProvider>
+          <ThemeProvider>
+            <CartProvider>
+              <CategoryProvider>
                 <App />
-              </CartProvider>
-            </ThemeProvider>
-          </SearchProvider>
-        </AuthProvider>
-      </Suspense>
+              </CategoryProvider>
+            </CartProvider>
+          </ThemeProvider>
+        </SearchProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )
