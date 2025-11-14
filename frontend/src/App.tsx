@@ -12,6 +12,6 @@ const App = () => (
         <SearchOverlay/>
         <CartOffcanvas /> 
         <AuthPromptModal />
-    </ErrorBoundary>
+    </ErrorBoundary >
 )
 export default App;

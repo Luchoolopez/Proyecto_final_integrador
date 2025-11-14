@@ -1,7 +1,7 @@
 import { Component, type ReactNode } from 'react';
 import { Container } from 'react-bootstrap';
 
-interface Props {
+interface Props{
   children: ReactNode;
 }
 
