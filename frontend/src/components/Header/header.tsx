@@ -25,7 +25,7 @@ export const Header = () => {
     } 
 
     return (
-        <Navbar expand="lg" className="header" sticky="top">
+        <Navbar expand="lg" className="header" sticky="top" as="header">
             <Container fluid>
                 <div className="d-none d-lg-flex w-100 justify-content-between align-items-center">
                     <Navbar.Brand href="/">Concept & Hab</Navbar.Brand>
@@ -41,9 +41,9 @@ export const Header = () => {
                         </NavDropdown>
                     </Nav>
                     <Nav className="flex-row">
-                        <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={30} /></Nav.Link>                        
-                        <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }}><CiUser size={30} /></Nav.Link>
-                        <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
+                        <Nav.Link className="nav-icon" onClick={openSearch} aria-label='Buscar'><IoSearchOutline size={30} /></Nav.Link>                        
+                        <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }} aria-label='Cuenta'><CiUser size={30} /></Nav.Link>
+                        <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }} aria-label='Carrito'>
                             <FiShoppingCart size={30} />
                             {itemCount > 0 && (
                                 <Badge pill bg="danger" style={{ position: 'absolute', top: 0, right: 0 }}>
@@ -63,9 +63,9 @@ export const Header = () => {
                     <div className="mobile-header-bottom">
                         <Navbar.Toggle aria-controls="basic-navbar-nav" className="border-0" />
                         <Nav className="flex-row">
-                            <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={26} /></Nav.Link>
-                            <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }}><CiUser size={26} /></Nav.Link>                            
-                            <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
+                            <Nav.Link className="nav-icon" onClick={openSearch} aria-label='Buscar'><IoSearchOutline size={26} /></Nav.Link>
+                            <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }} aria-label='Cuenta'><CiUser size={26} /></Nav.Link>                            
+                            <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }} aria-label='Carrito'>
                                 <FiShoppingCart size={26} />
                                 {itemCount > 0 && (
                                     <Badge pill bg="danger" style={{ position: 'absolute', top: 0, right: 0, fontSize: '0.6em' }}>
