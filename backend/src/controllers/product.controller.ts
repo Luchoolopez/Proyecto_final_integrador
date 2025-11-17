@@ -26,7 +26,7 @@ async getAll(req: Request, res: Response) {
       // Construir el objeto de filtros
       const filters: any = {
         ...(categoria_id && { categoria_id: Number(categoria_id) }),
-        ...(genero && { genero: String(genero) }),
+        ...(genero && { genero: genero }),
         ...(precio_min && { precio_min: Number(precio_min) }),
         ...(precio_max && { precio_max: Number(precio_max) }),
         ...(talles && { talles: Array.isArray(talles) ? talles : [talles] }),

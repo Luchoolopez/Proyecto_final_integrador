@@ -10,9 +10,11 @@ import {
   ProductVariantType,
 } from '../models';
 
+type GeneroFilter = 'Hombre' | 'Mujer' | 'Unisex';
+
 interface ProductFilters {
   categoria_id?: number;
-  genero?: 'Hombre' | 'Mujer' | 'Unisex';
+  genero?: GeneroFilter | GeneroFilter[];
   precio_min?: number;
   precio_max?: number;
   talles?: string[];
@@ -79,10 +81,17 @@ class ProductService {
 
     if (con_descuento) where.descuento = { [Op.gt]: 0 };
     if (categoria_id) where.categoria_id = categoria_id;
-    if (genero) where.genero = genero;
     if (es_nuevo !== undefined) where.es_nuevo = es_nuevo;
     if (es_destacado !== undefined) where.es_destacado = es_destacado;
 
+    if (genero) {
+      if (Array.isArray(genero)) {
+        where.genero = { [Op.in]: genero }; 
+      } else {
+        where.genero = genero; 
+      }
+    }
+    
     if (busqueda) {
       where[Op.or] = [
         { nombre: { [Op.like]: `%${busqueda}%` } },

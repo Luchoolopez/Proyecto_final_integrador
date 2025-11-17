@@ -13,6 +13,8 @@ interface GetProductsResponse {
   };
 }
 
+type GeneroFilter = 'Hombre' | 'Mujer' | 'Unisex';
+
 interface ProductApiParams {
   orderBy?: string;
   orderDir?: 'ASC' | 'DESC';
@@ -21,6 +23,7 @@ interface ProductApiParams {
   precio_max?: number;
   categoria_id?: number;
   con_descuento?: boolean;
+  genero?: GeneroFilter | GeneroFilter[];
 }
 
 export interface ProductFilters {
@@ -32,6 +35,8 @@ export interface ProductFilters {
   };
   categoria_id: number | undefined;
   con_descuento?: boolean | undefined;
+  genero?: GeneroFilter | GeneroFilter[] | undefined;
+
 }
 
 export const productService = {
@@ -48,6 +53,7 @@ export const productService = {
       ...(filters.precio.max !== undefined && { precio_max: filters.precio.max }),
       ...(filters.categoria_id !== undefined && { categoria_id: filters.categoria_id }),
       ...(filters.con_descuento === true && { con_descuento: true }),
+      ...(filters.genero && { genero: filters.genero }),
     };
 
     const response = await axios.get(API_URL, { params });
