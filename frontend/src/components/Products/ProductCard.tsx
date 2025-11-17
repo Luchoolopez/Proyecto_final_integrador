@@ -67,9 +67,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
 
             <div className="card-buttons-overlay">
-                <Button variant="secondary" className="card-button" onClick={handleAddToCart}>
-                    COMPRAR
-                </Button>
                 <Link to={`/producto/${product.id}`} className="btn btn-outline-secondary card-button">
                     VER
                 </Link>
