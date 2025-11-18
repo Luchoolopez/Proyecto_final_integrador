@@ -1,23 +1,49 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, ListGroup } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom';
-import { useCategoryContext } from '../../context/CategoryContext';
+import { Link } from 'react-router-dom';
+import { type Category } from '../../api/categoryService'; 
 
-const TALL_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const TALL_SETS = {
+  default: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+  pantalones: ['36', '38', '40', '42', '44', '46', '48'],
+  calzado: ['37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
+};
+
+type TalleSet = keyof typeof TALL_SETS;
+type FilterMode = 'navigate' | 'filter';
 
 interface ProductFiltersProps {
+  categories: Category[]; 
+  loadingCategories: boolean;
+  
   selectedTalles: string[];
   onTalleChange: (talle: string) => void;
+  
   onPriceChange: (min: number | undefined, max: number | undefined) => void;
+  
+  talleSet: TalleSet;
+  mode: FilterMode;
+  
+  onCategoryChange: (id: number | undefined) => void;
+  activeCategoryId?: number;
+  
+  categoryLinkPrefix: string;
+  activeCategorySlug?: string;
 }
 
-export const ProductFilters: React.FC<ProductFiltersProps> = ({ 
-  selectedTalles, 
-  onTalleChange, 
-  onPriceChange 
+export const ProductFilters: React.FC<ProductFiltersProps> = ({
+  categories,
+  loadingCategories,
+  selectedTalles,
+  onTalleChange,
+  onPriceChange,
+  talleSet,
+  mode,
+  onCategoryChange,
+  activeCategoryId,
+  categoryLinkPrefix,
+  activeCategorySlug
 }) => {
-  const { categoriaNombre } = useParams<{ categoriaNombre?: string }>();
-  const { categories, loading: loadingCategories } = useCategoryContext();
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
 
@@ -31,11 +57,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     return categoryName.toLowerCase().replace(/\s+/g, '-');
   };
 
-  const isCategoryActive = (categoryName: string) => {
-    if (!categoriaNombre) return false;
-    const urlFriendlyName = categoryToUrl(categoryName);
-    return categoriaNombre === urlFriendlyName;
-  };
+  const tallesToShow = TALL_SETS[talleSet] || TALL_SETS.default;
+
+  const allCategoriesLink = mode === 'navigate' ? categoryLinkPrefix : undefined;
+  const allCategoriesClick = mode === 'filter' ? () => onCategoryChange(undefined) : undefined;
 
   return (
     <div>
@@ -48,36 +73,52 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <p className="text-muted small">Cargando categorías...</p>
         ) : (
           <ListGroup variant="flush">
-            {/* Opción "Todas" */}
-            <ListGroup.Item 
-              as={Link}
-              to="/productos"
-              action
-              className={`border-0 px-0 py-2 ${!categoriaNombre || categoriaNombre === 'descuentos' ? 'text-grey' : ''}`}
-              style={{ 
-                fontWeight: !categoriaNombre || categoriaNombre === 'descuentos' ? '600' : '400',
-                textDecoration: 'none'
-              }}
+            {/* Botón "Todas las categorías" */}
+            <ListGroup.Item
+                as={mode === 'navigate' ? Link : 'button'}
+                to={allCategoriesLink}
+                onClick={allCategoriesClick}
+                action
+                className={`border-0 px-0 py-2 ${!activeCategoryId && !activeCategorySlug ? 'text-primary fw-bold' : ''}`}
+                style={{ textDecoration: 'none', background: 'none', border: 'none', textAlign: 'left', width: '100%', padding: '0.5rem 0' }}
             >
               Todas las categorías
             </ListGroup.Item>
             
             {/* Lista de categorías */}
-            {categories.map((category) => (
-              <ListGroup.Item
-                key={category.id}
-                as={Link}
-                to={`/productos/${categoryToUrl(category.nombre)}`}
-                action
-                className={`border-0 px-0 py-2 ${isCategoryActive(category.nombre) ? 'text-grey' : ''}`}
-                style={{ 
-                  fontWeight: isCategoryActive(category.nombre) ? '600' : '400',
-                  textDecoration: 'none'
-                }}
-              >
-                {category.nombre}
-              </ListGroup.Item>
-            ))}
+            {categories.map((category) => {
+              const categorySlug = categoryToUrl(category.nombre);
+              const isActive = (mode === 'navigate' && activeCategorySlug === categorySlug) ||
+                               (mode === 'filter' && activeCategoryId === category.id);
+
+              if (mode === 'navigate') {
+                return (
+                  <ListGroup.Item
+                    key={category.id}
+                    as={Link}
+                    to={`${categoryLinkPrefix}/${categorySlug}`}
+                    action
+                    className={`border-0 px-0 py-2 ${isActive ? 'text-primary fw-bold' : ''}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    {category.nombre}
+                  </ListGroup.Item>
+                );
+              } else {
+                return (
+                  <ListGroup.Item
+                    key={category.id}
+                    as="button"
+                    action
+                    onClick={() => onCategoryChange(category.id)}
+                    className={`border-0 px-0 py-2 ${isActive ? 'text-primary fw-bold' : ''}`}
+                    style={{ background: 'none', border: 'none', textAlign: 'left', width: '100%', padding: '0.5rem 0' }}
+                  >
+                    {category.nombre}
+                  </ListGroup.Item>
+                );
+              }
+            })}
           </ListGroup>
         )}
       </div>
@@ -88,7 +129,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       <div className="mb-4">
         <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Talle</h5>
         <Form>
-          {TALL_OPTIONS.map((talle) => (
+          {tallesToShow.map((talle) => (
             <Form.Check
               key={talle}
               type="checkbox"

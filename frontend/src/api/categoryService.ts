@@ -7,11 +7,30 @@ export interface Category {
   activo: boolean;
 }
 
+interface CategoryFilters {
+  active?: boolean;
+  genero?: string | string[];
+  con_descuento?: boolean;
+}
+
 export const categoryService = {
   // GET /api/category
-  getCategories: async (): Promise<Category[]> => {
-    // le pedimos solo las categorias activas
-    const response = await apiClient.get("/category", { params: { active: 'true' } });
+  getCategories: async (filters: CategoryFilters = { active: true }): Promise<Category[]> => {
+        const params = {
+        active: filters.active !== false, 
+        ...filters
+    };
+    
+    if (filters.active === false) {
+        delete params.active;
+    }
+
+    const response = await apiClient.get("/category", { 
+      params,
+      paramsSerializer: {
+        indexes: null 
+      }
+    });
     return response.data.data;
   },
 };

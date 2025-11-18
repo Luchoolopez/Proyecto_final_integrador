@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { CategoryService } from '../services/category.service';
-import { createCategorySchema, updateCategorySchema } from '../validations/category.schema'; // Crearemos esto después
+import { createCategorySchema, updateCategorySchema } from '../validations/category.schema';
 import { ZodError } from 'zod';
 
 export class CategoryController {
@@ -12,8 +12,21 @@ export class CategoryController {
 
     getCategories = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const onlyActive = req.query.active !== 'false';
-            const categories = await this.categoryService.getCategories(onlyActive);
+            const { active, genero, con_descuento } = req.query;
+
+            const filters: any = {
+                activo: active !== 'false'
+            };
+
+            if (con_descuento === 'true') {
+                filters.con_descuento = true;
+            }
+
+            if (genero) {
+                filters.genero = genero;
+            }
+            
+            const categories = await this.categoryService.getCategories(filters);
             return res.status(200).json({
                 success: true,
                 data: categories,

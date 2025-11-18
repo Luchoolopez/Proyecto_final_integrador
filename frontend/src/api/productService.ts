@@ -56,7 +56,13 @@ export const productService = {
       ...(filters.genero && { genero: filters.genero }),
     };
 
-    const response = await axios.get(API_URL, { params });
+    const response = await axios.get(API_URL, { 
+      params,
+      paramsSerializer: {
+        indexes: null 
+      }
+    });
+    
     return response.data;
   },
 
