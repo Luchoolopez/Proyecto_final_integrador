@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col, ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { type Category } from '../../api/categoryService'; 
+import { type Category } from '../../api/categoryService';
+import './ProductFilters.css';
 
 const TALL_SETS = {
   default: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -13,20 +14,20 @@ type TalleSet = keyof typeof TALL_SETS;
 type FilterMode = 'navigate' | 'filter';
 
 interface ProductFiltersProps {
-  categories: Category[]; 
+  categories: Category[];
   loadingCategories: boolean;
-  
+
   selectedTalles: string[];
   onTalleChange: (talle: string) => void;
-  
+
   onPriceChange: (min: number | undefined, max: number | undefined) => void;
-  
+
   talleSet: TalleSet;
   mode: FilterMode;
-  
+
   onCategoryChange: (id: number | undefined) => void;
   activeCategoryId?: number;
-  
+
   categoryLinkPrefix: string;
   activeCategorySlug?: string;
 }
@@ -65,7 +66,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   return (
     <div>
       <h4 className="mb-3 fw-bold">Filtrar por</h4>
-      
+
       {/* Filtro de Categorías */}
       <div className="mb-4">
         <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Categorías</h5>
@@ -75,21 +76,21 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <ListGroup variant="flush">
             {/* Botón "Todas las categorías" */}
             <ListGroup.Item
-                as={mode === 'navigate' ? Link : 'button'}
-                to={allCategoriesLink}
-                onClick={allCategoriesClick}
-                action
-                className={`border-0 px-0 py-2 ${!activeCategoryId && !activeCategorySlug ? 'text-primary fw-bold' : ''}`}
-                style={{ textDecoration: 'none', background: 'none', border: 'none', textAlign: 'left', width: '100%', padding: '0.5rem 0' }}
+              as={mode === 'navigate' ? Link : 'button'}
+              to={allCategoriesLink}
+              onClick={allCategoriesClick}
+              action
+              className={`border-0 px-0 py-2 ${!activeCategoryId && !activeCategorySlug ? 'text-primary fw-bold' : ''}`}
+              style={{ textDecoration: 'none', background: 'none', border: 'none', textAlign: 'left', width: '100%', padding: '0.5rem 0' }}
             >
               Todas las categorías
             </ListGroup.Item>
-            
+
             {/* Lista de categorías */}
             {categories.map((category) => {
               const categorySlug = categoryToUrl(category.nombre);
               const isActive = (mode === 'navigate' && activeCategorySlug === categorySlug) ||
-                               (mode === 'filter' && activeCategoryId === category.id);
+                (mode === 'filter' && activeCategoryId === category.id);
 
               if (mode === 'navigate') {
                 return (
@@ -124,7 +125,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       </div>
 
       <hr className="my-4" />
-      
+
       {/* Filtro de Talle */}
       <div className="mb-4">
         <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Talle</h5>
@@ -144,7 +145,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       </div>
 
       <hr className="my-4" />
-      
+
       {/* Filtro de Precio */}
       <div className="mb-4">
         <h5 className="text-uppercase mb-3" style={{ fontSize: '0.9rem' }}>Precio</h5>
@@ -153,9 +154,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             <Col>
               <Form.Group controlId="filterMinPrice">
                 <Form.Label className="small text-uppercase">Desde</Form.Label>
-                <Form.Control 
-                  type="number" 
-                  placeholder="$" 
+                <Form.Control
+                  type="number"
+                  placeholder="$"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                 />
@@ -164,8 +165,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             <Col>
               <Form.Group controlId="filterMaxPrice">
                 <Form.Label className="small text-uppercase">Hasta</Form.Label>
-                <Form.Control 
-                  type="number" 
+                <Form.Control
+                  type="number"
                   placeholder="$"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
@@ -173,9 +174,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
               </Form.Group>
             </Col>
           </Row>
-          <Button 
+          <Button
             variant="dark"
-            className="w-100" 
+            className="w-100"
             onClick={handleApplyPrice}
           >
             Aplicar

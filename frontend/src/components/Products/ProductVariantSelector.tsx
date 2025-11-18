@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
 import { type Variant } from '../../types/Variant';
+import './ProductVariantSelector.css';
 
 interface ProductVariantSelectorProps {
   variants: Variant[];
