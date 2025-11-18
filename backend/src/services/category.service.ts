@@ -2,7 +2,7 @@ import { Category } from "../models/category.model";
 import { ServiceHelpers } from "../utils/user/user.helpers";
 import { sequelize } from "../config/database";
 import { Product } from "../models/product.model";
-import { ForeignKeyConstraintError } from "sequelize/types";
+import { Op, Sequelize } from "sequelize";
 
 interface CategoryData {
     nombre: string;
@@ -10,15 +10,59 @@ interface CategoryData {
     activo?: boolean
 }
 
+interface CategoryFilters {
+    activo?: boolean;
+    genero?: 'Hombre' | 'Mujer' | 'Unisex' | string | string[];
+    con_descuento?: boolean;
+}
+
 export class CategoryService {
 
-    async getCategories(onlyActive: boolean = true): Promise<Category[]> {
+    async getCategories(filters: CategoryFilters = { activo: true }): Promise<Category[]> {
         try {
-            const whereClause: { activo?: boolean } = {}
-            if (onlyActive) {
+            const whereClause: any = {};
+            if (filters.activo) {
                 whereClause.activo = true;
             }
-            const categories = await Category.findAll({ where: whereClause });
+
+            const includeOptions: any = [];
+
+            if (filters.genero || filters.con_descuento) {
+                const productWhere: any = { activo: true };
+
+                if (filters.genero) {
+                    if (Array.isArray(filters.genero)) {
+                        productWhere.genero = { [Op.in]: filters.genero };
+                    } else {
+                        productWhere.genero = filters.genero;
+                    }
+                }
+
+                if (filters.con_descuento) {
+                    productWhere.descuento = { [Op.gt]: 0 };
+                }
+                
+                includeOptions.push({
+                    model: Product,
+                    as: 'productos', 
+                    where: productWhere,
+                    required: true, 
+                    attributes: []
+                });
+            }
+
+            const categories = await Category.findAll({
+                where: whereClause,
+                include: includeOptions,
+                group: [
+                    'category.id', 
+                    'category.nombre', 
+                    'category.descripcion', 
+                    'category.activo', 
+                    'category.fecha_creacion'
+                ],
+                order: [['nombre', 'ASC']]
+            });
             return categories;
         } catch (error) {
             throw ServiceHelpers.handleServiceError(error, 'CategoryService.getCategories');

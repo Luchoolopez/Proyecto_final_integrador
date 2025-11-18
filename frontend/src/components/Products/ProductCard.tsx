@@ -17,10 +17,15 @@ const formatPrice = (price: number) => {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        console.log(`Añadiendo al carrito el producto ID: ${product.id}`);
-    };
+    let imageUrl = product.imagen_principal;
+
+    if (!imageUrl && product.imagenes && product.imagenes.length > 0) {
+        imageUrl = product.imagenes[0].imagen;
+    }
+
+    if (!imageUrl) {
+        imageUrl = "https://via.placeholder.com/400x500?text=Sin+Imagen";
+    }
 
   return (
     <Card className="h-100 shadow-sm product-card">
@@ -29,16 +34,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="position-relative">
                 <Card.Img 
                     variant="top" 
-                    src={product.imagen_principal} 
+                    
+                    src={imageUrl} 
+
                     alt={product.nombre}
                     className="product-card-img" 
                 />
-                {product.descuento_porcentaje > 0 && (
+                
+                {product.descuento > 0 && (
                     <Badge 
                         bg="danger" 
                         className="position-absolute top-0 end-0 m-2"
                     >
-                        {product.descuento_porcentaje}% OFF
+                        {Math.floor(product.descuento)}% OFF
                     </Badge>
                 )}
             </div>
@@ -51,25 +59,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </Link>
             
             <div className="mt-auto">
-                {product.descuento_porcentaje > 0 && (
+                
+                {product.descuento > 0 && (
                     <span className="text-muted text-decoration-line-through me-2">
-                        {formatPrice(product.precio_original)}
+                        {formatPrice(product.precio_base)}
                     </span>
                 )}
+
                 <Card.Text className="fw-bold fs-5 mb-1 d-inline">
                     {formatPrice(product.precio_final)}
                 </Card.Text>
-                {product.info_cuotas && (
+
+                {(product as any).info_cuotas && (
                     <Card.Text className="text-danger small">
-                        {product.info_cuotas}
+                        {(product as any).info_cuotas}
                     </Card.Text>
                 )}
             </div>
 
             <div className="card-buttons-overlay">
-                <Button variant="secondary" className="card-button" onClick={handleAddToCart}>
-                    COMPRAR
-                </Button>
                 <Link to={`/producto/${product.id}`} className="btn btn-outline-secondary card-button">
                     VER
                 </Link>
