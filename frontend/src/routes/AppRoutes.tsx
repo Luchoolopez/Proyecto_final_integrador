@@ -24,8 +24,10 @@ export function AppRouter() {
                 <Route path='/register' element={<Register />} />
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/profile' element={<Profile/>}/>
+
                 <Route path='/productos' element={<ProductListPage />} />
-                <Route path='/productos/:categoriaNombre' element={<ProductListPage />} />
+                <Route path='/productos/:slug1/:slug2' element={<ProductListPage />} />
+                <Route path='/productos/:slug1' element={<ProductListPage />} />
                 <Route path='/producto/:id' element={<ProductDetailPage />} />
             </Route>
 
@@ -37,4 +39,3 @@ export function AppRouter() {
         </Routes>
     )
 }
-
