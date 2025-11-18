@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AxiosError } from "axios"; 
 import { useNavigate } from "react-router-dom";
 
-import type { LoginData, RegisterData, User, AuthResponse } from "../types/user"; 
+import type { LoginData, RegisterData, User, AuthData } from "../types/user"; 
 import { authService } from "../api/authService";
 
 interface ApiError {
@@ -19,8 +19,8 @@ export const useAuth = () => {
         setError(null);
 
         try {
-            const response: AuthResponse = await authService.login(values);
-            const {user, accessToken, refreshToken} = response;
+            const authData: AuthData = await authService.login(values);
+            const {user, accessToken, refreshToken} = authData;
 
             if(!user || !accessToken){
                 throw new Error("Respuesta de API invalida, fatlan 'user' o 'accessToken' dentro de 'Data'")

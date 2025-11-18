@@ -1,3 +1,9 @@
+export interface ApiResponse<T>{
+    success:boolean;
+    message?:string;
+    data:T;
+}
+
 export type UserRole = 'user' | 'admin';
 
 export interface User {
@@ -6,8 +12,9 @@ export interface User {
     email: string;
     rol: UserRole;
     telefono?: string | null;
-    createdAt: string;
-    updatedAt: string;
+    activo:boolean;
+    fecha_creacion: string;
+    fecha_ultimo_acceso: string;
 }
 
 export interface LoginData {
@@ -24,13 +31,4 @@ export interface AuthData {
     accessToken: string;
     refreshToken: string;
     user: User;
-}
-
-export interface AuthResponse {
-    success: boolean;
-    message: string;
-    data: AuthData;
-    user: User;
-    accessToken: string;
-    refreshToken: string;
 }

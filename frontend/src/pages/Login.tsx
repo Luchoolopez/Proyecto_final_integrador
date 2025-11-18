@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // --- 1. Importar useEffect
 import { useAuthContext } from '../context/AuthContext';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom"; // --- 2. Importar useLocation
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import { Container, Row, Col, Form, Button, Breadcrumb, InputGroup, Alert } from "react-bootstrap";
 import type { LoginData, User } from "../types/user";
@@ -12,6 +12,26 @@ export const Login = () => {
 
     const { login, loading, error } = useAuthContext();
     const navigate = useNavigate();
+
+    
+    const location = useLocation();
+    
+    const [successMessage, setSuccessMessage] = useState(location.state?.successMessage);
+
+    useEffect(() => {
+        
+        if (location.state?.successMessage) {
+            window.history.replaceState(null, '');
+        }
+
+        
+        const timer = setTimeout(() => {
+            setSuccessMessage(null);
+        }, 7000);
+
+        return () => clearTimeout(timer); 
+    }, [location.state]); 
+    
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -28,8 +48,6 @@ export const Login = () => {
         }catch(error){
             console.error("Error al iniciar sesion", error);
         }
-
-
     };
 
     return (
@@ -45,6 +63,18 @@ export const Login = () => {
 
             <Row className="justify-content-md-center">
                 <Col md={6} lg={5}>
+                    
+                    
+                    {successMessage && (
+                        <Alert 
+                            variant="success" 
+                            onClose={() => setSuccessMessage(null)} 
+                            dismissible
+                        >
+                            {successMessage}
+                        </Alert>
+                    )}
+
                     <h2 className="text-center mb-4 fw-bold">Iniciar sesión</h2>
 
                     {error && <Alert variant="danger">{error}</Alert>}
@@ -69,7 +99,7 @@ export const Login = () => {
                             <Link to="/recuperar-contrasena" className="form-link">¿Olvidaste tu contraseña?</Link>
                         </div>
 
-                        <Button variant="dark" type="submit" className="w-100" disabled={loading}>
+                        <Button variant="dark" type="submit" className="w-100 border" disabled={loading}>
                             {loading ? "Cargando..." : "INICIAR SESIÓN"}
                         </Button>
                     </Form>

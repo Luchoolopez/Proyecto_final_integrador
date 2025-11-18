@@ -11,6 +11,13 @@ interface AuthContextType {
     logout: () => void;
     loading: boolean;
     error: string | null;
+    
+    isAuthModalOpen: boolean;
+    openAuthModal: () => void;
+    closeAuthModal: () => void;
+
+    setUser: (user: User | null) => void;
+    
 }
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -19,6 +26,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { login: apiLogin, register, logout: apiLogout, loading: apiLoading, error } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [initializing, setInitializing] = useState(true);
+
+    
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const openAuthModal = () => setIsAuthModalOpen(true);
+    const closeAuthModal = () => setIsAuthModalOpen(false);
+    
 
     useEffect(() => {
         try {
@@ -55,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         apiLogout();
         setUser(null);
     };
+    
     const value = {
         isAuthenticated: !!user,
         user,
@@ -63,6 +77,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout: handleLogout,
         loading: apiLoading || initializing,
         error,
+        
+        isAuthModalOpen,
+        openAuthModal,
+        closeAuthModal,
+
+        setUser: setUser
+        
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

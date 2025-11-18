@@ -49,8 +49,6 @@ export class Product extends Model<ProductAttributes, ProductCreationAttributes>
   public activo?: boolean;
   public fecha_creacion!: Date;
   public fecha_actualizacion!: Date;
-
-  // timestamps!
   public readonly createdAt!: Date; 
   public readonly updatedAt!: Date; 
 

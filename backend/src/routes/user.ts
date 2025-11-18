@@ -9,7 +9,7 @@ userRouter.use(AuthMiddleware.authenticate);
 
 // Rutas para usuarios
 userRouter.get('/:id', userController.getUser);
-userRouter.put('/:id', userController.updateUser);
+userRouter.patch('/:id', userController.updateUser);
 userRouter.put('/:id/password', userController.changePassword);
 userRouter.delete('/:id', userController.deleteUser);
 
