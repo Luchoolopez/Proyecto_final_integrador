@@ -40,67 +40,68 @@ export class Order extends Model<OrderAttributes, OrderCreationAttributes> imple
 
 Order.init(
     {
-        id:{
-            type:DataTypes.INTEGER,
+        id: {
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        numero_pedido:{
-            type:DataTypes.STRING(20),
-            unique:true,
-            allowNull:true,
+        numero_pedido: {
+            type: DataTypes.STRING(20),
+            unique: true,
+            allowNull: true,
+            defaultValue: null,
         },
-        usuario_id:{
-            type:DataTypes.INTEGER,
-            allowNull:false,
-            references:{
-                model:'usuarios',
-                key:'id',
+        usuario_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'usuarios',
+                key: 'id',
             },
         },
-        direccion_id:{
-            type:DataTypes.INTEGER,
-            references:{
+        direccion_id: {
+            type: DataTypes.INTEGER,
+            references: {
                 model: 'direcciones',
                 key: 'id',
             },
         },
-        total:{
-            type:DataTypes.DECIMAL(10,2),
-            allowNull:false,
-            validate:{
+        total: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+            validate: {
                 min: 0,
-           },
+            },
         },
-        estado:{
-            type:DataTypes.ENUM('pendiente', 'confirmado', 'armando', 'enviado', 'entregado', 'cancelado'),
+        estado: {
+            type: DataTypes.ENUM('pendiente', 'confirmado', 'armando', 'enviado', 'entregado', 'cancelado'),
             defaultValue: 'pendiente',
         },
-        notas:{
-            type:DataTypes.TEXT,
+        notas: {
+            type: DataTypes.TEXT,
         },
-        fecha:{
-            type:DataTypes.DATE,
-            defaultValue:DataTypes.NOW,
+        fecha: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
         },
-        fecha_envio:{
-            type:DataTypes.DATE,
+        fecha_envio: {
+            type: DataTypes.DATE,
         },
-        fecha_entrega:{
-            type:DataTypes.DATE,
+        fecha_entrega: {
+            type: DataTypes.DATE,
         },
-        shipping_provider:{
-            type:DataTypes.STRING,
+        shipping_provider: {
+            type: DataTypes.STRING,
         },
-        shipping_service:{
-            type:DataTypes.STRING,
+        shipping_service: {
+            type: DataTypes.STRING,
         },
-        tracking_number:{
-            type:DataTypes.STRING(100),
+        tracking_number: {
+            type: DataTypes.STRING(100),
         },
-        shipping_cost:{
-            type:DataTypes.DECIMAL(10,2),
-            defaultValue:0
+        shipping_cost: {
+            type: DataTypes.DECIMAL(10, 2),
+            defaultValue: 0
         },
     },
     {
