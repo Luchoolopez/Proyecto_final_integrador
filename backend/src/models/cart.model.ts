@@ -41,7 +41,7 @@ Cart.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'variante_producto',
+                model: 'variantes_producto',
                 key: 'id'
             }
         },
