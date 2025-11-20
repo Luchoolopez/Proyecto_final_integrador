@@ -4,6 +4,7 @@ import { ProductImage } from './product-image.model';
 import { Category } from './category.model';
 import { User } from './user.model';
 import {Order} from './order.model';
+import { Address } from './address.model';
 import {OrderDetail} from './order-detail.model';
 /**
  * Define las relaciones entre todos los modelos
@@ -11,13 +12,24 @@ import {OrderDetail} from './order-detail.model';
  */
 export function setupAssociations() {
   // En associations.ts o user.model.ts
-  User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
-  Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+  User.hasMany(Order, { foreignKey: 'usuario_id', as: 'pedidos' });
+  Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
 
   // En associations.ts o order.model.ts
   Order.hasMany(OrderDetail, { foreignKey: 'pedido_id', as: 'details' });
   OrderDetail.belongsTo(Order, { foreignKey: 'pedido_id', as: 'order' });
 
+  // =====================================
+  // RELACIÓN: User <-> Address
+  // =====================================
+  User.hasMany(Address, { foreignKey: 'usuario_id', as: 'Addresses' });
+  Address.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
+  // =====================================
+  // RELACIÓN: Order -> Address
+  // =====================================
+  Order.belongsTo(Address, { foreignKey: 'Address_id', as: 'Address_entrega' });
+  // No es común necesitar `Address.hasMany(Order)` pero se podría agregar si fuera necesario
 
   // =====================================
   // RELACIÓN: Product <-> ProductVariant
