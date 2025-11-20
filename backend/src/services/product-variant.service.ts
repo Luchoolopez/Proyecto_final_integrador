@@ -89,7 +89,7 @@ class ProductVariantService {
     const variante = await ProductVariant.findByPk(id);
     if (!variante) throw new Error('Variante no encontrada');
 
-    await variante.update({ activo: false });
+    await variante.destroy();
     return { message: 'Variante desactivada correctamente' };
   }
 }

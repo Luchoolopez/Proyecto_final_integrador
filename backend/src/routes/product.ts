@@ -27,7 +27,7 @@ productRouter.delete('/:id', productController.delete);
 productRouter.post('/variants', productVariantController.create);
 productRouter.put('/variants/:id', productVariantController.update);
 productRouter.patch('/variants/:id/stock', productVariantController.updateStock);
-// productRouter.delete('/variants/:id', productVariantController.delete);
+productRouter.delete('/variants/:id', productVariantController.delete);
 
 // Rutas protegidas de Imagenes
 productRouter.get('/images/:productoId', productImageController.getByProduct);

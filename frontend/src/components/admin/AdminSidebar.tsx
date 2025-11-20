@@ -29,7 +29,7 @@ export const AdminSidebar = () => {
           </Nav.Link>
 
           {/* Productos (a futuro será /admin/productos) */}
-          <Nav.Link as={Link} to="/productos" className="admin-nav-link text-white">
+          <Nav.Link as={Link} to="/admin/productos" className="admin-nav-link text-white">
             <FaBoxOpen className="admin-nav-icon" />
             <span>Productos</span>
           </Nav.Link>

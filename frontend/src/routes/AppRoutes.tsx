@@ -16,7 +16,8 @@ import { Account } from '../pages/Account.tsx';
 import { EditAccount } from '../pages/EditAccount.tsx';
 import { CategoryList } from '../pages/admin/CategoryList';
 import { CategoryForm } from '../pages/admin/CategoryForm';
-
+import { ProductList } from '../pages/admin/ProductList';
+import { ProductForm } from '../pages/admin/ProductForm';
 
 export function AppRouter() {
     return (
@@ -40,6 +41,9 @@ export function AppRouter() {
                     <Route path='/admin/categorias' element={<CategoryList />} />
                     <Route path='/admin/categorias/nueva' element={<CategoryForm />} />
                     <Route path='/admin/categorias/editar/:id' element={<CategoryForm />} />
+                    <Route path='/admin/productos' element={<ProductList />} />
+                    <Route path='/admin/productos/nuevo' element={<ProductForm />} />
+                    <Route path='/admin/productos/editar/:id' element={<ProductForm />} />
                 </Route>
             </Route>
         </Routes>
