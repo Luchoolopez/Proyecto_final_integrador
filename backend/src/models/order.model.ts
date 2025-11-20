@@ -4,7 +4,7 @@ import { User } from './user.model';
 
 interface OrderAttributes {
     id: number;
-    numero_pedido: string;
+    numero_pedido?: string;
     usuario_id: number;
     direccion_id: number;
     total: number;
@@ -48,7 +48,7 @@ Order.init(
         numero_pedido:{
             type:DataTypes.STRING(20),
             unique:true,
-            allowNull:false,
+            allowNull:true,
         },
         usuario_id:{
             type:DataTypes.INTEGER,

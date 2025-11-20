@@ -2,12 +2,23 @@ import { Product } from './product.model';
 import { ProductVariant } from './product-variant.model';
 import { ProductImage } from './product-image.model';
 import { Category } from './category.model';
-
+import { User } from './user.model';
+import {Order} from './order.model';
+import {OrderDetail} from './order-detail.model';
 /**
  * Define las relaciones entre todos los modelos
  * Debe ejecutarse DESPUÉS de que todos los modelos estén inicializados
  */
 export function setupAssociations() {
+  // En associations.ts o user.model.ts
+  User.hasMany(Order, { foreignKey: 'usuario_id', as: 'orders' });
+  Order.belongsTo(User, { foreignKey: 'usuario_id', as: 'user' });
+
+  // En associations.ts o order.model.ts
+  Order.hasMany(OrderDetail, { foreignKey: 'pedido_id', as: 'details' });
+  OrderDetail.belongsTo(Order, { foreignKey: 'pedido_id', as: 'order' });
+
+
   // =====================================
   // RELACIÓN: Product <-> ProductVariant
   // =====================================

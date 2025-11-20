@@ -1,6 +1,7 @@
 import {DataTypes, Model, Optional} from 'sequelize';
 import {sequelize} from '../config/database';
 
+
 interface CategoryAttributes {
     id: number;
     nombre:string;
@@ -17,7 +18,6 @@ export class Category extends Model<CategoryAttributes, CategoryCreationAttribut
     public activo!: boolean;
     public fecha_creacion!: Date;
 
-    // timestamps!
     public readonly createdAt!: Date; 
     public readonly updatedAt!: Date; 
 }
