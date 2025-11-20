@@ -19,7 +19,7 @@ export class OrderController {
 
             const newOrder = await this.orderService.createOrder(
                 usuario_id,
-                parsedBody.body 
+                parsedBody 
             );
 
             return res.status(201).json({

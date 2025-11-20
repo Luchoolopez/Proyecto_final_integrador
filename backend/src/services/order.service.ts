@@ -70,9 +70,14 @@ export class OrderService {
                 });
             }
 
+            const timestamp = Math.floor(Date.now() / 1000); 
+            const random = Math.floor(Math.random() * 1000);
+            const numeroPedidoGenerado = `PED-${timestamp}-${random}`;
+
             const nuevoPedido = await Order.create(
                 {
                     usuario_id,
+                    numero_pedido: numeroPedidoGenerado, 
                     direccion_id: orderData.direccion_id,
                     total: totalPedido,
                     estado: ORDER_STATUS.PENDIENTE,
@@ -101,7 +106,10 @@ export class OrderService {
             return await this.getOrderById(nuevoPedido.id, usuario_id);
 
         } catch (error) {
-            await transaction.rollback();
+            if (!transaction.commit) {
+                await transaction.rollback();
+            }
+            
             if (error instanceof Error) {
                 throw new Error(error.message || ERROR_MESSAGES.CREATE_ORDER_ERROR);
             }

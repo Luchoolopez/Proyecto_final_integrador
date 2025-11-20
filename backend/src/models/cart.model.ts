@@ -71,8 +71,8 @@ Cart.init(
     }
 )
 
-Cart.belongsTo(ProductVariant, {
+/*Cart.belongsTo(ProductVariant, {
     foreignKey: 'variante_id',
     as: 'variante'
-});
+});*/
 

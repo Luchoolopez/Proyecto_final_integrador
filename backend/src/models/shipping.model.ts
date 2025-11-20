@@ -76,4 +76,4 @@ Shipping.init(
   }
 );
 
-export default Shipping;
+export default Shipping; 
