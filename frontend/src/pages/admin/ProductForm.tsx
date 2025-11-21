@@ -4,13 +4,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../../api/productService';
 import { categoryService, type Category } from '../../api/categoryService';
 import { uploadService } from '../../api/uploadService';
+import apiClient from '../../api/apiClient';
 import { FaTrash, FaPlus, FaUpload } from 'react-icons/fa';
 
-// Interfaz para las variantes en el formulario
 interface VariantField {
     id?: number;
     talle: string;
     stock: number;
+}
+
+interface ImageField {
+    id?: number;
+    imagen: string;
 }
 
 export const ProductForm = () => {
@@ -42,12 +47,11 @@ export const ProductForm = () => {
     const [variants, setVariants] = useState<VariantField[]>([
         { talle: 'M', stock: 0 }
     ]);
-
-    // NUEVO: Estado para rastrear variantes que el usuario eliminó de la lista
     const [variantsToDelete, setVariantsToDelete] = useState<number[]>([]);
 
     // Estado para Imágenes
-    const [images, setImages] = useState<string[]>([]);
+    const [images, setImages] = useState<ImageField[]>([]);
+    const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
 
     // Carga inicial de datos
     useEffect(() => {
@@ -81,7 +85,7 @@ export const ProductForm = () => {
                     }
 
                     if (product.imagenes && product.imagenes.length > 0) {
-                        setImages(product.imagenes.map(i => i.imagen));
+                        setImages(product.imagenes.map(i => ({ id: i.id, imagen: i.imagen })));
                     }
                 }
             } catch (err) {
@@ -116,10 +120,10 @@ export const ProductForm = () => {
                 setFormData(prev => ({ ...prev, imagen_principal: url }));
             } else if (index !== undefined) {
                 const newImages = [...images];
-                newImages[index] = url;
+                newImages[index] = { ...newImages[index], imagen: url };
                 setImages(newImages);
             } else {
-                setImages([...images, url]);
+                setImages([...images, { imagen: url }]);
             }
         } catch (err) {
             console.error(err);
@@ -135,13 +139,9 @@ export const ProductForm = () => {
 
     const removeVariant = (index: number) => {
         const variantToRemove = variants[index];
-
-        // Si la variante tiene ID (ya existe en BD), la agregamos a la lista de eliminación
         if (variantToRemove.id) {
             setVariantsToDelete([...variantsToDelete, variantToRemove.id]);
         }
-
-        // La quitamos de la vista inmediatamente
         const newVariants = [...variants];
         newVariants.splice(index, 1);
         setVariants(newVariants);
@@ -157,9 +157,15 @@ export const ProductForm = () => {
     };
 
     // --- Handlers Galería ---
-    const addImageField = () => setImages([...images, '']);
+    const addImageField = () => setImages([...images, { imagen: '' }]);
 
     const removeImageField = (index: number) => {
+        const imageToRemove = images[index];
+        
+        if (imageToRemove.id) {
+            setImagesToDelete([...imagesToDelete, imageToRemove.id]);
+        }
+
         const newImages = [...images];
         newImages.splice(index, 1);
         setImages(newImages);
@@ -167,107 +173,109 @@ export const ProductForm = () => {
 
     const handleImageChange = (index: number, value: string) => {
         const newImages = [...images];
-        newImages[index] = value;
+        newImages[index] = { ...newImages[index], imagen: value };
         setImages(newImages);
     };
 
     // --- SUBMIT ---
     const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-    // Validaciones
-    if (variants.some(v => !v.talle)) {
-        setError("Todas las variantes deben tener un talle.");
-        setLoading(false);
-        return;
-    }
-    if (Number(formData.categoria_id) === 0) {
-        setError("Debes seleccionar una categoría.");
-        setLoading(false);
-        return;
-    }
+        // Validaciones
+        if (variants.some(v => !v.talle)) {
+            setError("Todas las variantes deben tener un talle.");
+            setLoading(false);
+            return;
+        }
+        if (Number(formData.categoria_id) === 0) {
+            setError("Debes seleccionar una categoría.");
+            setLoading(false);
+            return;
+        }
 
-    const flatPayload = {
-        ...formData,
-        precio_base: Number(formData.precio_base),
-        descuento: Number(formData.descuento),
-        categoria_id: Number(formData.categoria_id),
-        variantes: variants,
-        imagenes: images.filter(img => img.trim() !== '')
-    };
+        const flatPayload = {
+            ...formData,
+            precio_base: Number(formData.precio_base),
+            descuento: Number(formData.descuento),
+            categoria_id: Number(formData.categoria_id),
+            variantes: variants, 
+            imagenes: images.map(img => img.imagen).filter(url => url.trim() !== '')
+        };
 
-    try {
-        if (isEditing) {
-            // 1. PRIMERO eliminar variantes marcadas para borrar
-            if (variantsToDelete.length > 0) {
-                console.log('Eliminando variantes:', variantsToDelete);
-                
-                for (const vid of variantsToDelete) {
-                    try {
+        try {
+            if (isEditing) {
+                // === LÓGICA DE EDICIÓN ===
+
+                // 1. Variantes: Borrar
+                if (variantsToDelete.length > 0) {
+                    for (const vid of variantsToDelete) {
                         await productService.deleteVariant(vid);
-                        console.log(`Variante ${vid} eliminada correctamente`);
-                    } catch (deleteError: any) {
-                        console.error(`Error eliminando variante ${vid}:`, deleteError);
-                        // Verifica si el error es por método no encontrado
-                        if (deleteError.response?.status === 404 || deleteError.message?.includes('deleteVariant')) {
-                            setError("El método deleteVariant no está disponible en el backend. Verifica tu productService.");
-                            setLoading(false);
-                            return;
-                        }
-                        throw deleteError;
                     }
+                    setVariantsToDelete([]);
                 }
-                
-                // Limpiar el array después de eliminar exitosamente
-                setVariantsToDelete([]);
+
+                // 2. Variantes: Actualizar/Crear
+                await Promise.all(variants.map(v => {
+                    if (v.id) {
+                        return productService.updateVariant(v.id, { talle: v.talle, stock: v.stock });
+                    } else {
+                        return productService.createVariant({
+                            producto_id: Number(id),
+                            talle: v.talle,
+                            stock: v.stock
+                        });
+                    }
+                }));
+
+                // 3. Imágenes: Borrar las marcadas
+                if (imagesToDelete.length > 0) {
+                    for (const imgId of imagesToDelete) {
+                        await apiClient.delete(`/product/images/${imgId}`);
+                    }
+                    setImagesToDelete([]);
+                }
+
+                // 4. Imágenes: Actualizar/Crear las restantes
+                await Promise.all(images.map(img => {
+                    if (!img.imagen.trim()) return Promise.resolve(); 
+
+                    if (img.id) {
+                        return apiClient.put(`/product/images/${img.id}`, { imagen: img.imagen });
+                    } else {
+                        return apiClient.post('/product/images', {
+                            producto_id: Number(id),
+                            imagen: img.imagen,
+                            orden: 0
+                        });
+                    }
+                }));
+
+                // 5. Actualizar producto base
+                await productService.updateProduct(Number(id), flatPayload);
+
+                alert("Producto actualizado correctamente.");
+            } else {
+                // === LÓGICA DE CREACIÓN ===
+                await productService.createProduct(flatPayload as any);
+                alert("Producto creado correctamente.");
             }
-
-            // 2. Actualizar o Crear variantes restantes
-            const variantPromises = variants.map(async (v) => {
-                if (v.id) {
-                    console.log(`Actualizando variante ${v.id}`);
-                    return productService.updateVariant(v.id, {
-                        talle: v.talle,
-                        stock: v.stock
-                    });
-                } else {
-                    console.log(`Creando nueva variante: ${v.talle}`);
-                    return productService.createVariant({
-                        producto_id: Number(id),
-                        talle: v.talle,
-                        stock: v.stock
-                    });
-                }
-            });
-
-            await Promise.all(variantPromises);
-
-            // 3. Actualizar producto base
-            await productService.updateProduct(Number(id), flatPayload);
-            
-            alert("Producto actualizado correctamente.");
-        } else {
-            // Crear producto nuevo
-            await productService.createProduct(flatPayload as any);
-            alert("Producto creado correctamente.");
+            navigate('/admin/productos');
+        } catch (err: any) {
+            console.error('Error completo:', err);
+            if (err.response?.data?.errors) {
+                const errorMsg = Array.isArray(err.response.data.errors)
+                    ? err.response.data.errors.map((e: any) => `${e.path}: ${e.message}`).join(', ')
+                    : JSON.stringify(err.response.data.errors);
+                setError(`Error de validación: ${errorMsg}`);
+            } else {
+                setError(err.response?.data?.message || err.message || 'Error al guardar.');
+            }
+        } finally {
+            setLoading(false);
         }
-        navigate('/admin/productos');
-    } catch (err: any) {
-        console.error('Error completo:', err);
-        if (err.response?.data?.errors) {
-            const errorMsg = Array.isArray(err.response.data.errors)
-                ? err.response.data.errors.map((e: any) => `${e.path}: ${e.message}`).join(', ')
-                : JSON.stringify(err.response.data.errors);
-            setError(`Error de validación: ${errorMsg}`);
-        } else {
-            setError(err.response?.data?.message || err.message || 'Error al guardar. Revisa la consola.');
-        }
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     return (
         <Container className="py-4">
@@ -440,7 +448,7 @@ export const ProductForm = () => {
                                     <InputGroup className="mb-2" key={index}>
                                         <Form.Control
                                             placeholder="URL imagen"
-                                            value={img}
+                                            value={img.imagen}
                                             onChange={(e) => handleImageChange(index, e.target.value)}
                                         />
                                         <Button variant="outline-danger" onClick={() => removeImageField(index)}><FaTrash /></Button>
