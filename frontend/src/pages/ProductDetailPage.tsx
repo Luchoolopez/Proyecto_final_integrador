@@ -88,64 +88,71 @@ const ProductDetailPage = () => {
     const isAddToCartDisabled = !selectedVariant || selectedVariant.stock === 0;
 
     return (
-      <Row>
-        <Col md={7} lg={8}>
-          <ProductImageGallery images={product.imagenes} productName={product.nombre} />
-        </Col>
-        <Col md={5} lg={4}>
-          <h2 className="fw-bold">{product.nombre}</h2>
-          <div>
-            {product.descuento > 0 && (
-              <span className="text-muted text-decoration-line-through me-2 fs-5">
-                {formatPrice(product.precio_base)}
-              </span>
-            )}
-            <span className="fs-3 fw-bold text-danger">
-              {formatPrice(product.precio_final)}
-            </span>
-          </div>
-          <hr className="my-4" />
-
-          <ProductVariantSelector 
-            variants={product.variantes}
-            selectedVariant={selectedVariant}
-            onSelectVariant={handleSelectVariant}
+      <Row className="justify-content-center g-5"> 
+        <Col md={7} lg={7} xl={7} className="mb-4">
+          <ProductImageGallery 
+            images={product.imagenes} 
+            mainImage={product.imagen_principal} 
+            productName={product.nombre} 
           />
-          
-          <hr className="my-4" />
+        </Col>
 
-          <Row className="align-items-end">
-            <Col xs={4}>
-              <Form.Group controlId="quantitySelect">
-                <Form.Label>Cantidad</Form.Label>
-                <Form.Control 
-                  type="number"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  min={1}
-                  max={selectedVariant?.stock || 1}
-                  disabled={isAddToCartDisabled}
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={8}>
-              <Button 
-                variant="dark" 
-                className="w-100"
-                onClick={handleAddToCart}
-                disabled={isAddToCartDisabled}
-              >
-                {isAddToCartDisabled ? 'Sin Stock' : 'Agregar al Carrito'}
-              </Button>
-            </Col>
-          </Row>
-
-          {product.descripcion && (
-            <div className="mt-4">
-              <h5 className="fw-bold">Descripción</h5>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{product.descripcion}</p>
+        <Col md={5} lg={5} xl={4}>
+          <div className="border rounded p-4 h-100 shadow-sm">
+            <h2 className="fw-bold">{product.nombre}</h2>
+            <div>
+              {product.descuento > 0 && (
+                <span className="text-muted text-decoration-line-through me-2 fs-5">
+                  {formatPrice(product.precio_base)}
+                </span>
+              )}
+              <span className="fs-3 fw-bold text-danger">
+                {formatPrice(product.precio_final)}
+              </span>
             </div>
-          )}
+            <hr className="my-4" />
+
+            <ProductVariantSelector 
+              variants={product.variantes}
+              selectedVariant={selectedVariant}
+              onSelectVariant={handleSelectVariant}
+            />
+            
+            <hr className="my-4" />
+
+            <Row className="align-items-end">
+              <Col xs={4}>
+                <Form.Group controlId="quantitySelect">
+                  <Form.Label>Cantidad</Form.Label>
+                  <Form.Control 
+                    type="number"
+                    value={quantity}
+                    onChange={handleQuantityChange}
+                    min={1}
+                    max={selectedVariant?.stock || 1}
+                    disabled={isAddToCartDisabled}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={8}>
+                <Button 
+                  variant="dark" 
+                  className="w-100"
+                  onClick={handleAddToCart}
+                  disabled={isAddToCartDisabled}
+                >
+                  {isAddToCartDisabled ? 'Sin Stock' : 'Agregar al Carrito'}
+                </Button>
+              </Col>
+            </Row>
+
+            {product.descripcion && (
+              <div className="mt-4">
+                <h5 className="fw-bold">Descripción</h5>
+                <p style={{ whiteSpace: 'pre-wrap', color: '#555' }}>{product.descripcion}</p>
+              </div>
+            )}
+          </div>
         </Col>
       </Row>
     );
