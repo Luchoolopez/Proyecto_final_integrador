@@ -1,0 +1,41 @@
+/* Contenedor que permite el scroll horizontal oculto */
+.product-carousel-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px; /* Espacio entre tarjetas */
+    padding: 10px 5px;
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+
+/* Apply Firefox-only scrollbar hiding where supported */
+@supports (scrollbar-width: none) {
+    .product-carousel-container {
+        scrollbar-width: none; /* Firefox */
+    }
+}
+
+/* Ocultar barra de scroll en Chrome/Safari */
+.product-carousel-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Cada item del carrusel */
+.product-carousel-item {
+    flex: 0 0 auto; /* No estirar ni encoger */
+    width: calc(100% / 4 - 15px); /* Mostrar 4 productos (restando el gap) */
+}
+
+/* Responsive: En tablets mostrar 3 */
+@media (max-width: 992px) {
+    .product-carousel-item {
+        width: calc(100% / 3 - 15px);
+    }
+}
+
+/* Responsive: En móviles mostrar 1.5 para indicar que hay más */
+@media (max-width: 768px) {
+    .product-carousel-item {
+        width: calc(100% / 1.2);
+    }
+}

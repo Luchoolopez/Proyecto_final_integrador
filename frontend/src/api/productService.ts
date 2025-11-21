@@ -24,6 +24,8 @@ export interface ProductFilters {
   active?: boolean;
   busqueda?: string;
   limit?: number;
+  es_nuevo?: boolean;     // <--- Agregado
+  es_destacado?: boolean; // <--- Agregado
 }
 
 export interface ProductFormData {
@@ -65,7 +67,10 @@ export const productService = {
       ...(filters.con_descuento === true && { con_descuento: true }),
       ...(filters.genero && { genero: filters.genero }),
       ...(filters.busqueda && { busqueda: filters.busqueda }),
-      ...(filters.active !== undefined ? { activo: filters.active } : {}) 
+      ...(filters.active !== undefined ? { activo: filters.active } : {}),
+      // Mapeamos los nuevos filtros para que se envíen a la API
+      ...(filters.es_nuevo !== undefined ? { es_nuevo: filters.es_nuevo } : {}),
+      ...(filters.es_destacado !== undefined ? { es_destacado: filters.es_destacado } : {})
     };
 
     if (filters.active === false) {
@@ -98,8 +103,6 @@ export const productService = {
   async deleteProduct(id: number): Promise<void> {
     await apiClient.delete(`/product/${id}`);
   },
-
-  // --- NUEVOS MÉTODOS PARA VARIANTES ---
   
   async createVariant(data: { producto_id: number; talle: string; stock: number }): Promise<any> {
       const response = await apiClient.post("/product/variants", data);
@@ -112,8 +115,6 @@ export const productService = {
   },
 
   async deleteVariant(id: number): Promise<void> {
-      const response = await apiClient.delete(`/product/variants/${id}`);
-      return response.data;
+      await apiClient.delete(`/product/variants/${id}`);
   }
-
 };

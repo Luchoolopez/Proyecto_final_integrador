@@ -1,9 +1,24 @@
+/* frontend/src/components/Carousel.style.css */
+
 .carousel-item {
-  height: 500px;
+  /* Cambiamos 500px por 85vh (85% del alto de la pantalla) */
+  height: 85vh; 
+  min-height: 600px; /* Aseguramos una altura mínima */
+  background-color: #000; /* Fondo negro por si la imagen tarda en cargar */
 }
 
 .carousel-item img {
   height: 100%;
-  object-fit: cover;
-  object-position: center top;
+  width: 100%;
+  object-fit: cover; /* Cubre todo el espacio sin deformar */
+  object-position: center top; /* Enfoca la parte superior/centro de la imagen */
+  filter: brightness(0.9); /* (Opcional) Oscurece un poco la imagen para que resalte el texto si tuvieras */
+}
+
+/* Ajuste Responsive para celulares */
+@media (max-width: 768px) {
+  .carousel-item {
+    height: 60vh; /* En celular ocupa un poco menos */
+    min-height: 400px;
+  }
 }
