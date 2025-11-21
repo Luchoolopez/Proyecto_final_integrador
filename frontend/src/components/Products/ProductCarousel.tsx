@@ -13,12 +13,14 @@ interface ProductCarouselProps {
 export const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, products }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    
+    const enableScroll = products.length >= 4;
+
     const scroll = (direction: 'left' | 'right') => {
         if (scrollRef.current) {
             const { current } = scrollRef;
-            // Ancho de la tarjeta + gap (aprox)
-            const scrollAmount = current.clientWidth / 2; // Desliza media pantalla
-            
+            const scrollAmount = current.clientWidth / 2;
+
             if (direction === 'left') {
                 current.scrollLeft -= scrollAmount;
             } else {
@@ -32,19 +34,24 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, product
     return (
         <Container className="my-5 position-relative">
             <h2 className="text-center mb-4 fw-bold">{title}</h2>
-            
-            {/* Flecha Izquierda */}
-            <Button 
-                variant="light"
-                className="position-absolute start-0 top-50 translate-middle-y z-3 shadow rounded-circle d-none d-md-flex align-items-center justify-content-center border"
-                style={{ width: '45px', height: '45px', left: '-20px' }}
-                onClick={() => scroll('left')}
-            >
-                <FaChevronLeft />
-            </Button>
 
-            {/* Contenedor de Productos */}
-            <div className="product-carousel-container" ref={scrollRef}>
+            
+            {enableScroll && (
+                <Button
+                    variant="light"
+                    className="position-absolute start-0 top-50 translate-middle-y z-3 shadow rounded-circle d-none d-md-flex align-items-center justify-content-center border"
+                    style={{ width: '45px', height: '45px', left: '-20px' }}
+                    onClick={() => scroll('left')}
+                >
+                    <FaChevronLeft />
+                </Button>
+            )}
+
+            
+            <div
+                className={`product-carousel-container ${!enableScroll ? 'justify-content-md-center' : ''}`}
+                ref={scrollRef}
+            >
                 {products.map((product) => (
                     <div key={product.id} className="product-carousel-item">
                         <ProductCard product={product} />
@@ -52,15 +59,17 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, product
                 ))}
             </div>
 
-            {/* Flecha Derecha */}
-            <Button 
-                variant="light"
-                className="position-absolute end-0 top-50 translate-middle-y z-3 shadow rounded-circle d-none d-md-flex align-items-center justify-content-center border"
-                style={{ width: '45px', height: '45px', right: '-20px' }}
-                onClick={() => scroll('right')}
-            >
-                <FaChevronRight />
-            </Button>
+            
+            {enableScroll && (
+                <Button
+                    variant="light"
+                    className="position-absolute end-0 top-50 translate-middle-y z-3 shadow rounded-circle d-none d-md-flex align-items-center justify-content-center border"
+                    style={{ width: '45px', height: '45px', right: '-20px' }}
+                    onClick={() => scroll('right')}
+                >
+                    <FaChevronRight />
+                </Button>
+            )}
         </Container>
     );
 };

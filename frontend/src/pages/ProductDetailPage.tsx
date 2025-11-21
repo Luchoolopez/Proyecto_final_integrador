@@ -7,19 +7,23 @@ import { type Product } from '../types/Product';
 import { type Variant } from '../types/Variant';
 import { ProductImageGallery } from '../components/Products/ProductImageGallery';
 import { ProductVariantSelector } from '../components/Products/ProductVariantSelector';
-import { useCartContext } from '../context/CartContext'; 
+import { ProductCarousel } from '../components/Products/ProductCarousel';
+import { useCartContext } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
 
 import '../components/Products/ProductVariantSelector.css';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { addItem } = useCartContext(); 
+  const { addItem } = useCartContext();
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [quantity, setQuantity] = useState(1);
+
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     if (!id) {
@@ -32,12 +36,38 @@ const ProductDetailPage = () => {
       try {
         setLoading(true);
         setError(null);
+
+        
         const data = await productService.getProductById(id);
         setProduct(data);
 
         const firstAvailableVariant = data.variantes.find(v => v.stock > 0);
         if (firstAvailableVariant) {
           setSelectedVariant(firstAvailableVariant);
+        }
+
+        
+        const categoryId = (data as any).categoria_id || (data.categoria ? (data.categoria as any).id : null);
+        const currentGender = (data as any).genero; 
+
+        if (categoryId) {
+          let genderFilter = [currentGender];
+
+          if (currentGender !== 'Unisex') {
+            genderFilter.push('Unisex');
+          }
+
+          const relatedResponse = await productService.getProducts({
+            categoria_id: categoryId,
+            genero: genderFilter, // Enviamos el array ['Hombre', 'Unisex'] por ejemplo
+            limit: 12,            // Límite de 12
+            sort: 'fecha_creacion,DESC',
+            active: true
+          });
+
+          // Filtramos el producto actual de la lista
+          const filteredRelated = relatedResponse.productos.filter(p => p.id !== data.id);
+          setRelatedProducts(filteredRelated);
         }
 
       } catch (err) {
@@ -49,13 +79,14 @@ const ProductDetailPage = () => {
     };
 
     fetchProduct();
+    window.scrollTo(0, 0);
   }, [id]);
 
   const handleSelectVariant = (variant: Variant) => {
     setSelectedVariant(variant);
-    setQuantity(1); 
+    setQuantity(1);
   };
-  
+
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(1, Math.min(Number(e.target.value), selectedVariant?.stock || 1));
     setQuantity(value);
@@ -65,6 +96,7 @@ const ProductDetailPage = () => {
     if (product && selectedVariant) {
       try {
         await addItem(product, selectedVariant, quantity);
+        alert("Producto agregado al carrito");
       } catch (err) {
         console.error("Error al agregar item:", err);
         alert("Hubo un error al agregar el producto al carrito.");
@@ -88,12 +120,12 @@ const ProductDetailPage = () => {
     const isAddToCartDisabled = !selectedVariant || selectedVariant.stock === 0;
 
     return (
-      <Row className="justify-content-center g-5"> 
+      <Row className="justify-content-center g-5">
         <Col md={7} lg={7} xl={7} className="mb-4">
-          <ProductImageGallery 
-            images={product.imagenes} 
-            mainImage={product.imagen_principal} 
-            productName={product.nombre} 
+          <ProductImageGallery
+            images={product.imagenes}
+            mainImage={product.imagen_principal}
+            productName={product.nombre}
           />
         </Col>
 
@@ -112,19 +144,19 @@ const ProductDetailPage = () => {
             </div>
             <hr className="my-4" />
 
-            <ProductVariantSelector 
+            <ProductVariantSelector
               variants={product.variantes}
               selectedVariant={selectedVariant}
               onSelectVariant={handleSelectVariant}
             />
-            
+
             <hr className="my-4" />
 
             <Row className="align-items-end">
               <Col xs={4}>
                 <Form.Group controlId="quantitySelect">
                   <Form.Label>Cantidad</Form.Label>
-                  <Form.Control 
+                  <Form.Control
                     type="number"
                     value={quantity}
                     onChange={handleQuantityChange}
@@ -135,8 +167,8 @@ const ProductDetailPage = () => {
                 </Form.Group>
               </Col>
               <Col xs={8}>
-                <Button 
-                  variant="dark" 
+                <Button
+                  variant="dark"
                   className="w-100"
                   onClick={handleAddToCart}
                   disabled={isAddToCartDisabled}
@@ -157,7 +189,7 @@ const ProductDetailPage = () => {
       </Row>
     );
   };
-  
+
   return (
     <Container className="my-4">
       <Row>
@@ -171,7 +203,18 @@ const ProductDetailPage = () => {
           </Breadcrumb>
         </Col>
       </Row>
+
       {renderContent()}
+
+      
+      {!loading && !error && relatedProducts.length > 0 && (
+        <div className="mt-5 pt-4 border-top">
+          <ProductCarousel
+            title="Productos Relacionados"
+            products={relatedProducts}
+          />
+        </div>
+      )}
     </Container>
   );
 };
