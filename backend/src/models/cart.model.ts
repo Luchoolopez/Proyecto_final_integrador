@@ -41,7 +41,7 @@ Cart.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'variante_producto',
+                model: 'variantes_producto',
                 key: 'id'
             }
         },
@@ -71,8 +71,8 @@ Cart.init(
     }
 )
 
-Cart.belongsTo(ProductVariant, {
+/*Cart.belongsTo(ProductVariant, {
     foreignKey: 'variante_id',
     as: 'variante'
-});
+});*/
 
