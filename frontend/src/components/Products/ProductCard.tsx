@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Badge, Button } from "react-bootstrap";
+import { Card, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { type Product } from "../../types/Product"; 
 import './ProductCard.css';
@@ -12,6 +12,7 @@ const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-AR', {
         style: 'currency',
         currency: 'ARS',
+        maximumFractionDigits: 0,
     }).format(price);
 };
 
@@ -28,59 +29,70 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
 
   return (
-    <Card className="h-100 shadow-sm product-card">
+    <Card className="h-100 border-0 shadow-sm product-card overflow-hidden">
         
-        <Link to={`/producto/${product.id}`} className="text-decoration-none text-body">
-            <div className="position-relative">
+        <Link to={`/producto/${product.id}`} className="text-decoration-none text-body position-relative d-block">
+            <div className="image-container">
                 <Card.Img 
                     variant="top" 
-                    
                     src={imageUrl} 
-
                     alt={product.nombre}
                     className="product-card-img" 
                 />
                 
-                {product.descuento > 0 && (
-                    <Badge 
-                        bg="danger" 
-                        className="position-absolute top-0 end-0 m-2"
-                    >
-                        {Math.floor(product.descuento)}% OFF
-                    </Badge>
-                )}
+                <div className="img-overlay"></div>
+                
+                <div className="card-action-overlay">
+                    <span className="btn btn-light btn-sm fw-bold px-4 rounded-pill">VER DETALLE</span>
+                </div>
             </div>
+
+            {product.descuento > 0 && (
+                <Badge 
+                    bg="danger"
+                    className="position-absolute top-0 end-0 m-2 px-2 py-1 fw-bold"
+                    style={{ borderRadius: '0px', fontSize: '0.75rem', letterSpacing: '1px' }}
+                >
+                    {Math.floor(product.descuento)}% OFF 
+                </Badge>
+            )}
         </Link>
         
-        <Card.Body className="d-flex flex-column">
+        <Card.Body className="d-flex flex-column p-3">
             
             <Link to={`/producto/${product.id}`} className="text-decoration-none text-body">
-                <Card.Title as="h5" className="flex-grow-1">{product.nombre}</Card.Title>
+                <Card.Title 
+                    as="h6" 
+                    className="fw-bold mb-2 text-truncate text-uppercase product-title" 
+                    title={product.nombre}
+                >
+                    {product.nombre}
+                </Card.Title>
             </Link>
             
             <div className="mt-auto">
-                
-                {product.descuento > 0 && (
-                    <span className="text-muted text-decoration-line-through me-2">
-                        {formatPrice(product.precio_base)}
-                    </span>
-                )}
-
-                <Card.Text className="fw-bold fs-5 mb-1 d-inline">
-                    {formatPrice(product.precio_final)}
-                </Card.Text>
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                    {product.descuento > 0 ? (
+                        <>
+                            <span className="text-muted text-decoration-line-through small">
+                                {formatPrice(product.precio_base)}
+                            </span>
+                            <span className="fw-bold fs-5 text-danger">
+                                {formatPrice(product.precio_final)}
+                            </span>
+                        </>
+                    ) : (
+                        <span className="fw-bold fs-5">
+                            {formatPrice(product.precio_final)}
+                        </span>
+                    )}
+                </div>
 
                 {(product as any).info_cuotas && (
-                    <Card.Text className="text-danger small">
+                    <Card.Text className="text-secondary small mt-1 fst-italic" style={{ fontSize: '0.75rem' }}>
                         {(product as any).info_cuotas}
                     </Card.Text>
                 )}
-            </div>
-
-            <div className="card-buttons-overlay">
-                <Link to={`/producto/${product.id}`} className="btn btn-outline-secondary card-button">
-                    VER
-                </Link>
             </div>
         </Card.Body>
     </Card>
