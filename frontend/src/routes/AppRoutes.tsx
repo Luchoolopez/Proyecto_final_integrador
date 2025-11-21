@@ -9,12 +9,15 @@ import { MainLayout } from '../layouts/MainLayout.tsx';
 import ProductListPage from '../pages/ProductListPage.tsx';
 import ProductDetailPage from '../pages/ProductDetailPage.tsx';
 
-{/*importaciones del admin*/}
+{/*importaciones del admin*/ }
 import { AdminLayout } from '../layouts/admin/AdminLayout.tsx';
 import { AdminRoute } from './AdminRoute.tsx';
 import { Account } from '../pages/Account.tsx';
 import { EditAccount } from '../pages/EditAccount.tsx';
-
+import { CategoryList } from '../pages/admin/CategoryList';
+import { CategoryForm } from '../pages/admin/CategoryForm';
+import { ProductList } from '../pages/admin/ProductList';
+import { ProductForm } from '../pages/admin/ProductForm';
 
 export function AppRouter() {
     return (
@@ -23,8 +26,8 @@ export function AppRouter() {
                 <Route path='/' element={<Home />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
-                <Route path='/account' element={<Account/>}/>
-                <Route path='/account/info' element={<EditAccount/>}/>
+                <Route path='/account' element={<Account />} />
+                <Route path='/account/info' element={<EditAccount />} />
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/productos' element={<ProductListPage />} />
                 <Route path='/productos/:slug1/:slug2' element={<ProductListPage />} />
@@ -32,9 +35,15 @@ export function AppRouter() {
                 <Route path='/producto/:id' element={<ProductDetailPage />} />
             </Route>
 
-            <Route element={<AdminRoute/>}>
-                <Route element={<AdminLayout/>}>
-                    <Route path='/admin' element={<AdminHome/>}/>
+            <Route element={<AdminRoute />}>
+                <Route element={<AdminLayout />}>
+                    <Route path='/admin' element={<AdminHome />} />
+                    <Route path='/admin/categorias' element={<CategoryList />} />
+                    <Route path='/admin/categorias/nueva' element={<CategoryForm />} />
+                    <Route path='/admin/categorias/editar/:id' element={<CategoryForm />} />
+                    <Route path='/admin/productos' element={<ProductList />} />
+                    <Route path='/admin/productos/nuevo' element={<ProductForm />} />
+                    <Route path='/admin/productos/editar/:id' element={<ProductForm />} />
                 </Route>
             </Route>
         </Routes>

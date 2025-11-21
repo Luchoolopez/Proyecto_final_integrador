@@ -10,6 +10,7 @@ export const productSchema = z.object({
   es_nuevo: z.boolean().optional(),
   es_destacado: z.boolean().optional(),
   activo: z.boolean().optional(),
+  imagen_principal: z.string().optional(),
 });
 
 export const updateProductSchema = productSchema.partial();
