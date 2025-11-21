@@ -102,7 +102,7 @@ const ProductListPage = () => {
             if (category.nombre.toLowerCase() === 'pantalones') newConfig.talleSet = 'pantalones';
             else if (category.nombre.toLowerCase() === 'calzado') newConfig.talleSet = 'calzado';
           } else if (slug1 !== 'hombre' && slug1 !== 'mujer' && slug1 !== 'descuentos') {
-             setError("Categoría no encontrada");
+            setError("Categoría no encontrada");
           }
         }
       } catch (e) {
@@ -172,7 +172,7 @@ const ProductListPage = () => {
   };
   
   const handleCategoryFilterChange = (id: number | undefined) => {
-     setUserFilters(current => ({ ...current, categoria_id: id }));
+    setUserFilters(current => ({ ...current, categoria_id: id }));
   };
 
   const [showFilters, setShowFilters] = useState(false);
@@ -189,7 +189,7 @@ const ProductListPage = () => {
         <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/productos" }}>Productos</Breadcrumb.Item>
         
         {slug1 && !slug2 && (
-           <Breadcrumb.Item active>{pageConfig.pageTitle}</Breadcrumb.Item>
+          <Breadcrumb.Item active>{pageConfig.pageTitle}</Breadcrumb.Item>
         )}
 
         {slug1 && slug2 && (
@@ -255,7 +255,7 @@ const ProductListPage = () => {
             {pageConfig.pageTitle}
           </h2>
         </Col>
-       
+      
         <Col xs={6} md={6} className="d-flex justify-content-end">
           <Button
             variant="outline-dark"
@@ -264,7 +264,7 @@ const ProductListPage = () => {
           >
             Filtrar
           </Button>
-         
+        
           <div style={{width: '200px'}}>
             <ProductSortDropdown
               sortOrder={userFilters.sort || 'fecha_creacion,DESC'}
