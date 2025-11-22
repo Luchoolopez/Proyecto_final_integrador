@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
-import { userSchema, updateUserSchema } from "../validations/user.schema";
+import { updateUserSchema } from "../validations/user.schema";
 import { ERROR_MESSAGES } from "../utils/user/user.constants";
 import { ZodError } from "zod";
 
@@ -50,16 +50,28 @@ export class UserController {
 
     getUsers = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const users = await this.userService.getUsers();
+            const { page, limit, search, rol, active } = req.query;
+
+            const pageNumber = Number(page) || 1;
+            const limitNumber = Number(limit) || 10;
+            
+            const filters = {
+                search: search ? String(search) : undefined,
+                rol: rol as 'usuario' | 'admin' | undefined,
+                activo: active !== undefined ? active === 'true' : undefined
+            };
+
+            const result = await this.userService.getUsers(filters, pageNumber, limitNumber);
+
             return res.status(200).json({
                 success: true,
-                count: users.length,
-                data: users
+                data: result 
             });
         } catch (error) {
             return res.status(500).json({
                 success: false,
-                message: 'Error al obtener los usuarios'
+                message: 'Error al obtener los usuarios',
+                error: error instanceof Error ? error.message : 'Unknown error'
             })
         }
     };
@@ -114,7 +126,7 @@ export class UserController {
             if (!oldPassword || !newPassword) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Las contrasenias son requeridas'
+                    message: 'Las contraseñas son requeridas'
                 });
             }
 
@@ -122,7 +134,7 @@ export class UserController {
 
             return res.status(200).json({
                 success: true,
-                message: 'Contrasenia actualizada exitosamente'
+                message: 'Contraseña actualizada exitosamente'
             });
         } catch (error) {
             if (error instanceof Error) {
@@ -134,7 +146,7 @@ export class UserController {
 
             return res.status(500).json({
                 success: false,
-                message: 'Error al cambiar la contrasenia'
+                message: 'Error al cambiar la contraseña'
             });
         }
     };
@@ -158,12 +170,12 @@ export class UserController {
 
             return res.status(200).json({
                 success: true,
-                message: 'Perfil elimando exitosamente'
+                message: 'Perfil eliminado exitosamente'
             });
         } catch (error) {
             return res.status(500).json({
                 success: false,
-                error: error
+                error: error instanceof Error ? error.message : 'Unknown error'
             })
         }
     };

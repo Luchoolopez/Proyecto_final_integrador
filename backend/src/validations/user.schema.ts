@@ -6,6 +6,7 @@ export const userSchema = z.object({
     password: z.string().min(6).max(255),
     rol: z.enum(['usuario', 'admin']   ),
     telefono: z.string().max(20).optional().or(z.literal('')),
+    activo: z.boolean().optional()
 })
 
 export const updateUserSchema = userSchema.partial();

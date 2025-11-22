@@ -1,8 +1,8 @@
 import { Nav, Button } from "react-bootstrap";
-import { Link } from "react-router-dom"; // Importamos Link
+import { Link } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 import { MdDashboard } from "react-icons/md";
-import { FaBoxOpen, FaTag } from "react-icons/fa";
+import { FaBoxOpen, FaTag, FaStore } from "react-icons/fa";
 import { LuClipboardList } from "react-icons/lu";
 import { HiMiniUsers } from "react-icons/hi2";
 import { ThemeToggleButton } from "../ThemeToggleButton";
@@ -22,32 +22,36 @@ export const AdminSidebar = () => {
         </div>
 
         <div className="admin-sidebar-links d-flex flex-column gap-2">
-          {/* Dashboard apunta a /admin según tus rutas */}
           <Nav.Link as={Link} to="/admin" className="admin-nav-link text-white">
             <MdDashboard className="admin-nav-icon" />
             <span>Dashboard</span>
           </Nav.Link>
 
-          {/* Productos (a futuro será /admin/productos) */}
           <Nav.Link as={Link} to="/admin/productos" className="admin-nav-link text-white">
             <FaBoxOpen className="admin-nav-icon" />
             <span>Productos</span>
           </Nav.Link>
 
-          {/* ACTUALIZADO: Categorías apunta a la nueva ruta ABM */}
           <Nav.Link as={Link} to="/admin/categorias" className="admin-nav-link text-white">
             <FaTag className="admin-nav-icon" />
             <span>Categorías</span>
           </Nav.Link>
 
-          <Nav.Link as={Link} to="admin/ordenes" className="admin-nav-link text-white">
+          <Nav.Link as={Link} to="/admin/ordenes" className="admin-nav-link text-white">
             <LuClipboardList className="admin-nav-icon" />
             <span>Órdenes</span>
           </Nav.Link>
 
-          <Nav.Link as={Link} to="/usuarios" className="admin-nav-link text-white">
+          <Nav.Link as={Link} to="/admin/usuarios" className="admin-nav-link text-white">
             <HiMiniUsers className="admin-nav-icon" />
             <span>Usuarios</span>
+          </Nav.Link>
+
+          <div className="border-top border-secondary my-2 opacity-50"></div>
+
+          <Nav.Link as={Link} to="/" className="admin-nav-link text-white" title="Ir a la tienda">
+            <FaStore className="admin-nav-icon" />
+            <span>Ver Tienda</span>
           </Nav.Link>
         </div>
       </div>

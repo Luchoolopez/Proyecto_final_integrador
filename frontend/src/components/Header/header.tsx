@@ -1,19 +1,19 @@
 import { Navbar, Nav, Container, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CiUser } from "react-icons/ci";
 import { IoSearchOutline } from "react-icons/io5";
 import { FiShoppingCart } from "react-icons/fi";
+import { MdAdminPanelSettings } from "react-icons/md";
 import './header.style.css';
 import { ThemeToggleButton } from '../ThemeToggleButton';
 import { useSearch } from '../../context/SearchContext';
 import { useCartContext } from '../../context/CartContext';
 import { useAuthContext } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 export const Header = () => {
     const { openSearch } = useSearch();
     const { itemCount, openCart } = useCartContext();
-    const { isAuthenticated } = useAuthContext();
+    const { isAuthenticated, user } = useAuthContext();
     const navigate = useNavigate();
 
     const handleLoginBtn = () => {
@@ -22,7 +22,6 @@ export const Header = () => {
             return;
         }
         navigate('/account');
-
     } 
 
     return (
@@ -31,14 +30,17 @@ export const Header = () => {
                 <div className="d-none d-lg-flex w-100 justify-content-between align-items-center">
                     <Navbar.Brand href="/">Concept & Hab</Navbar.Brand>
                     <Nav className="mx-auto">
-                        
                         <Nav.Link href="/"><span>INICIO</span></Nav.Link>
                         <Nav.Link as={Link} to="/productos/descuentos"><span>SALE</span></Nav.Link>
                         <Nav.Link as={Link} to="/productos/hombre"><span>MEN</span></Nav.Link>
                         <Nav.Link as={Link} to="/productos/mujer"><span>WOMEN</span></Nav.Link>
-
                     </Nav>
                     <Nav className="flex-row">
+                        {user?.rol === 'admin' && (
+                            <Nav.Link as={Link} to="/admin" className="nav-icon" title="Panel Admin">
+                                <MdAdminPanelSettings size={30} />
+                            </Nav.Link>
+                        )}
                         <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={30} /></Nav.Link>                        
                         <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }}><CiUser size={30} /></Nav.Link>
                         <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
@@ -49,7 +51,6 @@ export const Header = () => {
                                 </Badge>
                             )}
                         </Nav.Link>
-
                         <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                     </Nav>
                 </div>
@@ -61,6 +62,11 @@ export const Header = () => {
                     <div className="mobile-header-bottom">
                         <Navbar.Toggle aria-controls="basic-navbar-nav" className="border-0" />
                         <Nav className="flex-row">
+                            {user?.rol === 'admin' && (
+                                <Nav.Link as={Link} to="/admin" className="nav-icon">
+                                    <MdAdminPanelSettings size={26} />
+                                </Nav.Link>
+                            )}
                             <Nav.Link className="nav-icon" onClick={openSearch}><IoSearchOutline size={26} /></Nav.Link>
                             <Nav.Link className="nav-icon" onClick={handleLoginBtn} style={{ cursor: 'pointer' }}><CiUser size={26} /></Nav.Link>                            
                             <Nav.Link onClick={openCart} className="nav-icon position-relative" style={{ cursor: 'pointer' }}>
@@ -71,7 +77,6 @@ export const Header = () => {
                                     </Badge>
                                 )}
                             </Nav.Link>
-                            
                             <div className="nav-icon d-flex align-items-center ms-2"><ThemeToggleButton /></div>
                         </Nav>
                     </div>

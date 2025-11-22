@@ -5,6 +5,11 @@ import { ServiceHelpers } from "../utils/user/user.helpers";
 import { UserFormatter } from "../utils/user/user.formatter";
 import { USER_CONSTANTS, ERROR_MESSAGES } from "../utils/user/user.constants";
 
+interface UserFilters {
+    search?: string;
+    rol?: 'usuario' | 'admin';
+    activo?: boolean;
+}
 
 export class UserService {
     async getUser(id: number): Promise<User | null> {
@@ -22,10 +27,40 @@ export class UserService {
         }
     }
 
-    async getUsers(): Promise<User[]> {
+    async getUsers(filters: UserFilters = {}, page: number = 1, limit: number = 10) {
         try {
-            const users = await User.findAll();
-            return UserFormatter.formatUserListResponse(users);
+            const offset = (page - 1) * limit;
+            const whereClause: any = {};
+
+            if (filters.search) {
+                whereClause[Op.or] = [
+                    { nombre: { [Op.like]: `%${filters.search}%` } },
+                    { email: { [Op.like]: `%${filters.search}%` } }
+                ];
+            }
+
+            if (filters.rol) {
+                whereClause.rol = filters.rol;
+            }
+
+            if (filters.activo !== undefined) {
+                whereClause.activo = filters.activo;
+            }
+
+            const { count, rows } = await User.findAndCountAll({
+                where: whereClause,
+                limit,
+                offset,
+                order: [['fecha_creacion', 'DESC']] 
+            });
+
+            return {
+                total: count,
+                totalPages: Math.ceil(count / limit),
+                currentPage: page,
+                users: UserFormatter.formatUserListResponse(rows)
+            };
+
         } catch (error) {
             throw ServiceHelpers.handleServiceError(error, 'UserService.getUsers');
         }
@@ -38,7 +73,6 @@ export class UserService {
                 throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
             }
 
-            //eliminar campos no actualizables
             const sanitizedData = UserValidators.sanitizeUserInput(updateData);
 
             if (sanitizedData.email && sanitizedData.email !== user.email) {
@@ -56,7 +90,7 @@ export class UserService {
             }
 
             if (sanitizedData.password && !UserValidators.isValidPassword(sanitizedData.password)) {
-                throw new Error(`La contrasenia debe tener al menos ${USER_CONSTANTS.PASSWORD_MIN_LENGTH} caracteres`);
+                throw new Error(`La contraseña debe tener al menos ${USER_CONSTANTS.PASSWORD_MIN_LENGTH} caracteres`);
             }
 
             if (sanitizedData.rol) {
