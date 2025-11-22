@@ -102,4 +102,52 @@ export class OrderController {
             });
         }
     };
+
+    getAllOrders = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const { page, limit, estado, fechaDesde, fechaHasta, search } = req.query;
+
+            const result = await this.orderService.getAllOrders(
+                { estado, fechaDesde, fechaHasta, search },
+                Number(page) || 1,
+                Number(limit) || 10
+            );
+
+            return res.status(200).json({
+                success: true,
+                data: result
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: 'Error al obtener listado de órdenes',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+
+    updateStatus = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const { id } = req.params;
+            const { estado, tracking_number, shipping_provider } = req.body;
+
+            const updatedOrder = await this.orderService.updateOrderStatus(Number(id), {
+                estado,
+                tracking_number,
+                shipping_provider
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: 'Orden actualizada correctamente',
+                data: updatedOrder
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: 'Error al actualizar orden',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
 }

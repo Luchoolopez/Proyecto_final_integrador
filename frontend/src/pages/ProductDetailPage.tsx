@@ -10,6 +10,7 @@ import { ProductVariantSelector } from '../components/Products/ProductVariantSel
 import { ProductCarousel } from '../components/Products/ProductCarousel';
 import { useCartContext } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
+import { ToastNotification } from '../components/ToastNotification';
 
 import '../components/Products/ProductVariantSelector.css';
 
@@ -25,6 +26,13 @@ const ProductDetailPage = () => {
 
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
+  // 2. Estado para controlar el Toast
+  const [toast, setToast] = useState({
+    show: false,
+    message: '',
+    variant: 'success' as 'success' | 'error' | 'warning' | 'info'
+  });
+
   useEffect(() => {
     if (!id) {
       setError("No se especificó un ID de producto.");
@@ -37,7 +45,6 @@ const ProductDetailPage = () => {
         setLoading(true);
         setError(null);
 
-        
         const data = await productService.getProductById(id);
         setProduct(data);
 
@@ -46,7 +53,6 @@ const ProductDetailPage = () => {
           setSelectedVariant(firstAvailableVariant);
         }
 
-        
         const categoryId = (data as any).categoria_id || (data.categoria ? (data.categoria as any).id : null);
         const currentGender = (data as any).genero; 
 
@@ -59,13 +65,12 @@ const ProductDetailPage = () => {
 
           const relatedResponse = await productService.getProducts({
             categoria_id: categoryId,
-            genero: genderFilter, // Enviamos el array ['Hombre', 'Unisex'] por ejemplo
-            limit: 12,            // Límite de 12
+            genero: genderFilter,
+            limit: 12,
             sort: 'fecha_creacion,DESC',
             active: true
           });
 
-          // Filtramos el producto actual de la lista
           const filteredRelated = relatedResponse.productos.filter(p => p.id !== data.id);
           setRelatedProducts(filteredRelated);
         }
@@ -96,13 +101,28 @@ const ProductDetailPage = () => {
     if (product && selectedVariant) {
       try {
         await addItem(product, selectedVariant, quantity);
-        alert("Producto agregado al carrito");
+        // Éxito
+        setToast({
+          show: true,
+          message: "¡Producto agregado al carrito con éxito!",
+          variant: 'success'
+        });
       } catch (err) {
         console.error("Error al agregar item:", err);
-        alert("Hubo un error al agregar el producto al carrito.");
+        // Error
+        setToast({
+          show: true,
+          message: "Hubo un error al agregar el producto.",
+          variant: 'error'
+        });
       }
     } else {
-      alert("Por favor, selecciona un talle.");
+      // Advertencia
+      setToast({
+        show: true,
+        message: "Por favor, selecciona un talle para continuar.",
+        variant: 'warning'
+      });
     }
   };
 
@@ -206,7 +226,6 @@ const ProductDetailPage = () => {
 
       {renderContent()}
 
-      
       {!loading && !error && relatedProducts.length > 0 && (
         <div className="mt-5 pt-4 border-top">
           <ProductCarousel
@@ -215,6 +234,13 @@ const ProductDetailPage = () => {
           />
         </div>
       )}
+
+      <ToastNotification
+        show={toast.show}
+        onClose={() => setToast({ ...toast, show: false })}
+        message={toast.message}
+        variant={toast.variant}
+      />
     </Container>
   );
 };

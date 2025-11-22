@@ -1,73 +1,85 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Spinner, Alert, Badge } from 'react-bootstrap';
+import { orderService, type Order } from '../../../api/orderService';
+import { formatPrice } from '../../../utils/formatPrice';
 
 export const PurchaseCard = () => {
-    const orders = [
-        {
-            id: '98881',
-            date: '06/09/2025',
-            productsCount: 3,
-            imageUrl: 'https://via.placeholder.com/80x80/FF0000/FFFFFF?text=Product',
-            paymentStatus: 'Pagado',
-            deliveryStatus: 'Enviado',
-            total: '33.900',
-            detailsLink: '/order/98881',
-            trackLink: '/track/98881'
-        },
-        {
-            id: '95348',
-            date: '07/06/2025',
-            productsCount: 1,
-            imageUrl: 'https://via.placeholder.com/80x80/00FF00/000000?text=Product',
-            paymentStatus: 'Pagado',
-            deliveryStatus: 'Entregado',
-            total: '15.500',
-            detailsLink: '/order/95348',
-            trackLink: '/track/95348'
-        },
-        {
-            id: '93278',
-            date: '19/04/2025',
-            productsCount: 2,
-            imageUrl: 'https://via.placeholder.com/80x80/0000FF/FFFFFF?text=Product',
-            paymentStatus: 'Pendiente',
-            deliveryStatus: 'En Proceso',
-            total: '22.100',
-            detailsLink: '/order/93278',
-            trackLink: '/track/93278'
-        },
-        {
-            id: '87445',
-            date: '30/11/2024',
-            productsCount: 1,
-            imageUrl: 'https://via.placeholder.com/80x80/FFFF00/000000?text=Product',
-            paymentStatus: 'Pagado',
-            deliveryStatus: 'Cancelado',
-            total: '10.000',
-            detailsLink: '/order/87445',
-            trackLink: '/track/87445'
-        },
-        {
-            id: '81980',
-            date: '02/07/2024',
-            productsCount: 4,
-            imageUrl: 'https://via.placeholder.com/80x80/FF00FF/FFFFFF?text=Product',
-            paymentStatus: 'Pagado',
-            deliveryStatus: 'Entregado',
-            total: '45.000',
-            detailsLink: '/order/81980',
-            trackLink: '/track/81980'
-        },
-    ];
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
- return (
-        <div className="card">
-            <div className="card-header d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Mis compras</h5>
+    useEffect(() => {
+        const fetchMyOrders = async () => {
+            setLoading(true);
+            try {
+                const data = await orderService.getMyOrders();
+                setOrders(data);
+            } catch (err) {
+                console.error(err);
+                setError('No se pudieron cargar tus compras.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMyOrders();
+    }, []);
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'pendiente': return 'warning';
+            case 'confirmado': return 'info';
+            case 'armando': return 'primary';
+            case 'enviado': return 'primary';
+            case 'entregado': return 'success';
+            case 'cancelado': return 'danger';
+            default: return 'secondary';
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+
+    if (loading) {
+        return (
+            <div className="card p-4 text-center">
+                <Spinner animation="border" size="sm" /> Cargando compras...
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="card p-4">
+                <Alert variant="danger" className="mb-0">{error}</Alert>
+            </div>
+        );
+    }
+
+    if (orders.length === 0) {
+        return (
+            <div className="card p-5 text-center">
+                <h5 className="text-muted">Aún no has realizado compras</h5>
+                <Link to="/productos" className="btn btn-dark mt-3">Ir a la tienda</Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="card border-0 shadow-sm">
+            <div className="card-header bg-body border-bottom d-flex justify-content-between align-items-center py-3">
+                <h5 className="mb-0 fw-bold">Mis compras</h5>
+                <Badge bg="secondary">{orders.length} {orders.length === 1 ? 'Pedido' : 'Pedidos'}</Badge>
             </div>
 
             <div className="accordion accordion-flush" id="purchase-accordion">
-                {orders.map((order, index) => (
+                {orders.map((order) => (
                     <div className="accordion-item" key={order.id}>
                         <h2 className="accordion-header" id={`heading${order.id}`}>
                             <button
@@ -78,10 +90,17 @@ export const PurchaseCard = () => {
                                 aria-expanded="false"
                                 aria-controls={`collapse${order.id}`}
                             >
-                                <div>
-                                    Orden #{order.id}
-                                    <br />
-                                    <small>{order.date}</small>
+                                <div className="d-flex justify-content-between w-100 me-3 align-items-center">
+                                    <div>
+                                        <span className="fw-bold d-block">Orden #{order.numero_pedido || order.id}</span>
+                                        <small className="text-muted">{formatDate(order.fecha)}</small>
+                                    </div>
+                                    <div className="text-end">
+                                        <Badge bg={getStatusColor(order.estado)} className="text-uppercase">
+                                            {order.estado}
+                                        </Badge>
+                                        <div className="fw-bold mt-1">{formatPrice(Number(order.total))}</div>
+                                    </div>
                                 </div>
                             </button>
                         </h2>
@@ -89,34 +108,39 @@ export const PurchaseCard = () => {
                             id={`collapse${order.id}`}
                             className="accordion-collapse collapse"
                             aria-labelledby={`heading${order.id}`}
+                            data-bs-parent="#purchase-accordion"
                         >
-                            <div className="accordion-body d-flex align-items-center">
-                                <div className="me-3 position-relative">
-                                    <img
-                                        src={order.imageUrl}
-                                        alt={`Producto de la orden ${order.id}`}
-                                        className="img-fluid rounded"
-                                        style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                                    />
-                                    <span className="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger">
-                                        {order.productsCount} PRODUCTOS
-                                    </span>
-                                </div>
-                                <div className="flex-grow-1 d-flex flex-column justify-content-center">
-                                    <div className="d-flex justify-content-between align-items-center mb-1">
-                                        <div>
-                                            <p className="mb-0 small">Pago: <strong>{order.paymentStatus}</strong></p>
-                                            <p className="mb-0 small">Envío: <strong>{order.deliveryStatus}</strong></p>
+                            <div className="accordion-body bg-light bg-opacity-10">
+                                {order.detalles && order.detalles.map((detalle, idx) => (
+                                    <div key={idx} className="d-flex align-items-center mb-3 border-bottom pb-2">
+                                        <div className="me-3">
+                                            <div className="bg-secondary bg-opacity-25 rounded d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                                                <span style={{fontSize: '20px'}}>🛍️</span>
+                                            </div>
                                         </div>
-                                        <div className="text-end">
-                                            <p className="mb-0 fs-5 fw-bold">Total: ${order.total}</p>
-                                            <Link to={order.detailsLink} className="text-decoration-none small">Ver detalle</Link>
+                                        <div className="flex-grow-1">
+                                            <p className="mb-0 fw-medium">{detalle.nombre_producto}</p>
+                                            <small className="text-muted">
+                                                Cant: {detalle.cantidad} x {formatPrice(Number(detalle.precio_unitario))}
+                                            </small>
+                                        </div>
+                                        <div className="text-end fw-bold">
+                                            {formatPrice(Number(detalle.precio_unitario) * detalle.cantidad)}
                                         </div>
                                     </div>
-                                </div>
-                                <div className="ms-3">
-                                    <Link to={order.trackLink} className="btn btn-warning">SEGUÍ TU ORDEN</Link>
-                                </div>
+                                ))}
+
+                                {(order.estado === 'enviado' || order.estado === 'entregado') && order.tracking_number && (
+                                    <div className="mt-3 p-3 bg-white border rounded">
+                                        <p className="mb-1 small text-muted text-uppercase fw-bold">Seguimiento de envío ({order.shipping_provider})</p>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <span className="fw-bold font-monospace">{order.tracking_number}</span>
+                                            <Button variant="outline-primary" size="sm" href="#" target="_blank">
+                                                Seguir Envío
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -125,3 +149,5 @@ export const PurchaseCard = () => {
         </div>
     );
 };
+
+import { Button } from 'react-bootstrap';

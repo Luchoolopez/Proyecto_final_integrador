@@ -18,6 +18,7 @@ import { CategoryList } from '../pages/admin/CategoryList';
 import { CategoryForm } from '../pages/admin/CategoryForm';
 import { ProductList } from '../pages/admin/ProductList';
 import { ProductForm } from '../pages/admin/ProductForm';
+import { OrderList } from '../pages/admin/OrderList.tsx';
 
 export function AppRouter() {
     return (
@@ -44,6 +45,7 @@ export function AppRouter() {
                     <Route path='/admin/productos' element={<ProductList />} />
                     <Route path='/admin/productos/nuevo' element={<ProductForm />} />
                     <Route path='/admin/productos/editar/:id' element={<ProductForm />} />
+                    <Route path='/admin/ordenes' element={<OrderList />} />
                 </Route>
             </Route>
         </Routes>

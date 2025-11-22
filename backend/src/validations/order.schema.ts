@@ -1,16 +1,12 @@
 import { z } from 'zod';
-import { SHIPPING_PROVIDER_VALUES } from '../utils/order/order.constants';
 
 export const createOrderSchema = z.object({
-    direccion_id: z
-      .number({ error: 'La dirección de envío es obligatoria' })
-      .int()
-      .positive(),
-    
-    notas: z.string().max(500, 'Las notas no pueden superar los 500 caracteres').optional(),
-    
-    shipping_provider: z.enum(SHIPPING_PROVIDER_VALUES).optional(),
-    shipping_service: z.string().optional(),
+    direccion_id: z.number().int().positive({
+        message: 'El ID de dirección debe ser un número positivo'
+    }),
+    notas: z.string().max(500).optional(),
+    shipping_provider: z.string().max(100).optional(),
+    shipping_service: z.string().max(100).optional()
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

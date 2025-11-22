@@ -3,6 +3,8 @@ import { Table, Button, Container, Badge, Alert, Form, InputGroup } from 'react-
 import { Link } from 'react-router-dom';
 import { categoryService, type Category } from '../../api/categoryService';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaTimes } from 'react-icons/fa';
+import { ToastNotification } from '../../components/ToastNotification';
+import { ConfirmModal } from '../../components/ConfirmModal';
 
 export const CategoryList = () => {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -10,10 +12,17 @@ export const CategoryList = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
+    const [toast, setToast] = useState({
+        show: false,
+        message: '',
+        variant: 'success' as 'success' | 'error' | 'warning' | 'info'
+    });
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteId, setDeleteId] = useState<number | null>(null);
+
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            // Enviamos active: false para traer TODAS (activas e inactivas)
             const data = await categoryService.getCategories({ active: false });
             setCategories(data);
         } catch (err) {
@@ -27,18 +36,23 @@ export const CategoryList = () => {
         fetchCategories();
     }, []);
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('¿Estás seguro de eliminar esta categoría?')) {
-            try {
-                await categoryService.deleteCategory(id);
-                setCategories(categories.filter(c => c.id !== id));
-            } catch (err: any) {
-                alert(err.response?.data?.message || 'Error al eliminar');
-            }
+    const handleDeleteClick = (id: number) => {
+        setDeleteId(id);
+        setShowConfirm(true);
+    };
+
+    const executeDelete = async () => {
+        if (!deleteId) return;
+        try {
+            await categoryService.deleteCategory(deleteId);
+            setCategories(categories.filter(c => c.id !== deleteId));
+            setToast({ show: true, message: 'Categoría eliminada correctamente', variant: 'success' });
+        } catch (err: any) {
+            const msg = err.response?.data?.message || 'Error al eliminar la categoría';
+            setToast({ show: true, message: msg, variant: 'error' });
         }
     };
 
-    // Helper para ignorar acentos y mayúsculas
     const normalizeText = (text: string) => {
         return text
             .normalize("NFD")
@@ -46,7 +60,6 @@ export const CategoryList = () => {
             .toLowerCase();
     };
 
-    // Lógica de Filtrado y Ordenamiento
     const filteredCategories = categories
         .filter(category => {
             if (!searchTerm) return true;
@@ -61,23 +74,17 @@ export const CategoryList = () => {
 
     return (
         <Container className="py-4">
-            {/* Estilos locales para adaptar el buscador al tema oscuro/claro perfectamente */}
             <style>{`
-                /* Modo Claro (Default) */
                 .search-addon {
                     background-color: #fff;
                     border-color: #ced4da;
                     color: #6c757d;
                 }
-                
-                /* Modo Oscuro (Coincide con tu index.css) */
                 [data-bs-theme="dark"] .search-addon {
-                    background-color: #212529; /* Mismo fondo que form-control */
-                    border-color: #495057;     /* Mismo borde que form-control */
+                    background-color: #212529; 
+                    border-color: #495057;     
                     color: #e9ecef;
                 }
-                
-                /* Ajuste para el botón X en hover en modo oscuro */
                 [data-bs-theme="dark"] .search-clear-btn:hover {
                     background-color: #343a40;
                     color: #fff;
@@ -93,13 +100,11 @@ export const CategoryList = () => {
 
             {error && <Alert variant="danger">{error}</Alert>}
 
-            {/* Buscador Mejorado */}
             <div className="mb-4">
                 <InputGroup>
                     <InputGroup.Text className="search-addon border-end-0">
                         <FaSearch />
                     </InputGroup.Text>
-                    
                     <Form.Control
                         type="text"
                         placeholder="Buscar por nombre o descripción..."
@@ -107,8 +112,6 @@ export const CategoryList = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="border-start-0 border-end-0 shadow-none"
                     />
-                    
-                    {/* Botón X (Limpiar) */}
                     {searchTerm && (
                         <Button 
                             variant="outline-secondary" 
@@ -154,7 +157,7 @@ export const CategoryList = () => {
                                     <Button 
                                         variant="outline-danger" 
                                         size="sm" 
-                                        onClick={() => handleDelete(category.id)}
+                                        onClick={() => handleDeleteClick(category.id)}
                                         title="Eliminar"
                                     >
                                         <FaTrash />
@@ -174,6 +177,23 @@ export const CategoryList = () => {
                     </tbody>
                 </Table>
             </div>
+
+            <ConfirmModal
+                show={showConfirm}
+                onClose={() => setShowConfirm(false)}
+                onConfirm={executeDelete}
+                title="¿Eliminar categoría?"
+                message="¿Estás seguro de eliminar esta categoría?"
+                confirmText="Eliminar"
+                variant="danger"
+            />
+
+            <ToastNotification
+                show={toast.show}
+                onClose={() => setToast({ ...toast, show: false })}
+                message={toast.message}
+                variant={toast.variant}
+            />
         </Container>
     );
 };

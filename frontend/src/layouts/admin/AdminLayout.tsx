@@ -12,10 +12,10 @@ export const AdminLayout = () => {
 
 
 
-                <AdminSidebar />
+            <AdminSidebar />
 
-                <Outlet />
-        
+            <Outlet />
+
 
         </div>
     );

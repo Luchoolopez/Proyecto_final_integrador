@@ -40,7 +40,7 @@ export const AdminSidebar = () => {
             <span>Categorías</span>
           </Nav.Link>
 
-          <Nav.Link as={Link} to="/ordenes" className="admin-nav-link text-white">
+          <Nav.Link as={Link} to="admin/ordenes" className="admin-nav-link text-white">
             <LuClipboardList className="admin-nav-icon" />
             <span>Órdenes</span>
           </Nav.Link>
