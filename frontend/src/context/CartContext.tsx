@@ -1,5 +1,5 @@
 // frontend/src/context/CartContext.tsx
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from 'react';
 import { useAuthContext } from './AuthContext';
 import { cartService, type CartItem, type ApiCartItem } from '../api/cartService';
 import { type Product } from '../types/Product';
@@ -16,6 +16,7 @@ interface CartContextType {
     removeItem: (variante_id: number) => Promise<void>;
     clearCart: () => Promise<void>;
     itemCount: number;
+    total: number; // 👈 Agregado
     isCartOpen: boolean;
     openCart: () => void;
     closeCart: () => void;
@@ -30,9 +31,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    
-    
-
     
     const apiItemToLocal = (apiItem: ApiCartItem): CartItem => {
         return {
@@ -53,7 +51,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         };
     };
 
-    
     const fetchDbCart = async () => {
         if (!isAuthenticated) return;
         setLoading(true);
@@ -70,7 +67,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    
     const loadGuestCart = () => {
         const guestCartJson = localStorage.getItem(GUEST_CART_KEY);
         if (guestCartJson) {
@@ -80,7 +76,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    
     const syncCartOnLogin = async () => {
         const guestCartJson = localStorage.getItem(GUEST_CART_KEY);
         if (!guestCartJson) {
@@ -92,7 +87,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         const guestItems: CartItem[] = JSON.parse(guestCartJson);
         
         try {
-            
             await Promise.all(
                 guestItems.map(item => 
                     cartService.addToCart({
@@ -101,19 +95,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                     })
                 )
             );
-            
             localStorage.removeItem(GUEST_CART_KEY);
         } catch (err) {
             setError("Error al sincronizar el carrito");
             console.error(err);
         } finally {
-            
             await fetchDbCart();
             setLoading(false);
         }
     };
 
-    
     useEffect(() => {
         if (authLoading) return; 
 
@@ -123,20 +114,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             loadGuestCart();
         }
     }, [isAuthenticated, authLoading]);
-    
-    
 
     const addItem = async (product: Product, variant: Variant, quantity: number) => {
         if (isAuthenticated) {
             try {
                 await cartService.addToCart({ variante_id: variant.id, cantidad: quantity });
-                await fetchDbCart(); // Recargar el carrito desde la DB
+                await fetchDbCart();
                 openCart();
             } catch (err) {
                 setError('Error al añadir item');
             }
         } else {
-            // Usuario invitado: guardar en localStorage
             const newCartItem: CartItem = {
                 product: {
                     id: product.id,
@@ -158,12 +146,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             const existingItemIndex = cartItems.findIndex(i => i.variant.id === variant.id);
 
             if (existingItemIndex > -1) {
-                // Actualizar cantidad
                 updatedItems = [...cartItems];
                 const newQuantity = updatedItems[existingItemIndex].quantity + quantity;
                 updatedItems[existingItemIndex].quantity = Math.min(newQuantity, variant.stock);
             } else {
-                // Agregar nuevo item
                 updatedItems = [...cartItems, newCartItem];
             }
             
@@ -185,7 +171,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         } else {
             const updatedItems = cartItems.map(item => 
                 item.variant.id === variante_id ? { ...item, quantity: nueva_cantidad } : item
-            ).filter(item => item.quantity > 0); // Eliminar si la cantidad es 0
+            ).filter(item => item.quantity > 0);
 
             setCartItems(updatedItems);
             localStorage.setItem(GUEST_CART_KEY, JSON.stringify(updatedItems));
@@ -220,12 +206,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    // --- Helpers y Valor del Contexto ---
-    
     const openCart = () => setIsCartOpen(true);
     const closeCart = () => setIsCartOpen(false);
 
     const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+    // 👇 Calcular total con useMemo para optimizar
+    const total = useMemo(() => {
+        return cartItems.reduce((acc, item) => {
+            const itemPrice = typeof item.product.precio_final === 'string' 
+                ? parseFloat(item.product.precio_final) 
+                : item.product.precio_final;
+            return acc + (itemPrice * item.quantity);
+        }, 0);
+    }, [cartItems]);
 
     const value = {
         cartItems,
@@ -236,6 +230,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         removeItem,
         clearCart,
         itemCount,
+        total, // 👈 Agregado
         isCartOpen,
         openCart,
         closeCart,

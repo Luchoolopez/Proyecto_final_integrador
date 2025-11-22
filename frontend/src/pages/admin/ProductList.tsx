@@ -5,6 +5,8 @@ import { productService, type ProductFilters } from '../../api/productService';
 import { type Product } from '../../types/Product';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaTimes } from 'react-icons/fa';
 import { formatPrice } from '../../utils/formatPrice';
+import { ToastNotification } from '../../components/ToastNotification';
+import { ConfirmModal } from '../../components/ConfirmModal';
 
 export const ProductList = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -13,14 +15,22 @@ export const ProductList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showActive, setShowActive] = useState<string>('true'); 
 
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [toast, setToast] = useState({
+        show: false,
+        message: '',
+        variant: 'success' as 'success' | 'error' | 'warning' | 'info'
+    });
+
     const fetchProducts = async (search = '') => {
         try {
             setLoading(true);
             
             const filters: ProductFilters = {
-                sort: 'id,DESC', // Ordenar por ID para ver el orden de creación
+                sort: 'id,DESC', 
                 talles: [],
-                limit: 100, // <--- Aumentamos el límite para ver más productos
+                limit: 100,
                 active: showActive === 'all' ? undefined : showActive === 'true',
                 busqueda: search
             };
@@ -45,24 +55,33 @@ export const ProductList = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('¿Estás seguro de eliminar este producto? (Se desactivará)')) {
-            try {
-                await productService.deleteProduct(id);
-                if (showActive === 'true') {
-                    setProducts(products.filter(p => p.id !== id));
-                } else {
-                    setProducts(products.map(p => p.id === id ? { ...p, activo: false } : p));
-                }
-            } catch (err: any) {
-                alert('Error al eliminar');
+    const handleDeleteClick = (id: number) => {
+        setDeleteId(id);
+        setShowConfirm(true);
+    };
+
+    const executeDelete = async () => {
+        if (!deleteId) return;
+
+        try {
+            await productService.deleteProduct(deleteId);
+            
+            if (showActive === 'true') {
+                setProducts(products.filter(p => p.id !== deleteId));
+            } else {
+                setProducts(products.map(p => p.id === deleteId ? { ...p, activo: false } : p));
             }
+            
+            setToast({ show: true, message: 'Producto eliminado (desactivado) correctamente', variant: 'success' });
+
+        } catch (err: any) {
+            setToast({ show: true, message: 'Error al eliminar el producto', variant: 'error' });
         }
     };
 
     return (
         <Container className="py-4">
-             <style>{`
+            <style>{`
                 .search-addon { background-color: #fff; border-color: #ced4da; color: #6c757d; }
                 [data-bs-theme="dark"] .search-addon { background-color: #212529; border-color: #495057; color: #e9ecef; }
                 [data-bs-theme="dark"] .search-clear-btn:hover { background-color: #343a40; color: #fff; }
@@ -148,7 +167,7 @@ export const ProductList = () => {
                                     <Link to={`/admin/productos/editar/${product.id}`} className="btn btn-sm btn-outline-primary me-2">
                                         <FaEdit />
                                     </Link>
-                                    <Button variant="outline-danger" size="sm" onClick={() => handleDelete(product.id)}>
+                                    <Button variant="outline-danger" size="sm" onClick={() => handleDeleteClick(product.id)}>
                                         <FaTrash />
                                     </Button>
                                 </td>
@@ -164,6 +183,23 @@ export const ProductList = () => {
                     </tbody>
                 </Table>
             </div>
+
+            <ConfirmModal
+                show={showConfirm}
+                onClose={() => setShowConfirm(false)}
+                onConfirm={executeDelete}
+                title="¿Eliminar producto?"
+                message="Estás seguro de eliminar este producto? (Se desactivará)"
+                confirmText="Eliminar"
+                variant="danger"
+            />
+
+            <ToastNotification
+                show={toast.show}
+                onClose={() => setToast({ ...toast, show: false })}
+                message={toast.message}
+                variant={toast.variant}
+            />
         </Container>
     );
 };
