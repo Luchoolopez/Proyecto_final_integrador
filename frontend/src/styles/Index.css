@@ -1,0 +1,20 @@
+/*Linea separadora*/
+
+.title-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 2rem;
+}
+
+.title-divider::before,
+.title-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #999; 
+  margin: 0 1rem;
+}

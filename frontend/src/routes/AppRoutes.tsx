@@ -20,6 +20,8 @@ import { ProductList } from '../pages/admin/ProductList';
 import { ProductForm } from '../pages/admin/ProductForm';
 import { OrderList } from '../pages/admin/OrderList.tsx';
 import { UserList } from '../pages/admin/UserList.tsx';
+import { AddressList } from '../pages/AdressList.tsx';
+import { AddressForm } from '../pages/AdressForm.tsx';
 
 export function AppRouter() {
     return (
@@ -30,6 +32,9 @@ export function AppRouter() {
                 <Route path='/register' element={<Register />} />
                 <Route path='/account' element={<Account />} />
                 <Route path='/account/info' element={<EditAccount />} />
+                <Route path='/account/addresses' element={<AddressList/>}/>
+                <Route path='/account/addresses/add' element={<AddressForm/>}/>
+                <Route path='/account/addresses/edit/:id' element={<AddressForm/>}/>
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/productos' element={<ProductListPage />} />
                 <Route path='/productos/:slug1/:slug2' element={<ProductListPage />} />
