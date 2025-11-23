@@ -4,6 +4,9 @@ import { addressService } from "../api/addressService";
 import type { Address } from "../types/Address";
 import { Button } from "react-bootstrap";
 
+// Puedes mover esto a un archivo aparte si prefieres, o dejarlo aquí
+const COUNTRIES = ["Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Ecuador", "Paraguay", "Perú", "Uruguay", "Venezuela"];
+
 export const AddressForm = () => {
     const { id } = useParams(); 
     const navigate = useNavigate();
@@ -11,7 +14,8 @@ export const AddressForm = () => {
 
     const [formData, setFormData] = useState<Partial<Address>>({
         calle: '', numero: '', ciudad: '', provincia: '', 
-        codigo_postal: '', pais: 'Argentina', piso: '', dpto: ''
+        codigo_postal: '', pais: 'Argentina', piso: '', dpto: '',
+        es_principal: false // Agregamos esto al estado inicial
     });
     const [loading, setLoading] = useState(false);
 
@@ -20,7 +24,13 @@ export const AddressForm = () => {
             const fetchAddress = async () => {
                 try {
                     const data = await addressService.getAddressById(id);
-                    setFormData(data);
+                    // Aseguramos que no haya nulls para que los inputs no se quejen
+                    setFormData({
+                        ...data,
+                        numero: data.numero || '',
+                        piso: data.piso || '',
+                        dpto: data.dpto || ''
+                    });
                 } catch (error) {
                     console.error("Error cargando dirección", error);
                 }
@@ -29,8 +39,13 @@ export const AddressForm = () => {
         }
     }, [id, isEditing]);
 
+    // Lógica MEJORADA para detectar si es Checkbox o Texto
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const target = e.target as HTMLInputElement;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+
+        setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -121,8 +136,25 @@ export const AddressForm = () => {
                                 className="form-select py-2" 
                                 name="pais" value={formData.pais} onChange={handleChange}
                             >
-                                <option value="Argentina">Argentina</option>
+                                {/* Mapeamos los países aquí */}
+                                {COUNTRIES.map(pais => (
+                                    <option key={pais} value={pais}>{pais}</option>
+                                ))}
                             </select>
+                        </div>
+
+                        <div className="mb-4 form-check">
+                            <input 
+                                type="checkbox" 
+                                className="form-check-input" 
+                                id="es_principal"
+                                name="es_principal"
+                                checked={!!formData.es_principal} 
+                                onChange={handleChange}
+                            />
+                            <label className="form-check-label user-select-none" htmlFor="es_principal">
+                                Establecer como mi dirección principal
+                            </label>
                         </div>
 
                         <Button 
