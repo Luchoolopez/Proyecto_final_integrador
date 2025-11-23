@@ -4,7 +4,7 @@ import './footer.style.css';
 
 export const Footer = () => {
     return (
-        <footer className="footer bg-body-tertiary text-center pt-5 pb-4">
+        <footer className="footer bg-body-tertiary text-center pt-5 pb-4 border-top ">
             <Container>
                 <Row>
                     <Col md={4} className="mb-4">
