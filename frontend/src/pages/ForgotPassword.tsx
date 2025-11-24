@@ -29,15 +29,12 @@ export const ForgotPassword = () => {
 
     return (
         <Container className="py-5" style={{ minHeight: '80vh' }}>
-            {/* --- BREADCRUMB AGREGADO --- */}
             <Breadcrumb className="mb-5">
                 <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/" }}>Inicio</Breadcrumb.Item>
                 <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/login" }}>Login</Breadcrumb.Item>
                 <Breadcrumb.Item active>Recuperar Cuenta</Breadcrumb.Item>
             </Breadcrumb>
 
-            {/* CONTENEDOR DEL FORMULARIO (Mismo diseño centrado de antes) */}
-            {/* Usamos un div interno para centrar el form sin afectar al breadcrumb */}
             <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
                 <Row className="w-100 justify-content-center">
                     <Col md={6} lg={5} xl={4}>
