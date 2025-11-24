@@ -32,13 +32,11 @@ export const ResetPassword = () => {
             await authService.resetpassword(token, password);
             setMessage({ type: 'success', text: '¡Contraseña actualizada! Redirigiendo al login...' });
             
-            // Esperamos 2 segunditos para que el usuario lea el mensaje y lo mandamos al login
             setTimeout(() => {
                 navigate('/login');
             }, 3000);
 
         } catch (error: any) {
-            // Si el token expiró o ya se usó, el backend devolverá error aquí
             const errorMsg = error.response?.data?.message || 'Hubo un error al cambiar la contraseña.';
             setMessage({ type: 'danger', text: errorMsg });
         } finally {
@@ -50,7 +48,7 @@ export const ResetPassword = () => {
         <Container className="py-5" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center' }}>
             <Row className="w-100 justify-content-center">
                 <Col md={6} lg={5}>
-                    <h2 className="text-center fw-bold text-uppercase mb-4 title-divider">
+                    <h2 className="text-center fw-bold mb-4">
                         Restablecer Contraseña
                     </h2>
                     
