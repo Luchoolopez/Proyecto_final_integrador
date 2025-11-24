@@ -15,8 +15,7 @@ CREATE TABLE usuarios (
     activo BOOLEAN DEFAULT TRUE,
     fecha_ultimo_acceso TIMESTAMP NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     reset_password_token VARCHAR(255) NULL,
     reset_password_expires TIMESTAMP NULL
 );

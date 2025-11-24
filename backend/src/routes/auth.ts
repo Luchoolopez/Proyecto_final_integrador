@@ -9,6 +9,8 @@ const authController = new AuthController();
 authRouter.post('/register', authController.register);
 authRouter.post('/login', authController.login);
 authRouter.post('/refresh-token', authController.refreshToken);
+authRouter.post('/forgot-password', authController.forgotPassword);
+authRouter.post('/reset-password', authController.resetPassword);
 
 // Rutas protegidas
 authRouter.post('/logout', AuthMiddleware.authenticate, authController.logout);

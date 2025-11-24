@@ -6,6 +6,7 @@ import { ServiceHelpers } from '../utils/user/user.helpers';
 
 import { Op } from 'sequelize';
 import crypto from 'crypto';
+import { sendResetEmail } from '../utils/email/email.service';
 
 interface RegisterData {
     nombre: string;
@@ -143,7 +144,7 @@ export class AuthService {
         }
     }
 
-    async requestPasswordReset(email: string): Promise<string> {
+    async requestPasswordReset(email: string): Promise<void> {
         try {
             const user = await User.findOne({ where: { email } });
             if (!user) {
@@ -161,8 +162,7 @@ export class AuthService {
             });
 
             const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
-            console.log("link de recuperacion generado: ", resetLink);
-            return resetLink;
+            await sendResetEmail(email, resetLink);
         } catch (error) {
             throw ServiceHelpers.handleServiceError(error, 'AuthService.requestPasswordReset');
         }
