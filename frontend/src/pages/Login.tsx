@@ -96,7 +96,7 @@ export const Login = () => {
                         </Form.Group>
 
                         <div className="text-end mb-3">
-                            <Link to="/recuperar-contrasena" className="form-link">¿Olvidaste tu contraseña?</Link>
+                            <Link to="/forgot-password" className="form-link">¿Olvidaste tu contraseña?</Link>
                         </div>
 
                         <Button variant="dark" type="submit" className="w-100 border" disabled={loading}>

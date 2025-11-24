@@ -22,6 +22,8 @@ import { OrderList } from '../pages/admin/OrderList.tsx';
 import { UserList } from '../pages/admin/UserList.tsx';
 import { AddressList } from '../pages/AdressList.tsx';
 import { AddressForm } from '../pages/AdressForm.tsx';
+import { ForgotPassword } from '../pages/ForgotPassword.tsx';
+import { ResetPassword } from '../pages/ResetPassword.tsx';
 
 export function AppRouter() {
     return (
@@ -40,6 +42,8 @@ export function AppRouter() {
                 <Route path='/productos/:slug1/:slug2' element={<ProductListPage />} />
                 <Route path='/productos/:slug1' element={<ProductListPage />} />
                 <Route path='/producto/:id' element={<ProductDetailPage />} />
+                <Route path='/forgot-password' element={<ForgotPassword/>}/>
+                <Route path='/reset-password/:token' element={<ResetPassword/>}/>
             </Route>
 
             <Route element={<AdminRoute />}>
