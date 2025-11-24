@@ -11,9 +11,11 @@ interface UserAttributes {
     activo: boolean,
     fecha_ultimo_acceso?: Date | null,
     fecha_creacion?: Date;
+    reset_password_token?: string | null,
+    reset_password_expires?: Date | null,
 }
 
-type UserCreationAttributes = Omit<UserAttributes, 'id' | 'fecha_ultimo_acceso' | 'fecha_creacion'>
+type UserCreationAttributes = Omit<UserAttributes, 'id' | 'fecha_ultimo_acceso' | 'fecha_creacion' | 'reset_password_token' | 'reset_password_expires'>; 
 
 export class User extends Model<UserAttributes, UserCreationAttributes>
     implements UserAttributes {
@@ -26,6 +28,8 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
     public activo!: boolean;
     public fecha_ultimo_acceso!: Date | null;
     public fecha_creacion!: Date;
+    public reset_password_token?: string | null;
+    public reset_password_expires?: Date | null;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -72,6 +76,14 @@ User.init(
             type:DataTypes.DATE,
             allowNull:false,
             defaultValue: DataTypes.NOW
+        },
+        reset_password_token:{
+            type:DataTypes.STRING(255),
+            allowNull: true,
+        },
+        reset_password_expires:{
+            type:DataTypes.DATE,
+            allowNull:true,
         },
     },
     {

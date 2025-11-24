@@ -4,6 +4,9 @@ import { TokenManager } from '../utils/auth/token.manager';
 import { AUTH_ERROR_MESSAGES } from '../utils/auth/auth.constants';
 import { ServiceHelpers } from '../utils/user/user.helpers';
 
+import { Op } from 'sequelize';
+import crypto from 'crypto';
+
 interface RegisterData {
     nombre: string;
     email: string;
@@ -140,10 +143,60 @@ export class AuthService {
         }
     }
 
+    async requestPasswordReset(email: string): Promise<string> {
+        try {
+            const user = await User.findOne({ where: { email } });
+            if (!user) {
+                throw new Error('No existe un usuario con ese email');
+            }
+
+            const resetToken = crypto.randomBytes(32).toString('hex');
+
+            const expireDate = new Date();
+            expireDate.setHours(expireDate.getHours() + 1);
+
+            await user.update({
+                reset_password_token: resetToken,
+                reset_password_expires: expireDate
+            });
+
+            const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+            console.log("link de recuperacion generado: ", resetLink);
+            return resetLink;
+        } catch (error) {
+            throw ServiceHelpers.handleServiceError(error, 'AuthService.requestPasswordReset');
+        }
+    }
+
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+        try {
+            const user = await User.findOne({
+                where: {
+                    reset_password_token: token,
+                    reset_password_expires: { [Op.gt]: new Date() }
+                }
+            });
+
+            if (!user) {
+                throw new Error("El enlace de recuperacion es invalido o ha expirado");
+            }
+
+            const hashedPassword = await AuthHelpers.hashPassword(newPassword);
+
+            await user.update({
+                password: hashedPassword,
+                reset_password_token: null,
+                reset_password_expires: null
+            });
+        } catch (error) {
+            throw ServiceHelpers.handleServiceError(error, 'AuthService.resetPassword');
+        }
+    }
+
     async validateToken(token: string): Promise<any> {
         try {
             const decoded = TokenManager.verifyAccessToken(token);
-            
+
             const user = await User.findByPk(decoded.id);
             if (!user || !user.activo) {
                 throw new Error(AUTH_ERROR_MESSAGES.UNAUTHORIZED);
