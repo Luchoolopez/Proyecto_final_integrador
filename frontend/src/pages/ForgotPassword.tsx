@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Alert, Container, Row, Col } from 'react-bootstrap';
+import { Button, Form, Alert, Container, Row, Col, Breadcrumb } from 'react-bootstrap'; // Agregué Breadcrumb
 import { Link } from 'react-router-dom';
 import { authService } from '../api/authService';
 
@@ -28,48 +28,59 @@ export const ForgotPassword = () => {
     };
 
     return (
-        <Container className="py-5" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center' }}>
-            <Row className="w-100 justify-content-center">
-                <Col md={6} lg={5}>
-                    <h2 className="text-center mb-4 fw-bold">
-                        Recuperar Cuenta
-                    </h2>
-                    
-                    <p className="text-center text-muted mb-4">
-                        Ingresa tu correo electrónico y te enviaremos un enlace para que puedas crear una nueva contraseña.
-                    </p>
+        <Container className="py-5" style={{ minHeight: '80vh' }}>
+            {/* --- BREADCRUMB AGREGADO --- */}
+            <Breadcrumb className="mb-5">
+                <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/" }}>Inicio</Breadcrumb.Item>
+                <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/login" }}>Login</Breadcrumb.Item>
+                <Breadcrumb.Item active>Recuperar Cuenta</Breadcrumb.Item>
+            </Breadcrumb>
 
-                    {message && <Alert variant={message.type}>{message.text}</Alert>}
-
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-4">
-                            <Form.Label className="fw-bold">Email</Form.Label>
-                            <Form.Control 
-                                type="email" 
-                                placeholder="ejemplo@correo.com" 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Button 
-                            type="submit" 
-                            className="w-100 fw-bold py-2 mb-3" 
-                            variant="dark"
-                            disabled={loading}
-                        >
-                            {loading ? 'Enviando...' : 'ENVIAR ENLACE'}
-                        </Button>
+            {/* CONTENEDOR DEL FORMULARIO (Mismo diseño centrado de antes) */}
+            {/* Usamos un div interno para centrar el form sin afectar al breadcrumb */}
+            <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+                <Row className="w-100 justify-content-center">
+                    <Col md={6} lg={5} xl={4}>
+                        <h2 className="text-center mb-4 fw-bold">
+                            Recuperar Cuenta
+                        </h2>
                         
-                        <div className="text-center">
-                            <Link to="/login" className="text-decoration-none text-secondary">
-                                Volver al inicio de sesión
-                            </Link>
-                        </div>
-                    </Form>
-                </Col>
-            </Row>
+                        <p className="text-center text-muted mb-4">
+                            Ingresa tu correo electrónico y te enviaremos un enlace para que puedas crear una nueva contraseña.
+                        </p>
+
+                        {message && <Alert variant={message.type}>{message.text}</Alert>}
+
+                        <Form onSubmit={handleSubmit}>
+                            <Form.Group className="mb-4">
+                                <Form.Label className="fw-bold">Email</Form.Label>
+                                <Form.Control 
+                                    type="email" 
+                                    placeholder="ejemplo@correo.com" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Button 
+                                type="submit" 
+                                className="w-100 fw-bold py-2 mb-3" 
+                                variant="dark"
+                                disabled={loading}
+                            >
+                                {loading ? 'Enviando...' : 'ENVIAR ENLACE'}
+                            </Button>
+                            
+                            <div className="text-center">
+                                <Link to="/login" className="text-decoration-none text-secondary">
+                                    Volver al inicio de sesión
+                                </Link>
+                            </div>
+                        </Form>
+                    </Col>
+                </Row>
+            </div>
         </Container>
     );
 };
