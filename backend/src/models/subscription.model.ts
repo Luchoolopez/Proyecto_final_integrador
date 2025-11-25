@@ -9,7 +9,7 @@ interface SubscriptionAttributes {
     fecha_baja: Date | null,
 }
 
-type SubscriptionCreationAttributes = Omit<SubscriptionAttributes, 'id' | 'fecha_suscripcion' | 'fecha_baja'>;
+interface SubscriptionCreationAttributes extends Optional<SubscriptionAttributes, 'id' | 'fecha_suscripcion' | 'fecha_baja'>{}
 
 export class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAttributes>
     implements SubscriptionAttributes {

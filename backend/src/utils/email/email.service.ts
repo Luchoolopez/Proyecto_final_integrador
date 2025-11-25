@@ -33,3 +33,36 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
         throw new Error('No se pudo enviar el correo de recuperación.');
     }
 };
+
+export const sendNewsletterEmail = async (bccList: string[], subject: string, content: string) => {
+    try {
+        const mailOptions = {
+            from: '"Novedades Floyd Style" <no-reply@concepthab.com>', 
+            bcc: bccList, //BCC para ocultar destinatarios
+            subject: subject,
+            html: `
+                <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">${subject}</h2>
+                    
+                    <div style="font-size: 16px; line-height: 1.6; padding: 20px 0;">
+                        ${content.replace(/\n/g, '<br>')} 
+                    </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #eee;" />
+                    
+                    <small style="color: #777; display: block; text-align: center; margin-top: 20px;">
+                        Recibiste este correo porque te suscribiste a nuestro newsletter.<br>
+                        Si deseas darte de baja, contacta con soporte.
+                    </small>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Newsletter enviado: %s', info.messageId);
+        return true;
+    } catch (error) {
+        console.error('Error enviando newsletter:', error);
+        throw new Error('No se pudo enviar el newsletter.');
+    }
+};
