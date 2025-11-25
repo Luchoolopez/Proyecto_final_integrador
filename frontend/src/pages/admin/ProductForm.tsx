@@ -6,6 +6,7 @@ import { categoryService, type Category } from '../../api/categoryService';
 import { uploadService } from '../../api/uploadService';
 import apiClient from '../../api/apiClient';
 import { FaTrash, FaPlus, FaUpload } from 'react-icons/fa';
+import { ToastNotification } from '../../components/ToastNotification'; 
 
 interface VariantField {
     id?: number;
@@ -23,13 +24,21 @@ export const ProductForm = () => {
     const navigate = useNavigate();
     const isEditing = !!id;
 
-    // Estados de carga y error
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
 
-    // Estado del Formulario (Datos principales)
+    const [toast, setToast] = useState<{
+        show: boolean;
+        message: string;
+        variant: 'success' | 'error' | 'warning' | 'info';
+    }>({
+        show: false,
+        message: '',
+        variant: 'success'
+    });
+
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
@@ -43,17 +52,14 @@ export const ProductForm = () => {
         imagen_principal: ''
     });
 
-    // Estado para Variantes visuales
     const [variants, setVariants] = useState<VariantField[]>([
         { talle: 'M', stock: 0 }
     ]);
     const [variantsToDelete, setVariantsToDelete] = useState<number[]>([]);
 
-    // Estado para Imágenes
     const [images, setImages] = useState<ImageField[]>([]);
     const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
 
-    // Carga inicial de datos
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -104,7 +110,6 @@ export const ProductForm = () => {
         }));
     };
 
-    // --- Manejo de Imágenes ---
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isMain: boolean, index?: number) => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
@@ -127,14 +132,13 @@ export const ProductForm = () => {
             }
         } catch (err) {
             console.error(err);
-            setError('Error al subir imagen.');
+            setToast({ show: true, message: 'Error al subir la imagen', variant: 'error' });
         } finally {
             setUploading(false);
             e.target.value = '';
         }
     };
 
-    // --- Handlers Variantes ---
     const addVariant = () => setVariants([...variants, { talle: '', stock: 0 }]);
 
     const removeVariant = (index: number) => {
@@ -156,7 +160,6 @@ export const ProductForm = () => {
         setVariants(newVariants);
     };
 
-    // --- Handlers Galería ---
     const addImageField = () => setImages([...images, { imagen: '' }]);
 
     const removeImageField = (index: number) => {
@@ -177,20 +180,18 @@ export const ProductForm = () => {
         setImages(newImages);
     };
 
-    // --- SUBMIT ---
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        // Validaciones
         if (variants.some(v => !v.talle)) {
-            setError("Todas las variantes deben tener un talle.");
+            setToast({ show: true, message: "Todas las variantes deben tener un talle.", variant: 'warning' });
             setLoading(false);
             return;
         }
         if (Number(formData.categoria_id) === 0) {
-            setError("Debes seleccionar una categoría.");
+            setToast({ show: true, message: "Debes seleccionar una categoría.", variant: 'warning' });
             setLoading(false);
             return;
         }
@@ -206,9 +207,7 @@ export const ProductForm = () => {
 
         try {
             if (isEditing) {
-                // === LÓGICA DE EDICIÓN ===
 
-                // 1. Variantes: Borrar
                 if (variantsToDelete.length > 0) {
                     for (const vid of variantsToDelete) {
                         await productService.deleteVariant(vid);
@@ -216,7 +215,6 @@ export const ProductForm = () => {
                     setVariantsToDelete([]);
                 }
 
-                // 2. Variantes: Actualizar/Crear
                 await Promise.all(variants.map(v => {
                     if (v.id) {
                         return productService.updateVariant(v.id, { talle: v.talle, stock: v.stock });
@@ -229,7 +227,6 @@ export const ProductForm = () => {
                     }
                 }));
 
-                // 3. Imágenes: Borrar las marcadas
                 if (imagesToDelete.length > 0) {
                     for (const imgId of imagesToDelete) {
                         await apiClient.delete(`/product/images/${imgId}`);
@@ -237,7 +234,6 @@ export const ProductForm = () => {
                     setImagesToDelete([]);
                 }
 
-                // 4. Imágenes: Actualizar/Crear las restantes
                 await Promise.all(images.map(img => {
                     if (!img.imagen.trim()) return Promise.resolve(); 
 
@@ -252,26 +248,36 @@ export const ProductForm = () => {
                     }
                 }));
 
-                // 5. Actualizar producto base
                 await productService.updateProduct(Number(id), flatPayload);
 
-                alert("Producto actualizado correctamente.");
+                setToast({ show: true, message: "Producto actualizado correctamente.", variant: 'success' });
             } else {
-                // === LÓGICA DE CREACIÓN ===
                 await productService.createProduct(flatPayload as any);
-                alert("Producto creado correctamente.");
+                
+                setToast({ show: true, message: "Producto creado correctamente.", variant: 'success' });
             }
-            navigate('/admin/productos');
+
+            // Esperar un momento para que el usuario vea el Toast antes de redirigir
+            setTimeout(() => {
+                navigate('/admin/productos');
+            }, 1000);
+
         } catch (err: any) {
             console.error('Error completo:', err);
+            let errorMsg = 'Error al guardar.';
+            
             if (err.response?.data?.errors) {
-                const errorMsg = Array.isArray(err.response.data.errors)
+                errorMsg = Array.isArray(err.response.data.errors)
                     ? err.response.data.errors.map((e: any) => `${e.path}: ${e.message}`).join(', ')
                     : JSON.stringify(err.response.data.errors);
-                setError(`Error de validación: ${errorMsg}`);
-            } else {
-                setError(err.response?.data?.message || err.message || 'Error al guardar.');
+            } else if (err.response?.data?.message) {
+                errorMsg = err.response.data.message;
+            } else if (err.message) {
+                errorMsg = err.message;
             }
+
+            setToast({ show: true, message: `Error: ${errorMsg}`, variant: 'error' });
+            setError(errorMsg); 
         } finally {
             setLoading(false);
         }
@@ -280,6 +286,7 @@ export const ProductForm = () => {
     return (
         <Container className="py-4">
             <h2 className="mb-4">{isEditing ? 'Editar Producto' : 'Nuevo Producto'}</h2>
+            
             {error && <Alert variant="danger">{error}</Alert>}
 
             <Form onSubmit={handleSubmit}>
@@ -466,6 +473,13 @@ export const ProductForm = () => {
                     </Col>
                 </Row>
             </Form>
+
+            <ToastNotification
+                show={toast.show}
+                onClose={() => setToast({ ...toast, show: false })}
+                message={toast.message}
+                variant={toast.variant}
+            />
         </Container>
     );
 };
