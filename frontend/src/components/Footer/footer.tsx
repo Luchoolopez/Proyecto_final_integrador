@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { FaFacebook, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { SubscribeModal } from '../subscribe/SubscribeModal';
 import './footer.style.css';
 
 export const Footer = () => {
+    const [showModal, setShowModal] = useState(false);
+
     return (
         <footer className="footer bg-body-tertiary text-center pt-5 pb-4 border-top ">
             <Container>
@@ -20,7 +24,20 @@ export const Footer = () => {
                         <ul className="list-unstyled">
                             <li><a href="/about" className="footer-link">Sobre Nosotros</a></li>
                             <li><a href="/contact" className="footer-link">Contacto</a></li>
-                            <li><a href="/faq" className="footer-link">Preguntas Frecuentes</a></li>
+                            
+                            <li>
+                                <a 
+                                    href="#" 
+                                    className="footer-link"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setShowModal(true);
+                                    }}
+                                >
+                                    Suscribite
+                                </a>
+                            </li>
+                            
                             <li><a href="/shipping" className="footer-link">Políticas de Envío</a></li>
                         </ul>
                     </Col>
@@ -41,6 +58,11 @@ export const Footer = () => {
                     </Col>
                 </Row>
             </Container>
+
+            <SubscribeModal 
+                show={showModal} 
+                handleClose={() => setShowModal(false)} 
+            />
         </footer>
     );
 };

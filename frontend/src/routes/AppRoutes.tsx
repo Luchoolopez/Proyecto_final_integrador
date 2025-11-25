@@ -18,12 +18,13 @@ import { CategoryList } from '../pages/admin/CategoryList';
 import { CategoryForm } from '../pages/admin/CategoryForm';
 import { ProductList } from '../pages/admin/ProductList';
 import { ProductForm } from '../pages/admin/ProductForm';
-import { OrderList } from '../pages/admin/OrderList.tsx';
+import { OrderList } from '../pages/admin/OrderList.tsx'
 import { UserList } from '../pages/admin/UserList.tsx';
 import { AddressList } from '../pages/AdressList.tsx';
 import { AddressForm } from '../pages/AdressForm.tsx';
 import { ForgotPassword } from '../pages/ForgotPassword.tsx';
 import { ResetPassword } from '../pages/ResetPassword.tsx';
+import { Newsletter } from '../pages/admin/Newsletter.tsx';
 
 export function AppRouter() {
     return (
@@ -57,6 +58,7 @@ export function AppRouter() {
                     <Route path='/admin/productos/editar/:id' element={<ProductForm />} />
                     <Route path='/admin/ordenes' element={<OrderList />} />
                     <Route path='/admin/usuarios' element={<UserList />} />
+                    <Route path='admin/newsletter' element={<Newsletter/>}/>
 
                 </Route>
             </Route>

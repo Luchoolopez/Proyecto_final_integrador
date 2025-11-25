@@ -2,7 +2,7 @@ import { Nav, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 import { MdDashboard } from "react-icons/md";
-import { FaBoxOpen, FaTag, FaStore } from "react-icons/fa";
+import { FaBoxOpen, FaTag, FaStore, FaEnvelope } from "react-icons/fa"; // Agregué FaEnvelope
 import { LuClipboardList } from "react-icons/lu";
 import { HiMiniUsers } from "react-icons/hi2";
 import { ThemeToggleButton } from "../ThemeToggleButton";
@@ -45,6 +45,12 @@ export const AdminSidebar = () => {
           <Nav.Link as={Link} to="/admin/usuarios" className="admin-nav-link text-white">
             <HiMiniUsers className="admin-nav-icon" />
             <span>Usuarios</span>
+          </Nav.Link>
+
+          {/* Opción de Newsletter agregada */}
+          <Nav.Link as={Link} to="/admin/newsletter" className="admin-nav-link text-white">
+            <FaEnvelope className="admin-nav-icon" />
+            <span>Newsletter</span>
           </Nav.Link>
 
           <div className="border-top border-secondary my-2 opacity-50"></div>
