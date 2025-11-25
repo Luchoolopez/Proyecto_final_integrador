@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaFileInvoice } from 'react-icons/fa';
 import { Spinner, Alert, Badge } from 'react-bootstrap';
 import { orderService, type Order } from '../../../api/orderService';
 import { formatPrice } from '../../../utils/formatPrice';
@@ -71,6 +72,17 @@ export const PurchaseCard = () => {
         );
     }
 
+    const handleDownloadInvoice = async (e: React.MouseEvent, orderId: number) => {
+        e.stopPropagation(); // Evita que se abra/cierre el acordeón al hacer click
+        try {
+            await orderService.downloadInvoice(orderId);
+        } catch (err) {
+            console.error("Error descargando factura", err);
+            alert("No se pudo descargar la factura. Intenta más tarde.");
+        }
+    };
+
+
     return (
         <div className="card border-0 shadow-sm">
             <div className="card-header bg-body border-bottom d-flex justify-content-between align-items-center py-3">
@@ -95,11 +107,26 @@ export const PurchaseCard = () => {
                                         <span className="fw-bold d-block">Orden #{order.numero_pedido || order.id}</span>
                                         <small className="text-muted">{formatDate(order.fecha)}</small>
                                     </div>
-                                    <div className="text-end">
-                                        <Badge bg={getStatusColor(order.estado)} className="text-uppercase">
-                                            {order.estado}
-                                        </Badge>
-                                        <div className="fw-bold mt-1">{formatPrice(Number(order.total))}</div>
+
+                                    <div className="d-flex align-items-center gap-3">
+                                        {/* NUEVO BOTÓN DE FACTURA */}
+                                        {['confirmado', 'armando', 'enviado', 'entregado'].includes(order.estado) && (
+                                            <button
+                                                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
+                                                onClick={(e) => handleDownloadInvoice(e, order.id)}
+                                                title="Descargar Factura"
+                                            >
+                                                <FaFileInvoice />
+                                                <span className="d-none d-md-inline">Factura</span>
+                                            </button>
+                                        )}
+
+                                        <div className="text-end">
+                                            <Badge bg={getStatusColor(order.estado)} className="text-uppercase">
+                                                {order.estado}
+                                            </Badge>
+                                            <div className="fw-bold mt-1">{formatPrice(Number(order.total))}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </button>
@@ -115,7 +142,7 @@ export const PurchaseCard = () => {
                                     <div key={idx} className="d-flex align-items-center mb-3 border-bottom pb-2">
                                         <div className="me-3">
                                             <div className="bg-secondary bg-opacity-25 rounded d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
-                                                <span style={{fontSize: '20px'}}>🛍️</span>
+                                                <span style={{ fontSize: '20px' }}>🛍️</span>
                                             </div>
                                         </div>
                                         <div className="flex-grow-1">

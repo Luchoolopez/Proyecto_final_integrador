@@ -61,5 +61,22 @@ export const orderService = {
     getMyOrders: async () => {
         const response = await apiClient.get('/order'); 
         return response.data.data; 
+    },
+
+    downloadInvoice: async (orderId: number) => {
+        const response = await apiClient.get(`/invoice/${orderId}`, {
+            responseType: 'blob' // Importante para recibir archivos binarios
+        });
+        
+        // Crear una URL temporal para descargar el archivo
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `factura-${orderId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
     }
+    
 };

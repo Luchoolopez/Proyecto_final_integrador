@@ -33,6 +33,8 @@
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.6",
     "nodemailer": "^7.0.10",
+    "pdfkit": "^0.17.2",
+    "pdfkit-table": "^0.1.99",
     "sequelize": "^6.37.7",
     "tsconfig-paths": "^4.2.0",
     "zod": "^4.1.12"
@@ -43,6 +45,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.1",
     "@types/nodemailer": "^7.0.4",
+    "@types/pdfkit": "^0.17.3",
     "@types/sequelize": "^4.28.20",
     "@types/supertest": "^6.0.3",
     "eslint": "^9.35.0",
