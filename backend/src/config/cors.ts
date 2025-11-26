@@ -1,28 +1,28 @@
 import cors from 'cors';
-
-import 'dotenv/config'; 
-
-const allowedOrigins = [
-    'http://localhost:5173', // Para desarrollo local
-    process.env.CLIENT_URL   // Para producción (Vercel)
-];
+import 'dotenv/config';
 
 const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
-        // Permitir requests sin origen 
         if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1 || origin === process.env.CLIENT_URL) {
-            callback(null, true);
-        } else {
-            console.error(`Bloqueado por CORS: ${origin}`); 
-            callback(new Error('Not allowed by CORS'));
+
+        if (origin.startsWith('http://localhost')) {
+            return callback(null, true);
         }
+
+        if (origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+
+        if (process.env.CLIENT_URL && origin === process.env.CLIENT_URL) {
+            return callback(null, true);
+        }
+
+        console.error('Bloqueado por CORS:', origin);
+        callback(new Error('Not allowed by CORS'));
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-    allowedHeaders: ['Content-Type', 'Authorization'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
 };
 
 export default cors(corsOptions);
-
