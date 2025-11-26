@@ -1,10 +1,12 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, 
     auth: {
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASS  
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -37,8 +39,8 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
 export const sendNewsletterEmail = async (bccList: string[], subject: string, content: string) => {
     try {
         const mailOptions = {
-            from: '"Novedades Floyd Style" <no-reply@concepthab.com>', 
-            bcc: bccList, //BCC para ocultar destinatarios
+            from: '"Novedades Floyd Style" <no-reply@concepthab.com>',
+            bcc: bccList, 
             subject: subject,
             html: `
                 <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
