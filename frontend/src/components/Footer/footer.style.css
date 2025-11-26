@@ -1,0 +1,10 @@
+
+.footer-link {
+  color: var(--bs-link-color);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.footer-link:hover {
+  color: var(--bs-link-hover-color);
+}

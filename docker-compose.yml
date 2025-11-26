@@ -1,36 +1,11 @@
-version: "3.9"
+version: '3.8'
+
 services:
-  backend:
-    build: ./backend
-    container_name: backend
-    ports:
-      - "${PORT}:3000"
-    env_file:
-      - ./backend/.env
-    environment:
-      - DB_HOST=mysql_db
-      - DB_PORT=3306
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    depends_on:
-      - mysql
-    restart: unless-stopped
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-
   mysql:
     image: mysql:8
-    container_name: mysql_db
+    container_name: ecommerce_mysql_db
     ports:
-      - "3306:3306"
+      - "3307:3306"  # Cambié a 3307 para evitar conflicto con MySQL local
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -38,8 +13,69 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql  
+      - ./db/sql/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql    
+      - ./db/sql/02-init_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: './backend'
+      target: builder
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=mysql  # ← ¡IMPORTANTE! Usar el nombre del servicio
+      - DB_PORT=3306
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=100
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+    command: npm run dev 
+    
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=100
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

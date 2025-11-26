@@ -1,0 +1,75 @@
+/* Animación suave para toda la tarjeta */
+.product-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--bs-body-bg);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+/* Título del producto */
+.product-title {
+  letter-spacing: 0.5px;
+  font-size: 1 rem;
+}
+
+/* Contenedor de la imagen */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4/5; 
+}
+
+.product-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-card-img {
+  transform: scale(1.05);
+}
+
+.img-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.05); 
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.product-card:hover .img-overlay {
+  opacity: 1;
+}
+
+.card-action-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 2;
+  width: 100%;
+  text-align: center;
+}
+
+.product-card:hover .card-action-overlay {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+[data-bs-theme="dark"] .product-card {
+  border: 1px solid #495057 !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #adb5bd !important;
+}
