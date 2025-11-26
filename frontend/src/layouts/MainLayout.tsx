@@ -1,16 +1,23 @@
-import {Header} from '../components/Header/index';
-import { Footer } from '../components/Footer';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react'; 
+import { Outlet, useLocation } from 'react-router-dom';
+import { Header } from '../components/Header/header';
+import { Footer } from '../components/Footer/footer';
 import './MainLayout.style.css';
 
-export const MainLayout = () => {
-    return (
-        <div className="main-layout-container">
-            <Header/>
-            <main className="main-content">
-                <Outlet/>
-            </main>
-            <Footer/>
-        </div>
-    )
-}
+export const MainLayout: React.FC = () => {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname, search]);
+
+  return (
+    <div className="app-container">
+      <Header />
+      <main className="main-content">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
