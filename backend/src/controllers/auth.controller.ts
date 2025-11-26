@@ -24,7 +24,7 @@ export class AuthController {
             if (error instanceof ZodError) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Errores de validación',
+                    message: 'Error al registrarse.',
                     errors: error.issues,
                 });
             }

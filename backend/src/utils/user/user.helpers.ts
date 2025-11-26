@@ -4,9 +4,9 @@ export class ServiceHelpers {
     //permite facilitar el manejo de errores
     static handleServiceError(error: unknown, serviceName: string): never {
         if (error instanceof Error) {
-            throw new Error(`[${serviceName}] ${error.message}`);
+            throw new Error(error.message);
         }
-        throw new Error(`[${serviceName}] Error desconocido: ${error}`);
+        throw new Error(`Error desconocido: ${error}`);
     }
 
     //divide los user en db en paginas
