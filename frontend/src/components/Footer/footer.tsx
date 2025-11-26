@@ -20,10 +20,12 @@ export const Footer = () => {
                     </Col>
 
                     <Col md={4} className="mb-4">
-                        <h5>Links Rápidos</h5>
+                        <h5>Categorías</h5>
                         <ul className="list-unstyled">
-                            <li><a href="/about" className="footer-link">Sobre Nosotros</a></li>
-                            <li><a href="/contact" className="footer-link">Contacto</a></li>
+                            <li><a href="/productos/descuentos" className="footer-link">Sale</a></li>
+                            <li><a href="/productos/hombre" className="footer-link">Men</a></li>
+                            <li><a href="/productos/mujer" className="footer-link">Women</a></li>
+
                             
                             <li>
                                 <a 
@@ -38,16 +40,14 @@ export const Footer = () => {
                                 </a>
                             </li>
                             
-                            <li><a href="/shipping" className="footer-link">Políticas de Envío</a></li>
                         </ul>
                     </Col>
 
                     <Col md={4} className="mb-4">
-                        <h5>Síguenos</h5>
+                        <h5>Seguinos</h5>
                         <div className="social-icons">
-                            <a href="https://facebook.com" className="footer-link me-3"><FaFacebook size={30} /></a>
-                            <a href="https://twitter.com" className="footer-link me-3"><FaTwitter size={30} /></a>
-                            <a href="https://instagram.com" className="footer-link"><FaInstagram size={30} /></a>
+                            <a href="https://www.facebook.com/DazurIndumentaria/?locale=es_LA" className="footer-link me-3"><FaFacebook size={30} /></a>
+                            <a href="https://www.instagram.com/cyh.indumentariaa" className="footer-link"><FaInstagram size={30} /></a>
                         </div>
                     </Col>
                 </Row>
