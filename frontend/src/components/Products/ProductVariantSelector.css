@@ -1,6 +1,18 @@
+.variant-selector-group {
+  display: flex !important; 
+  flex-wrap: wrap;          
+  width: 100%;              
+}
 
 .btn-group > .btn.rounded-0 {
   position: relative;
+  width: 55px;          
+  padding-left: 0;      
+  padding-right: 0;     
+  display: inline-flex; 
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .strikethrough-line {

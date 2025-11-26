@@ -45,7 +45,7 @@ export const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
   return (
     <div>
       <h5 className="mb-3">Talle</h5>
-      <ButtonGroup>
+      <ButtonGroup className="variant-selector-group">
         {sortedVariants.map((variant) => (
           <Button
             key={variant.id}
