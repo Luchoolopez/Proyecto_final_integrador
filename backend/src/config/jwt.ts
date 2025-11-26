@@ -2,6 +2,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    throw new Error('ERROR: Las claves secretas de JWT no están definidas en el archivo .env');
+}
+
 interface JwtConfig {
     secret: string;
     expiresIn: string;
@@ -10,9 +14,9 @@ interface JwtConfig {
 }
 
 const jwtConfig: JwtConfig = {
-    secret: process.env.JWT_SECRET || 'tu_secret_super_seguro_cambialo_en_produccion',
-    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'tu_refresh_secret_super_seguro',
+    secret: process.env.JWT_SECRET!, 
+    expiresIn: process.env.JWT_EXPIRES_IN || '4h',
+    refreshSecret: process.env.JWT_REFRESH_SECRET!,
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d'
 };
 
