@@ -1,8 +1,8 @@
 import { Nav, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
-import { MdDashboard } from "react-icons/md";
-import { FaBoxOpen, FaTag, FaStore, FaEnvelope } from "react-icons/fa"; // Agregué FaEnvelope
+//import { MdDashboard } from "react-icons/md";
+import { FaBoxOpen, FaTag, FaStore, FaEnvelope } from "react-icons/fa";
 import { LuClipboardList } from "react-icons/lu";
 import { HiMiniUsers } from "react-icons/hi2";
 import { ThemeToggleButton } from "../ThemeToggleButton";
@@ -22,10 +22,10 @@ export const AdminSidebar = () => {
         </div>
 
         <div className="admin-sidebar-links d-flex flex-column gap-2">
-          <Nav.Link as={Link} to="/admin" className="admin-nav-link text-white">
+          {/*<Nav.Link as={Link} to="/admin" className="admin-nav-link text-white">
             <MdDashboard className="admin-nav-icon" />
             <span>Dashboard</span>
-          </Nav.Link>
+          </Nav.Link>*/}
 
           <Nav.Link as={Link} to="/admin/productos" className="admin-nav-link text-white">
             <FaBoxOpen className="admin-nav-icon" />

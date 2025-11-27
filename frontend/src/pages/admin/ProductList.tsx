@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Container, Badge, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Table, Button, Container, Badge, Alert, Form, InputGroup, Pagination } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { productService, type ProductFilters } from '../../api/productService';
 import { type Product } from '../../types/Product';
@@ -13,7 +13,12 @@ export const ProductList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showActive, setShowActive] = useState<string>('true'); 
+    const [showActive, setShowActive] = useState<string>('true');
+
+    // Estados de paginación
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const LIMIT = 10;
 
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -23,20 +28,24 @@ export const ProductList = () => {
         variant: 'success' as 'success' | 'error' | 'warning' | 'info'
     });
 
-    const fetchProducts = async (search = '') => {
+    // MODIFICADO: Ahora recibe 'page' como argumento para evitar conflictos de estado
+    const fetchProducts = async (page: number, search = '') => {
         try {
             setLoading(true);
-            
+
             const filters: ProductFilters = {
-                sort: 'id,DESC', 
+                sort: 'id,DESC',
                 talles: [],
-                limit: 100,
+                limit: LIMIT,
+                page: page, // Usamos el argumento recibido
                 active: showActive === 'all' ? undefined : showActive === 'true',
                 busqueda: search
             };
-            
+
             const data = await productService.getProducts(filters);
             setProducts(data.productos);
+            setTotalPages(data.pagination.totalPages);
+            setCurrentPage(data.pagination.page); // Aseguramos sincronización
         } catch (err) {
             setError('Error al cargar productos');
         } finally {
@@ -44,16 +53,29 @@ export const ProductList = () => {
         }
     };
 
+    // Efecto al cambiar filtro Activo/Inactivo (Resetea a página 1)
     useEffect(() => {
-        fetchProducts(searchTerm);
+        setCurrentPage(1);
+        fetchProducts(1, searchTerm);
     }, [showActive]);
 
+    // Efecto del buscador con Debounce (Resetea a página 1)
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            fetchProducts(searchTerm);
+            setCurrentPage(1);
+            fetchProducts(1, searchTerm);
         }, 500);
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
+
+    // Función para cambiar de página
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            fetchProducts(page, searchTerm);
+            window.scrollTo(0, 0); 
+        }
+    };
 
     const handleDeleteClick = (id: number) => {
         setDeleteId(id);
@@ -65,13 +87,13 @@ export const ProductList = () => {
 
         try {
             await productService.deleteProduct(deleteId);
-            
+
             if (showActive === 'true') {
                 setProducts(products.filter(p => p.id !== deleteId));
             } else {
                 setProducts(products.map(p => p.id === deleteId ? { ...p, activo: false } : p));
             }
-            
+
             setToast({ show: true, message: 'Producto eliminado (desactivado) correctamente', variant: 'success' });
 
         } catch (err: any) {
@@ -114,7 +136,7 @@ export const ProductList = () => {
                         )}
                     </InputGroup>
                 </div>
-                <div style={{width: '200px'}}>
+                <div style={{ width: '200px' }}>
                     <Form.Select value={showActive} onChange={(e) => setShowActive(e.target.value)}>
                         <option value="true">Ver Activos</option>
                         <option value="false">Ver Inactivos</option>
@@ -143,15 +165,15 @@ export const ProductList = () => {
                             <tr key={product.id}>
                                 <td className="fw-bold">#{product.id}</td>
                                 <td>
-                                    <img 
-                                        src={product.imagen_principal || 'https://via.placeholder.com/50'} 
-                                        alt="miniatura" 
-                                        style={{width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px'}}
+                                    <img
+                                        src={product.imagen_principal || 'https://via.placeholder.com/50'}
+                                        alt="miniatura"
+                                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
                                     />
                                 </td>
                                 <td className="fw-medium">
                                     {product.nombre}
-                                    {product.sku && <div className="text-muted small" style={{fontSize: '0.75em'}}>SKU: {product.sku}</div>}
+                                    {product.sku && <div className="text-muted small" style={{ fontSize: '0.75em' }}>SKU: {product.sku}</div>}
                                 </td>
                                 <td>{product.categoria?.nombre || '-'}</td>
                                 <td>
@@ -183,6 +205,56 @@ export const ProductList = () => {
                     </tbody>
                 </Table>
             </div>
+
+            {/* AGREGADO: Controles de Paginación */}
+            {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                    <Pagination>
+                        <Pagination.First 
+                            onClick={() => handlePageChange(1)} 
+                            disabled={currentPage === 1} 
+                        />
+                        <Pagination.Prev 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            disabled={currentPage === 1} 
+                        />
+                        
+                        {[...Array(totalPages)].map((_, index) => {
+                            const pageNum = index + 1;
+                            if (
+                                pageNum === 1 || 
+                                pageNum === totalPages || 
+                                (pageNum >= currentPage - 2 && pageNum <= currentPage + 2)
+                            ) {
+                                return (
+                                    <Pagination.Item 
+                                        key={pageNum} 
+                                        active={pageNum === currentPage}
+                                        onClick={() => handlePageChange(pageNum)}
+                                    >
+                                        {pageNum}
+                                    </Pagination.Item>
+                                );
+                            } else if (
+                                pageNum === currentPage - 3 || 
+                                pageNum === currentPage + 3
+                            ) {
+                                return <Pagination.Ellipsis key={pageNum} />;
+                            }
+                            return null;
+                        })}
+
+                        <Pagination.Next 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            disabled={currentPage === totalPages} 
+                        />
+                        <Pagination.Last 
+                            onClick={() => handlePageChange(totalPages)} 
+                            disabled={currentPage === totalPages} 
+                        />
+                    </Pagination>
+                </div>
+            )}
 
             <ConfirmModal
                 show={showConfirm}

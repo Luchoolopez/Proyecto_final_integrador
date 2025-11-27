@@ -24,8 +24,9 @@ export interface ProductFilters {
   active?: boolean;
   busqueda?: string;
   limit?: number;
-  es_nuevo?: boolean;     // <--- Agregado
-  es_destacado?: boolean; // <--- Agregado
+  page?: number;
+  es_nuevo?: boolean;     
+  es_destacado?: boolean; 
 }
 
 export interface ProductFormData {
@@ -60,6 +61,7 @@ export const productService = {
       orderBy,
       orderDir,
       limit: filters.limit || 20,
+      page:filters.page || 1,
       ...(filters.talles?.length && { talles: filters.talles }),
       ...(filters.precio?.min !== undefined && { precio_min: filters.precio.min }),
       ...(filters.precio?.max !== undefined && { precio_max: filters.precio.max }),
