@@ -15,7 +15,6 @@ export const ProductList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showActive, setShowActive] = useState<string>('true');
 
-    // Estados de paginación
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const LIMIT = 10;
@@ -28,7 +27,6 @@ export const ProductList = () => {
         variant: 'success' as 'success' | 'error' | 'warning' | 'info'
     });
 
-    // MODIFICADO: Ahora recibe 'page' como argumento para evitar conflictos de estado
     const fetchProducts = async (page: number, search = '') => {
         try {
             setLoading(true);
@@ -37,7 +35,7 @@ export const ProductList = () => {
                 sort: 'id,DESC',
                 talles: [],
                 limit: LIMIT,
-                page: page, // Usamos el argumento recibido
+                page: page, 
                 active: showActive === 'all' ? undefined : showActive === 'true',
                 busqueda: search
             };
@@ -45,7 +43,7 @@ export const ProductList = () => {
             const data = await productService.getProducts(filters);
             setProducts(data.productos);
             setTotalPages(data.pagination.totalPages);
-            setCurrentPage(data.pagination.page); // Aseguramos sincronización
+            setCurrentPage(data.pagination.page); 
         } catch (err) {
             setError('Error al cargar productos');
         } finally {
@@ -53,13 +51,11 @@ export const ProductList = () => {
         }
     };
 
-    // Efecto al cambiar filtro Activo/Inactivo (Resetea a página 1)
     useEffect(() => {
         setCurrentPage(1);
         fetchProducts(1, searchTerm);
     }, [showActive]);
 
-    // Efecto del buscador con Debounce (Resetea a página 1)
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             setCurrentPage(1);
@@ -68,7 +64,6 @@ export const ProductList = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
-    // Función para cambiar de página
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -206,7 +201,6 @@ export const ProductList = () => {
                 </Table>
             </div>
 
-            {/* AGREGADO: Controles de Paginación */}
             {totalPages > 1 && (
                 <div className="d-flex justify-content-center mt-4">
                     <Pagination>
