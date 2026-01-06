@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { FaFacebook, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { FaFacebook, FaInstagram } from 'react-icons/fa';
+import { Link } from 'react-router-dom'; 
 import { SubscribeModal } from '../subscribe/SubscribeModal';
 import './footer.style.css';
 
@@ -22,11 +23,16 @@ export const Footer = () => {
                     <Col md={4} className="mb-4">
                         <h5>Categorías</h5>
                         <ul className="list-unstyled">
-                            <li><a href="/productos/descuentos" className="footer-link">Sale</a></li>
-                            <li><a href="/productos/hombre" className="footer-link">Men</a></li>
-                            <li><a href="/productos/mujer" className="footer-link">Women</a></li>
+                            <li>
+                                <Link to="/productos/descuentos" className="footer-link">Sale</Link>
+                            </li>
+                            <li>
+                                <Link to="/productos/hombre" className="footer-link">Men</Link>
+                            </li>
+                            <li>
+                                <Link to="/productos/mujer" className="footer-link">Women</Link>
+                            </li>
 
-                            
                             <li>
                                 <a 
                                     href="#" 
@@ -39,15 +45,18 @@ export const Footer = () => {
                                     Suscribite
                                 </a>
                             </li>
-                            
                         </ul>
                     </Col>
 
                     <Col md={4} className="mb-4">
                         <h5>Seguinos</h5>
                         <div className="social-icons">
-                            <a href="https://www.facebook.com/DazurIndumentaria/?locale=es_LA" className="footer-link me-3"><FaFacebook size={30} /></a>
-                            <a href="https://www.instagram.com/cyh.indumentariaa" className="footer-link"><FaInstagram size={30} /></a>
+                            <a href="https://www.facebook.com/DazurIndumentaria/?locale=es_LA" target="_blank" rel="noopener noreferrer" className="footer-link me-3">
+                                <FaFacebook size={30} />
+                            </a>
+                            <a href="https://www.instagram.com/cyh.indumentariaa" target="_blank" rel="noopener noreferrer" className="footer-link">
+                                <FaInstagram size={30} />
+                            </a>
                         </div>
                     </Col>
                 </Row>

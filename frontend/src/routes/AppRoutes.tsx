@@ -59,7 +59,6 @@ export function AppRouter() {
                     <Route path='/admin/ordenes' element={<OrderList />} />
                     <Route path='/admin/usuarios' element={<UserList />} />
                     <Route path='admin/newsletter' element={<Newsletter/>}/>
-
                 </Route>
             </Route>
         </Routes>
