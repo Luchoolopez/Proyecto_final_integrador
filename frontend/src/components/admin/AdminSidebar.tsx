@@ -22,10 +22,10 @@ export const AdminSidebar = () => {
         </div>
 
         <div className="admin-sidebar-links d-flex flex-column gap-2">
-          <Nav.Link as={Link} to="/admin" className="admin-nav-link text-white">
+          {/*<Nav.Link as={Link} to="/admin" className="admin-nav-link text-white">
             <MdDashboard className="admin-nav-icon" />
             <span>Dashboard</span>
-          </Nav.Link>
+          </Nav.Link>*/}
 
           <Nav.Link as={Link} to="/admin/productos" className="admin-nav-link text-white">
             <FaBoxOpen className="admin-nav-icon" />
