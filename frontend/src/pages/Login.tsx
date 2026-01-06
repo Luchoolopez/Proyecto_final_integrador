@@ -40,7 +40,7 @@ export const Login = () => {
             const user = await login(values) as User | void;
             if(user){
                 if(user.rol === 'admin'){
-                    navigate('/admin');
+                    navigate('/admin/productos');
                 }else{
                     navigate('/')
                 }
