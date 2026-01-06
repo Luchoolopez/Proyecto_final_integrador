@@ -67,6 +67,7 @@ export const SubscriptionController = {
         const validation = sendNewsletterSchema.safeParse(req.body);
 
         if (!validation.success) {
+            console.error('❌ Validation error:', JSON.stringify(validation.error.issues, null, 2)); // DEBUG LOG
             return res.status(400).json({
                 success: false,
                 message: 'Datos del newsletter inválidos',
