@@ -12,7 +12,6 @@ export function makeApp() {
     app.use(express.json());
 
     // Configuración explícita de CORS
-    // Configuración explícita de CORS
     const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(origin => origin.trim());
 
     const corsOptions = {
@@ -21,6 +20,8 @@ export function makeApp() {
             if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
+                console.error(`❌ CORS blocked origin: ${origin}`);
+                console.log(`Allowed origins: ${JSON.stringify(allowedOrigins)}`);
                 callback(new Error('Not allowed by CORS'));
             }
         },
