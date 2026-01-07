@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button } from 'react-bootstrap';
 import { useSubscription } from '../../hooks/useSubscription';
-import { ConfirmModal } from '../../components/ConfirmModal'; 
-import { ToastNotification } from '../../components/ToastNotification'; 
+import { ConfirmModal } from '../../components/ConfirmModal';
+import { ToastNotification } from '../../components/ToastNotification';
 
 export const Newsletter = () => {
     const [subject, setSubject] = useState('');
     const [content, setContent] = useState('');
-    
+
     const [showConfirm, setShowConfirm] = useState(false);
 
     const [toastConfig, setToastConfig] = useState<{
@@ -25,6 +25,28 @@ export const Newsletter = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validación frontend simple para coincidir con backend
+        if (subject.trim().length < 5) {
+            setToastConfig({
+                show: true,
+                message: 'El asunto debe tener al menos 5 caracteres.',
+                variant: 'warning',
+                title: 'Validación'
+            });
+            return;
+        }
+
+        if (content.trim().length < 10) {
+            setToastConfig({
+                show: true,
+                message: 'El mensaje debe tener al menos 10 caracteres.',
+                variant: 'warning',
+                title: 'Validación'
+            });
+            return;
+        }
+
         setShowConfirm(true);
     };
 
@@ -53,7 +75,7 @@ export const Newsletter = () => {
     return (
         <Container className="py-4">
             <h2 className="mb-4">Gestión de Newsletter</h2>
-            
+
             <Card className="shadow-sm">
                 <Card.Header className="bg-dark text-white">
                     <h5 className="mb-0">Redactar Correo Masivo</h5>
@@ -62,9 +84,9 @@ export const Newsletter = () => {
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label>Asunto del Correo</Form.Label>
-                            <Form.Control 
-                                type="text" 
-                                placeholder="Ej: ¡Nuevos ingresos de invierno!" 
+                            <Form.Control
+                                type="text"
+                                placeholder="Ej: ¡Nuevos ingresos de invierno!"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                                 required
@@ -73,10 +95,10 @@ export const Newsletter = () => {
 
                         <Form.Group className="mb-3">
                             <Form.Label>Mensaje</Form.Label>
-                            <Form.Control 
-                                as="textarea" 
-                                rows={8} 
-                                placeholder="Escribe aquí el contenido..." 
+                            <Form.Control
+                                as="textarea"
+                                rows={8}
+                                placeholder="Escribe aquí el contenido..."
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 required
@@ -96,7 +118,7 @@ export const Newsletter = () => {
             </Card>
 
 
-            <ConfirmModal 
+            <ConfirmModal
                 show={showConfirm}
                 onClose={() => setShowConfirm(false)}
                 onConfirm={handleConfirmSend}
@@ -104,10 +126,10 @@ export const Newsletter = () => {
                 message="¿Estás seguro de que deseas enviar este correo a TODOS los suscriptores activos? Esta acción no se puede deshacer."
                 confirmText="Sí, enviar"
                 cancelText="Cancelar"
-                variant="primary" 
+                variant="primary"
             />
 
-            <ToastNotification 
+            <ToastNotification
                 show={toastConfig.show}
                 onClose={() => setToastConfig(prev => ({ ...prev, show: false }))}
                 message={toastConfig.message}
