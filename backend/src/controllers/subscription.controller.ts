@@ -12,9 +12,9 @@ export const SubscriptionController = {
             return res.status(400).json({
                 success: false,
                 message: 'Datos inválidos',
-                errors: validation.error.issues.map(e => ({ 
-                    field: e.path[0], 
-                    message: e.message 
+                errors: validation.error.issues.map(e => ({
+                    field: e.path[0],
+                    message: e.message
                 }))
             });
         }
@@ -67,12 +67,13 @@ export const SubscriptionController = {
         const validation = sendNewsletterSchema.safeParse(req.body);
 
         if (!validation.success) {
+            console.error('❌ Validation error:', JSON.stringify(validation.error.issues, null, 2)); // DEBUG LOG
             return res.status(400).json({
                 success: false,
                 message: 'Datos del newsletter inválidos',
-                errors: validation.error.issues.map(e => ({ 
-                    field: e.path[0], 
-                    message: e.message 
+                errors: validation.error.issues.map(e => ({
+                    field: e.path[0],
+                    message: e.message
                 }))
             });
         }
@@ -83,6 +84,7 @@ export const SubscriptionController = {
             return res.status(200).json(result);
 
         } catch (error: any) {
+            console.error('Error sending newsletter:', error); // DEBUG LOG
             if (error.message === SUBSCRIPTION_MESSAGES.NO_ACTIVE_SUBSCRIBERS) {
                 return res.status(400).json({ success: false, message: error.message });
             }

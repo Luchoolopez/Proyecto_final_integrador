@@ -1,17 +1,28 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, 
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls:{
-        rejectUnauthorized: false
-    }
-});
+function createTransporter() {
+    return nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+        // For Gmail, use port 465 with secure connection
+        secure: true,
+        // Timeout settings (in ms) to avoid hanging connections
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 15000,
+        // Development only: allow self‑signed certificates
+        tls: {
+            rejectUnauthorized: false,
+        },
+    });
+}
+
+// Log env var presence (mask actual values for security)
+console.log('🔧 EMAIL_USER set:', !!process.env.EMAIL_USER);
+console.log('🔧 EMAIL_PASS set:', !!process.env.EMAIL_PASS);
 
 export const sendResetEmail = async (to: string, resetLink: string) => {
     try {
@@ -30,6 +41,7 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
             `
         };
 
+        const transporter = createTransporter();
         const info = await transporter.sendMail(mailOptions);
         console.log('Correo enviado: %s', info.messageId);
         return true;
@@ -43,7 +55,7 @@ export const sendNewsletterEmail = async (bccList: string[], subject: string, co
     try {
         const mailOptions = {
             from: '"Novedades Floyd Style" <no-reply@concepthab.com>',
-            bcc: bccList, 
+            bcc: bccList,
             subject: subject,
             html: `
                 <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
@@ -63,9 +75,24 @@ export const sendNewsletterEmail = async (bccList: string[], subject: string, co
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Newsletter enviado: %s', info.messageId);
-        return true;
+        const transporter = createTransporter();
+        const maxAttempts = 3;
+        let attempt = 0;
+        while (attempt < maxAttempts) {
+            try {
+                const info = await transporter.sendMail(mailOptions);
+                console.log('Newsletter enviado: %s', info.messageId);
+                return true;
+            } catch (err) {
+                attempt++;
+                console.error(`Attempt ${attempt} failed to send newsletter:`, err);
+                if (attempt >= maxAttempts) {
+                    throw err;
+                }
+                // simple back‑off before retrying
+                await new Promise(res => setTimeout(res, 2000 * attempt));
+            }
+        }
     } catch (error) {
         console.error('Error enviando newsletter:', error);
         throw new Error('No se pudo enviar el newsletter.');
