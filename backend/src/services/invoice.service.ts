@@ -12,15 +12,20 @@ export class InvoiceService {
 
         doc.pipe(res);
 
+        // --- DATOS DE LA TIENDA (Hardcodeados) ---
+        const storeName = 'Forme Sneakers';
+        // Reemplaza estos valores con los datos reales de la tienda
+        const storeAddress = 'Calle San Martín 384, Bahía Blanca, Provincia de Buenos Aires'; 
+        const storePhone = '+54 291 5091352';
+
+
         // --- ENCABEZADO ---
-        doc.fontSize(20).text('CONCEPT & HAB', { align: 'center' });
-        doc.fontSize(10).text('Ropa con estilo único', { align: 'center' });
+        doc.fontSize(20).text(storeName, { align: 'center' });
         doc.moveDown();
 
-        // Datos de la Empresa (Ficticios)
-        doc.fontSize(10).text('Dirección: Calle Falsa 123, Buenos Aires');
-        doc.text('CUIT: 30-12345678-9');
-        doc.text('Email: ventas@concepthab.com');
+        // Datos de la Empresa
+        doc.fontSize(10).text(`Dirección: ${storeAddress}`);
+        doc.text(`Teléfono: ${storePhone}`);
         doc.moveDown();
 
         // Datos del Cliente y Orden
@@ -48,7 +53,7 @@ export class InvoiceService {
             datas: order.detalles.map((item: any) => ({
                 producto: item.nombre_producto,
                 talle: item.talle,
-                cantidad: item.cantidad,
+                cantidad: String(item.cantidad),
                 precio: `$${item.precio_unitario}`,
                 subtotal: `$${(item.precio_unitario * item.cantidad).toFixed(2)}`
             }))
