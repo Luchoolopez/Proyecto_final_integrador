@@ -10,6 +10,7 @@ import { Address } from './address.model';
 import { RefreshToken } from './refresh_token.model';
 import { Shipping } from './shipping.model';
 import { Subscription } from './subscription.model';
+import { CarouselImage } from './carousel-image.model';
 
 import {
   setupAssociations,
@@ -35,6 +36,7 @@ export {
   RefreshToken,
   Shipping,
   Subscription,
+  CarouselImage,
   includeVariants,
   includeAllVariants,
   includeImages,
@@ -52,3 +54,4 @@ export type { OrderDetail as OrderDetailType } from './order-detail.model';
 export type { Cart as CartType } from './cart.model';
 export type { Address as AddressType } from './address.model';
 export type {Subscription as SubscriptionType} from './subscription.model';
+export type {CarouselImage as CarouselImageType} from './carousel-image.model';
