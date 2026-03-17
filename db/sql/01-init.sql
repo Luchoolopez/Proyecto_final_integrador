@@ -252,6 +252,24 @@ CREATE TABLE cupones_usados (
 );
 
 -- ======================================
+-- TABLA CONFIGURACION MERCADO PAGO (OAuth)
+-- ======================================
+CREATE TABLE mp_conectados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL, -- El admin/dueño de la tienda
+    mp_user_id VARCHAR(100) NOT NULL, -- ID de usuario en Mercado Pago
+    access_token TEXT NOT NULL, -- El token para cobrar 
+    refresh_token TEXT NOT NULL, -- Para renovar el acceso
+    public_key VARCHAR(100) NOT NULL,
+    expires_at TIMESTAMP NOT NULL, -- Cuándo vence el token
+    fecha_conexion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_mp_user (mp_user_id)
+);
+
+
+-- ======================================
 -- ÍNDICES PARA OPTIMIZAR PERFORMANCE
 -- ======================================
 
