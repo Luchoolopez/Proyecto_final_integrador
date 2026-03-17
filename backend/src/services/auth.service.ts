@@ -7,6 +7,9 @@ import { ServiceHelpers } from '../utils/user/user.helpers';
 import { Op } from 'sequelize';
 import crypto from 'crypto';
 import { sendResetEmail } from '../utils/email/email.service';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 interface RegisterData {
     nombre: string;
@@ -84,6 +87,11 @@ export class AuthService {
                 throw new Error(AUTH_ERROR_MESSAGES.ACCOUNT_INACTIVE);
             }
 
+            // Verificar si el usuario tiene contraseña (no es un usuario exclusivo de Google)
+            if (!user.password) {
+                // Si no tiene password, es que se registró con Google. 
+                throw new Error(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
+            }
             // Verificar contraseña
             const isPasswordValid = await AuthHelpers.comparePassword(data.password, user.password);
             if (!isPasswordValid) {
@@ -206,5 +214,36 @@ export class AuthService {
         } catch (error) {
             throw ServiceHelpers.handleServiceError(error, 'AuthService.validateToken');
         }
+    }
+
+    async googleLogin(idToken: string): Promise<AuthResponse> {
+        const ticket = await googleClient.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) throw new Error('Token de Google inválido');
+
+        let user = await User.findOne({ where: { email: payload.email } });
+
+        if (!user) {
+            user = await User.create({
+                nombre: payload.name || 'Usuario Google',
+                email: payload.email,
+                rol: 'usuario',
+                activo: true,
+                password: null,
+            });
+        }
+
+        const tokenPayload = { id: user.id, email: user.email, rol: user.rol };
+        const accessToken = TokenManager.generateAccessToken(tokenPayload);
+        const refreshToken = TokenManager.generateRefreshToken(tokenPayload);
+
+        return {
+            user: AuthHelpers.sanitizeUserForResponse(user),
+            accessToken,
+            refreshToken,
+        };
     }
 }

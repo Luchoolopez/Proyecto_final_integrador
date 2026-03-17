@@ -5,7 +5,7 @@ interface UserAttributes {
     id: number,
     nombre: string,
     email: string,
-    password: string,
+    password?: string | null;
     rol:'usuario' | 'admin',
     telefono?: string | null,
     activo: boolean,
@@ -22,7 +22,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes>
     public id!: number;
     public nombre!: string;
     public email!: string;
-    public password!: string;
+    public password!: string | null;
     public rol!: 'usuario' | 'admin';
     public telefono!: string | null;
     public activo!: boolean;
@@ -53,7 +53,7 @@ User.init(
         },
         password:{
             type: DataTypes.STRING(255),
-            allowNull:false,
+            allowNull:true,
         },
         rol: {
             type: DataTypes.ENUM('usuario', 'admin'),
