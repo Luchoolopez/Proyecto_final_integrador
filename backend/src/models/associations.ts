@@ -7,6 +7,7 @@ import { Order } from './order.model';
 import { OrderDetail } from './order-detail.model'; 
 import { Address } from './address.model';
 import { Cart } from './cart.model'; 
+import { MpConectado } from './MpConectado';
 
 /**
  * Define las relaciones entre todos los modelos
@@ -90,8 +91,24 @@ export function setupAssociations() {
     as: 'producto',
   });
 
+  // =====================================
+  // RELACIÓN: User <-> MpConectado
+  // =====================================
+  // Un usuario (admin) tiene su configuración de Mercado Pago
+  User.hasOne(MpConectado, { 
+    foreignKey: 'usuario_id', 
+    as: 'mercadopago',
+    onDelete: 'CASCADE' 
+  });
+
+  MpConectado.belongsTo(User, { 
+    foreignKey: 'usuario_id', 
+    as: 'usuario' 
+  });
+
   console.log('✅ Asociaciones de modelos configuradas correctamente');
 }
+
 
 // ... tus helpers de export const include... siguen igual abajo
 export const includeVariants = {
