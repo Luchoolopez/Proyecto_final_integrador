@@ -138,3 +138,9 @@ export const includeCategory = {
   as: 'categoria',
   required: false,
 };
+
+export const includeMPConfig = {
+  model: MpConectado,
+  as: 'mercadopago',
+  attributes: ['public_key', 'fecha_conexion', 'expires_at'],
+};
