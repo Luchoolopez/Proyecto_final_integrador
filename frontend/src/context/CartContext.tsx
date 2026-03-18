@@ -26,7 +26,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-    const { isAuthenticated, loading: authLoading } = useAuthContext();
+    const { isAuthenticated, loading: authLoading, logout } = useAuthContext();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -51,6 +51,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         };
     };
 
+    const handleApiError = (err: any, defaultMessage: string) => {
+        if (err?.response?.status === 401) {
+            setError('Sesión expirada. Por favor inicia sesión de nuevo.');
+            logout();
+            setCartItems([]);
+        } else {
+            setError(defaultMessage);
+        }
+        console.error(err);
+    };
+
+
     const fetchDbCart = async () => {
         if (!isAuthenticated) return;
         setLoading(true);
@@ -59,9 +71,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             const apiItems = await cartService.getCart();
             const localItems = apiItems.map(apiItemToLocal);
             setCartItems(localItems);
-        } catch (err) {
-            setError('Error al cargar el carrito');
-            console.error(err);
+        } catch (err: any) {
+            handleApiError(err, 'Error al cargar el carrito');
         } finally {
             setLoading(false);
         }
@@ -96,9 +107,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 )
             );
             localStorage.removeItem(GUEST_CART_KEY);
-        } catch (err) {
-            setError("Error al sincronizar el carrito");
-            console.error(err);
+        } catch (err: any) {
+            handleApiError(err, 'Error al sincronizar el carrito');
         } finally {
             await fetchDbCart();
             setLoading(false);
@@ -121,8 +131,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 await cartService.addToCart({ variante_id: variant.id, cantidad: quantity });
                 await fetchDbCart();
                 openCart();
-            } catch (err) {
-                setError('Error al añadir item');
+            } catch (err: any) {
+                handleApiError(err, 'Error al añadir item');
             }
         } else {
             const newCartItem: CartItem = {
@@ -166,7 +176,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     await cartService.updateQuantity(apiItem.id, nueva_cantidad);
                     await fetchDbCart();
-                } catch (err) { setError('Error al actualizar item'); }
+                } catch (err: any) { handleApiError(err, 'Error al actualizar item'); }
             }
         } else {
             const updatedItems = cartItems.map(item => 
@@ -185,7 +195,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     await cartService.removeFromCart(apiItem.id);
                     await fetchDbCart();
-                } catch (err) { setError('Error al eliminar item'); }
+                } catch (err: any) { handleApiError(err, 'Error al eliminar item'); }
             }
         } else {
             const updatedItems = cartItems.filter(item => item.variant.id !== variante_id);
@@ -199,7 +209,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             try {
                 await cartService.clearCart();
                 await fetchDbCart();
-            } catch (err) { setError('Error al vaciar el carrito'); }
+            } catch (err: any) { handleApiError(err, 'Error al vaciar el carrito'); }
         } else {
             setCartItems([]);
             localStorage.removeItem(GUEST_CART_KEY);

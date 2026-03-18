@@ -3,7 +3,7 @@ import Login from '../pages/Login.tsx';
 import Register from '../pages/Register.tsx';
 import Home from '../pages/Home.tsx';
 import CartPage from '../pages/CartPage.tsx';
-import { AdminHome } from '../pages/admin/AdminHome.tsx';
+import { AdminHome } from '../pages/admin/MercadoPagoConnection.tsx';
 import "../App.css";
 import { MainLayout } from '../layouts/MainLayout.tsx';
 import ProductListPage from '../pages/ProductListPage.tsx';
@@ -24,6 +24,9 @@ import { AddressList } from '../pages/AdressList.tsx';
 import { AddressForm } from '../pages/AdressForm.tsx';
 import { ForgotPassword } from '../pages/ForgotPassword.tsx';
 import { ResetPassword } from '../pages/ResetPassword.tsx';
+import PagoExitoso from '../pages/PagoExitoso';
+import PagoFallido from '../pages/PagoFallido';
+import PagoPendiente from '../pages/PagoPendiente';
 import { Newsletter } from '../pages/admin/Newsletter.tsx';
 
 export function AppRouter() {
@@ -45,11 +48,14 @@ export function AppRouter() {
                 <Route path='/producto/:id' element={<ProductDetailPage />} />
                 <Route path='/forgot-password' element={<ForgotPassword/>}/>
                 <Route path='/reset-password/:token' element={<ResetPassword/>}/>
+                <Route path='/pago-exitoso' element={<PagoExitoso />} />
+                <Route path='/pago-fallido' element={<PagoFallido />} />
+                <Route path='/pago-pendiente' element={<PagoPendiente />} />
             </Route>
 
             <Route element={<AdminRoute />}>
                 <Route element={<AdminLayout />}>
-                    <Route path='/admin' element={<AdminHome />} />
+                    <Route path='/admin/mp' element={<AdminHome />} />
                     <Route path='/admin/categorias' element={<CategoryList />} />
                     <Route path='/admin/categorias/nueva' element={<CategoryForm />} />
                     <Route path='/admin/categorias/editar/:id' element={<CategoryForm />} />

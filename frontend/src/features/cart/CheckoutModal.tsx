@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { useCartContext } from '../../context/CartContext';
-import { orderService } from '../../api/orderService';
 import apiClient from '../../api/apiClient';
+import { paymentService } from '../../api/paymentService';
 import { ToastNotification } from '../../components/ToastNotification';
 
 interface CheckoutModalProps {
@@ -56,38 +56,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ show, handleClose 
 
             const direccion_id = addressResponse.data.data.id;
 
-            // Paso 2: Crear la orden
-            const orderPayload = {
+            // Paso 2: Crear el checkout de Mercado Pago (crea la orden y genera la preferencia)
+            const checkoutPayload = {
                 direccion_id,
                 notas: formData.notas || `Contacto: ${formData.telefono}`,
                 shipping_provider: 'correo_argentino',
                 shipping_service: 'estandar'
             };
 
-            await orderService.createOrder(orderPayload);
+            const { checkoutUrl } = await paymentService.createCheckout(checkoutPayload);
 
-            // Éxito - Mostrar toast
-            setToast({
-                show: true,
-                message: '¡Compra realizada con éxito! Tu pedido ha sido registrado.',
-                variant: 'success'
-            });
-            
-            // Esperar un momento para que se vea el toast
-            setTimeout(() => {
-                clearCart();
-                handleClose();
-                // Resetear formulario
-                setFormData({
-                    calle: '',
-                    numero: '',
-                    ciudad: '',
-                    provincia: 'Buenos Aires',
-                    cp: '',
-                    telefono: '',
-                    notas: ''
-                });
-            }, 2000);
+            // Redirige al flujo de pago de Mercado Pago
+            window.location.href = checkoutUrl;
 
         } catch (err: any) {
             console.error(err);

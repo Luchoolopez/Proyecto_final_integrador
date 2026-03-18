@@ -54,18 +54,14 @@ export class MercadoPagoController {
 
             const result = await MercadoPagoService.exchangeCodeForTokens(code);
 
-            return res.status(200).json({
-                success: true,
-                message: result.message,
-                data: result.data
-            });
+            // Redirigimos al panel de admin para que el usuario vea que la conexión fue exitosa.
+            const redirectUrl = `${process.env.FRONTEND_URL ?? ''}/admin?mp=connected`;
+            return res.redirect(redirectUrl) as unknown as Response; //probando asi simple, hay que cambiarlo o mejarlo 
 
         } catch (error) {
-            return res.status(500).json({
-                success: false,
-                message: 'Error al procesar el callback de Mercado Pago',
-                error: error instanceof Error ? error.message : 'Error desconocido'
-            });
+            console.error('Mercado Pago callback error:', error);
+            const redirectUrl = `${process.env.FRONTEND_URL ?? ''}/admin?mp=error`;
+            return res.redirect(redirectUrl) as unknown as Response;
         }
     };
 
