@@ -10,6 +10,7 @@ cartRouter.use(AuthMiddleware.authenticate);
 cartRouter.get('/', cartController.getCart);
 cartRouter.get('/:id', cartController.getCartItem);
 cartRouter.post('/add', cartController.addItem);
+cartRouter.post('/apply-coupon', cartController.applyCoupon);
 cartRouter.put('/:id', cartController.updateItemQuantity);
 cartRouter.delete('/:id', cartController.removeItem);
 cartRouter.delete('/', cartController.clearCart);
