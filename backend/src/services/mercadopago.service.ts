@@ -9,7 +9,7 @@ export class MercadoPagoService {
    * Genera la URL de autorización para conectar Mercado Pago
    */
   static getAuthorizationUrl(): string {
-    const baseUrl = 'https://auth.mercadopago.com/authorization';
+    const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
     const params = new URLSearchParams({
       client_id: this.clientId,
       response_type: 'code',
@@ -23,8 +23,10 @@ export class MercadoPagoService {
    * Intercambia el código de autorización por tokens de acceso
    */
   static async exchangeCodeForTokens(code: string, adminUserId: number = 1) {
+    console.log('🔄 Iniciando intercambio de código por tokens');
     try {
-      const tokenUrl = 'https://api.mercadopago.com/oauth/token';
+      const tokenUrl = 'https://api.mercadopago.com.ar/oauth/token';
+      console.log('Token URL:', tokenUrl);
 
       const response = await fetch(tokenUrl, {
         method: 'POST',
@@ -40,11 +42,16 @@ export class MercadoPagoService {
         })
       });
 
+      console.log('Respuesta de MP:', response.status, response.statusText);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error en respuesta de MP:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const tokenData = await response.json();
+      console.log('✅ Token data recibido:', { user_id: tokenData.user_id, expires_in: tokenData.expires_in });
 
       // Guardar los tokens en la base de datos
       const [mpConfig, created] = await MpConectado.upsert({

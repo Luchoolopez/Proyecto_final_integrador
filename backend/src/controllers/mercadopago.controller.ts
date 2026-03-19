@@ -42,24 +42,29 @@ export class MercadoPagoController {
      * Intercambia el código por tokens de acceso
      */
     callback = async (req: Request, res: Response): Promise<Response> => {
+        console.log('🔄 Mercado Pago callback iniciado');
+        console.log('Query params:', req.query);
         try {
             const { code, state } = req.query;
 
             if (!code || typeof code !== 'string') {
+                console.log('❌ Código de autorización faltante');
                 return res.status(400).json({
                     success: false,
                     message: 'Código de autorización faltante'
                 });
             }
 
+            console.log('✅ Código recibido, intercambiando por tokens...');
             const result = await MercadoPagoService.exchangeCodeForTokens(code);
 
+            console.log('✅ Tokens obtenidos exitosamente:', result);
             // Redirigimos al panel de admin para que el usuario vea que la conexión fue exitosa.
             const redirectUrl = `${process.env.FRONTEND_URL ?? ''}/admin?mp=connected`;
             return res.redirect(redirectUrl) as unknown as Response; //probando asi simple, hay que cambiarlo o mejarlo 
 
         } catch (error) {
-            console.error('Mercado Pago callback error:', error);
+            console.error('❌ Mercado Pago callback error:', error);
             const redirectUrl = `${process.env.FRONTEND_URL ?? ''}/admin?mp=error`;
             return res.redirect(redirectUrl) as unknown as Response;
         }
