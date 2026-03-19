@@ -6,7 +6,7 @@ interface OrderAttributes {
     id: number;
     numero_pedido?: string;
     usuario_id: number;
-    direccion_id: number;
+    direccion_id: number | null;
     total: number;
     estado: 'pendiente' | 'confirmado' | 'armando' | 'enviado' | 'entregado' | 'cancelado';
     notas?: string;
@@ -25,7 +25,7 @@ export class Order extends Model<OrderAttributes, OrderCreationAttributes> imple
     id!: number;
     numero_pedido!: string;
     usuario_id!: number;
-    direccion_id!: number;
+    direccion_id!: number | null;
     total!: number;
     estado!: 'pendiente' | 'confirmado' | 'armando' | 'enviado' | 'entregado' | 'cancelado';
     notas?: string;
@@ -61,6 +61,8 @@ Order.init(
         },
         direccion_id: {
             type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null,
             references: {
                 model: 'direcciones',
                 key: 'id',

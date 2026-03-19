@@ -3,6 +3,7 @@ import Login from '../pages/Login.tsx';
 import Register from '../pages/Register.tsx';
 import Home from '../pages/Home.tsx';
 import CartPage from '../pages/CartPage.tsx';
+import CheckoutPage from '../pages/CheckoutPage.tsx';
 import { AdminHome } from '../pages/admin/AdminHome.tsx';
 import "../App.css";
 import { MainLayout } from '../layouts/MainLayout.tsx';
@@ -39,6 +40,7 @@ export function AppRouter() {
                 <Route path='/account/addresses/add' element={<AddressForm/>}/>
                 <Route path='/account/addresses/edit/:id' element={<AddressForm/>}/>
                 <Route path='/cart' element={<CartPage />} />
+                <Route path='/checkout' element={<CheckoutPage />} />
                 <Route path='/productos' element={<ProductListPage />} />
                 <Route path='/productos/:slug1/:slug2' element={<ProductListPage />} />
                 <Route path='/productos/:slug1' element={<ProductListPage />} />

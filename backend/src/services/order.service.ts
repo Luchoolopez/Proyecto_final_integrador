@@ -26,13 +26,16 @@ export class OrderService {
                 throw new Error(ERROR_MESSAGES.CART_EMPTY);
             }
 
-            const direccion = await Address.findOne({
-                where: { id: orderData.direccion_id, usuario_id },
-                transaction,
-            });
+            // Solo buscamos y validamos la dirección si el usuario eligió envío
+            if (orderData.direccion_id) {
+                const direccion = await Address.findOne({
+                    where: { id: orderData.direccion_id, usuario_id },
+                    transaction,
+                });
 
-            if (!direccion) {
-                throw new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
+                if (!direccion) {
+                    throw new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
+                }
             }
 
             let totalPedido = 0;
@@ -79,7 +82,8 @@ export class OrderService {
                 {
                     usuario_id,
                     numero_pedido: numeroPedidoGenerado, 
-                    direccion_id: orderData.direccion_id,
+                    // Si no hay direccion_id, se guarda como null en la DB
+                    direccion_id: orderData.direccion_id || null,
                     total: totalPedido,
                     estado: ORDER_STATUS.PENDIENTE,
                     notas: orderData.notas,
