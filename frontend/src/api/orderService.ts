@@ -33,7 +33,7 @@ export interface Order {
 }
 
 export interface CreateOrderPayload {
-    direccion_id: number;
+    direccion_id?: number;
     notas?: string;
     shipping_provider?: string;
     shipping_service?: string;
