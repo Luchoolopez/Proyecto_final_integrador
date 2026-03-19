@@ -19,6 +19,7 @@ const sequelize = new Sequelize(
         host: requireEnv("DB_HOST"),
         port: parseInt(process.env.DB_PORT || "3306"),
         dialect: "mysql",
+        timezone: '-03:00', // Forzar zona horaria Argentina en base de datos
         logging: NODE_ENV === "development" ? console.log : false,
         pool: {
             max: 10,

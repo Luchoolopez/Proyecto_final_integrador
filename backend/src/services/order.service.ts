@@ -1,8 +1,9 @@
 import { sequelize } from '../config/database';
 import { Op } from 'sequelize';
-import { Order, OrderDetail, ProductVariant, User, Address, Cart, Product } from '../models';
+import { Order, OrderDetail, ProductVariant, User, Address, Cart, Product, Coupon, UsedCoupon } from '../models';
 import { CreateOrderInput } from '../validations/order.schema';
 import { ERROR_MESSAGES, ORDER_STATUS } from '../utils/order/order.constants';
+import { CartService } from './cart.service';
 
 export class OrderService {
 
@@ -35,7 +36,11 @@ export class OrderService {
                 throw new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
             }
 
-            let totalPedido = 0;
+            // 1. Calcular totales con promociones y cupones
+            const cartService = new CartService();
+            const totales = await cartService.calculateTotals(usuario_id, orderData.codigo_cupon);
+            const totalPedido = totales.totalFinal;
+
             const itemsParaDetalle: any[] = [];
 
             for (const item of cartItems) {
@@ -57,8 +62,6 @@ export class OrderService {
                 const precioBase = Number(variante.producto.precio_base);
                 const descuento = Number(variante.producto.descuento || 0);
                 const precioFinalProducto = precioBase * (1 - descuento / 100);
-                
-                totalPedido += precioFinalProducto * item.cantidad;
 
                 itemsParaDetalle.push({
                     variante_id: item.variante_id,
@@ -75,6 +78,7 @@ export class OrderService {
             const random = Math.floor(Math.random() * 1000);
             const numeroPedidoGenerado = `PED-${timestamp}-${random}`;
 
+            // 2. Crear pedido con el total calculado
             const nuevoPedido = await Order.create(
                 {
                     usuario_id,
@@ -96,6 +100,25 @@ export class OrderService {
             }));
             
             await OrderDetail.bulkCreate(detallesData, { transaction });
+
+            // 3. Registrar el uso del cupón
+            if (orderData.codigo_cupon && totales.descuentoCupon > 0) {
+                const cupon = await Coupon.findOne({ 
+                    where: { codigo: orderData.codigo_cupon }, 
+                    transaction 
+                });
+
+                if (cupon) {
+                    await UsedCoupon.create({
+                        cupon_id: cupon.id,
+                        pedido_id: nuevoPedido.id,
+                        usuario_id: usuario_id,
+                        descuento_aplicado: totales.descuentoCupon
+                    }, { transaction });
+
+                    await cupon.increment('usos_actuales', { by: 1, transaction });
+                }
+            }
 
             await Cart.destroy({
                 where: { usuario_id },
