@@ -26,6 +26,7 @@ import { AddressForm } from '../pages/AdressForm.tsx';
 import { ForgotPassword } from '../pages/ForgotPassword.tsx';
 import { ResetPassword } from '../pages/ResetPassword.tsx';
 import { Newsletter } from '../pages/admin/Newsletter.tsx';
+import { AdminCoupons } from '../pages/admin/AdminCoupons.tsx';
 
 export function AppRouter() {
     return (
@@ -61,6 +62,7 @@ export function AppRouter() {
                     <Route path='/admin/ordenes' element={<OrderList />} />
                     <Route path='/admin/usuarios' element={<UserList />} />
                     <Route path='admin/newsletter' element={<Newsletter/>}/>
+                    <Route path='/admin/cupones' element={<AdminCoupons />} />
                 </Route>
             </Route>
         </Routes>

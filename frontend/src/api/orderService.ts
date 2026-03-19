@@ -37,6 +37,7 @@ export interface CreateOrderPayload {
     notas?: string;
     shipping_provider?: string;
     shipping_service?: string;
+    codigo_cupon?: string; // <-- NUEVO: Agregado para enviar el cupón
 }
 
 export const orderService = {

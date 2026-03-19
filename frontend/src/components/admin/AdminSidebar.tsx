@@ -53,6 +53,11 @@ export const AdminSidebar = () => {
             <span>Newsletter</span>
           </Nav.Link>
 
+          <Nav.Link as={Link} to="/admin/cupones" className="admin-nav-link text-white">
+            <i className="bi bi-ticket-perforated admin-nav-icon"></i>
+            <span>Cupones y Promos</span>
+          </Nav.Link>
+
           <div className="border-top border-secondary my-2 opacity-50"></div>
 
           <Nav.Link as={Link} to="/" className="admin-nav-link text-white" title="Ir a la tienda">

@@ -76,4 +76,10 @@ export const cartService = {
   clearCart: async (): Promise<void> => {
     await apiClient.delete("/cart");
   },
+
+  // POST /api/cart/apply-coupon
+  applyCoupon: async (codigoCupon: string) => {
+    const response = await apiClient.post('/cart/apply-coupon', { codigoCupon });
+    return response.data;
+  }
 };

@@ -5,6 +5,7 @@ import { useCartContext } from '../context/CartContext';
 import { useAuthContext } from '../context/AuthContext';
 import { orderService } from '../api/orderService';
 import { addressService } from '../api/addressService';
+import { cartService } from '../api/cartService';
 import { ToastNotification } from '../components/ToastNotification';
 import type { Address } from '../types/Address';
 
@@ -95,6 +96,54 @@ export const CheckoutPage: React.FC = () => {
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', variant: 'success' as 'success' | 'error' });
 
+    // ── Estado Cupones y Totales ──────────────────────────────────────────────
+    const [codigoCupon, setCodigoCupon] = useState('');
+    const [cuponAplicado, setCuponAplicado] = useState<string | null>(null);
+    const [isCalculating, setIsCalculating] = useState(false);
+    const [totales, setTotales] = useState({
+        subtotal: total,
+        descuentoPromociones: 0,
+        descuentoCupon: 0,
+        totalFinal: total
+    });
+
+    useEffect(() => {
+        calcularTotales(cuponAplicado || '');
+    }, [total]);
+
+    const calcularTotales = async (codigo: string) => {
+        try {
+            setIsCalculating(true);
+            const data = await cartService.applyCoupon(codigo);
+            const result = data.data || data; 
+            
+            setTotales({
+                subtotal: result.subtotal,
+                descuentoPromociones: result.descuentoPromociones,
+                descuentoCupon: result.descuentoCupon,
+                totalFinal: result.totalFinal
+            });
+            
+            if (codigo && !cuponAplicado) {
+                setCuponAplicado(codigo);
+                setToast({ show: true, message: '¡Cupón aplicado con éxito!', variant: 'success' });
+            }
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.message || err.message || 'Error al calcular totales.';
+            if (codigo) {
+                setToast({ show: true, message: errorMsg, variant: 'error' });
+                setCodigoCupon(''); 
+            }
+        } finally {
+            setIsCalculating(false);
+        }
+    };
+
+    const handleApplyCoupon = () => {
+        if (!codigoCupon.trim()) return;
+        calcularTotales(codigoCupon.trim().toUpperCase());
+    };
+
     // ── Cargar direcciones guardadas ────────────────────────────────────────
     useEffect(() => {
         addressService.getAddresses()
@@ -159,6 +208,7 @@ export const CheckoutPage: React.FC = () => {
                 notas: notas || `Contacto: ${recipient.nombre} — ${recipient.telefono} | Pago: ${metodoPago}`,
                 shipping_provider: metodoEnvio === 'envio' ? 'correo_argentino' : 'retiro_local',
                 shipping_service: metodoEnvio === 'envio' ? 'estandar' : 'sucursal',
+                codigo_cupon: cuponAplicado || undefined,
             });
 
             setOrderSuccess(true);
@@ -585,10 +635,45 @@ export const CheckoutPage: React.FC = () => {
 
                                     <hr />
 
-                                    <div className="d-flex justify-content-between small mb-1">
-                                        <span>Subtotal</span>
-                                        <span>{formatPrice(total)}</span>
+                                    <div className="mb-3">
+                                        <div className="d-flex gap-2">
+                                            <Form.Control 
+                                                type="text" 
+                                                placeholder="Código de descuento" 
+                                                className="text-uppercase"
+                                                value={codigoCupon}
+                                                onChange={(e) => setCodigoCupon(e.target.value.toUpperCase())}
+                                                disabled={!!cuponAplicado || isCalculating}
+                                            />
+                                            <Button 
+                                                variant={cuponAplicado ? "success" : "outline-primary"}
+                                                onClick={handleApplyCoupon}
+                                                disabled={!!cuponAplicado || isCalculating || !codigoCupon.trim()}
+                                            >
+                                                {isCalculating ? <Spinner size="sm" animation="border" /> : (cuponAplicado ? 'Aplicado' : 'Aplicar')}
+                                            </Button>
+                                        </div>
                                     </div>
+
+                                    <div className="d-flex justify-content-between small mb-1">
+                                        <span className="text-muted">Subtotal</span>
+                                        <span>{formatPrice(totales.subtotal)}</span>
+                                    </div>
+                                    
+                                    {totales.descuentoPromociones > 0 && (
+                                        <div className="d-flex justify-content-between small mb-1 text-success">
+                                            <span>Promociones Automáticas</span>
+                                            <span>-{formatPrice(totales.descuentoPromociones)}</span>
+                                        </div>
+                                    )}
+
+                                    {totales.descuentoCupon > 0 && (
+                                        <div className="d-flex justify-content-between small mb-1 text-success">
+                                            <span>Cupón ({cuponAplicado})</span>
+                                            <span>-{formatPrice(totales.descuentoCupon)}</span>
+                                        </div>
+                                    )}
+
                                     <div className="d-flex justify-content-between small mb-3 align-items-center">
                                         <span>Envío</span>
                                         {metodoEnvio === 'local' ? (
@@ -599,9 +684,14 @@ export const CheckoutPage: React.FC = () => {
                                             <span className="text-muted">A calcular</span>
                                         )}
                                     </div>
-                                    <div className="d-flex justify-content-between fw-bold fs-5 mb-1">
-                                        <span>Total</span>
-                                        <span className="text-primary">{formatPrice(total)}</span>
+
+                                    <hr />
+
+                                    <div className="d-flex justify-content-between align-items-center mt-3 mb-1">
+                                        <span className="fw-bold fs-5">Total a Pagar</span>
+                                        <span className="fs-4 text-primary fw-bold">
+                                            {isCalculating ? <Spinner size="sm" animation="border" variant="primary" /> : formatPrice(totales.totalFinal)}
+                                        </span>
                                     </div>
                                     {metodoPago === 'tarjeta' && (
                                         <p className="text-muted small mb-3">
