@@ -9,7 +9,8 @@ export class MercadoPagoController {
      */
     connect = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const isConnected = await MercadoPagoService.isConnected();
+            const adminUserId = req.user!.id;
+            const isConnected = await MercadoPagoService.isConnected(adminUserId);
 
             if (isConnected) {
                 return res.status(200).json({
@@ -19,7 +20,7 @@ export class MercadoPagoController {
                 });
             }
 
-            const authUrl = MercadoPagoService.getAuthorizationUrl();
+            const authUrl = MercadoPagoService.getAuthorizationUrl(adminUserId);
 
             return res.status(200).json({
                 success: true,
@@ -44,29 +45,31 @@ export class MercadoPagoController {
     callback = async (req: Request, res: Response): Promise<Response> => {
         console.log('🔄 Mercado Pago callback iniciado');
         console.log('Query params:', req.query);
+        const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:5173';
         try {
             const { code, state } = req.query;
 
             if (!code || typeof code !== 'string') {
                 console.log('❌ Código de autorización faltante');
-                return res.status(400).json({
-                    success: false,
-                    message: 'Código de autorización faltante'
-                });
+                return res.redirect(`${frontendUrl}/admin?mp=error_code`) as unknown as Response;
             }
 
+            if (!state || typeof state !== 'string') {
+                console.log('❌ State (admin ID) faltante. Imposible identificar la cuenta.');
+                return res.redirect(`${frontendUrl}/admin?mp=error_state`) as unknown as Response;
+            }
+
+            const adminUserId = parseInt(state, 10);
+
             console.log('✅ Código recibido, intercambiando por tokens...');
-            const result = await MercadoPagoService.exchangeCodeForTokens(code);
+            const result = await MercadoPagoService.exchangeCodeForTokens(code, adminUserId);
 
             console.log('✅ Tokens obtenidos exitosamente:', result);
-            // Redirigimos al panel de admin para que el usuario vea que la conexión fue exitosa.
-            const redirectUrl = `${process.env.FRONTEND_URL ?? ''}/admin?mp=connected`;
-            return res.redirect(redirectUrl) as unknown as Response; //probando asi simple, hay que cambiarlo o mejarlo 
+            return res.redirect(`${frontendUrl}/admin?mp=connected`) as unknown as Response;
 
         } catch (error) {
             console.error('❌ Mercado Pago callback error:', error);
-            const redirectUrl = `${process.env.FRONTEND_URL ?? ''}/admin?mp=error`;
-            return res.redirect(redirectUrl) as unknown as Response;
+            return res.redirect(`${frontendUrl}/admin?mp=error`) as unknown as Response;
         }
     };
 
@@ -75,8 +78,14 @@ export class MercadoPagoController {
      */
     status = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const isConnected = await MercadoPagoService.isConnected();
-            const mpConfig = await MercadoPagoService.getMpConfig();
+            const adminUserId = req.user!.id;
+            const mpConfig = await MercadoPagoService.getMpConfig(adminUserId);
+            
+            // Evaluamos la conexión localmente sin volver a consultar a la Base de Datos
+            let isConnected = false;
+            if (mpConfig && mpConfig.expires_at > new Date()) {
+                isConnected = true;
+            }
 
             return res.status(200).json({
                 success: true,

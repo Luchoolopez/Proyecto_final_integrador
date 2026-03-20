@@ -1,17 +1,17 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { MpConectado } from '../models/MpConectado';
+import { User } from '../models/user.model';
 import { orderService } from './order.service';
 
 export class PaymentService {
   static async createPreference(pedidoId: number, usuarioId: number) {
     const pedido = await orderService.getOrderById(pedidoId, usuarioId);
 
-    // En tu ecommerce de ropa, asumimos que hay un admin principal (ID 1 o el que definas)
-    const mpConfig = await MpConectado.findOne({ where: { usuario_id: 1 } }); 
-    if (!mpConfig) throw new Error("La tienda no tiene Mercado Pago vinculado");
+    const accessToken = process.env.MP_ACCESS_TOKEN;
+    if (!accessToken) throw new Error("Falta configurar MP_ACCESS_TOKEN en el .env");
 
-    // Configuramos MP con el token del vendedor
-    const client = new MercadoPagoConfig({ accessToken: mpConfig.access_token });
+    // Configuramos MP con el token directo
+    const client = new MercadoPagoConfig({ accessToken });
     const preference = new Preference(client);
 
     // Arma los items para MP desde los detalles del pedido

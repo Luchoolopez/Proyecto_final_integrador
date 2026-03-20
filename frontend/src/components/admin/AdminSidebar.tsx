@@ -53,6 +53,11 @@ export const AdminSidebar = () => {
             <span>Newsletter</span>
           </Nav.Link>
 
+          <Nav.Link as={Link} to="/admin/mp" className="admin-nav-link text-white">
+            <HiMiniUsers className="admin-nav-icon" />
+            <span>Mercado Pago</span>
+          </Nav.Link>
+
           <div className="border-top border-secondary my-2 opacity-50"></div>
 
           <Nav.Link as={Link} to="/" className="admin-nav-link text-white" title="Ir a la tienda">
@@ -64,8 +69,8 @@ export const AdminSidebar = () => {
 
       <div className="mt-3">
         <div className="d-flex justify-content-center align-items-center mb-3 p-2 border rounded border-secondary text-white">
-            <span className="me-2 small">Tema:</span>
-            <ThemeToggleButton />
+          <span className="me-2 small">Tema:</span>
+          <ThemeToggleButton />
         </div>
         <Button variant="outline-light" className="w-100 logout-btn" onClick={logout}>
           Cerrar sesión

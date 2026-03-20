@@ -8,13 +8,14 @@ export class MercadoPagoService {
   /**
    * Genera la URL de autorización para conectar Mercado Pago
    */
-  static getAuthorizationUrl(): string {
-    const baseUrl = 'https://auth.mercadopago.com.ar/authorization';
+  static getAuthorizationUrl(adminUserId: number): string {
+    const baseUrl = 'https://auth.mercadopago.com/authorization';
     const params = new URLSearchParams({
       client_id: this.clientId,
       response_type: 'code',
       platform_id: 'mp',
-      redirect_uri: this.redirectUri
+      redirect_uri: this.redirectUri,
+      state: adminUserId.toString() // Mantenemos la sesión enviando el ID del admin
     });
     return `${baseUrl}?${params.toString()}`;
   }
@@ -22,10 +23,10 @@ export class MercadoPagoService {
   /**
    * Intercambia el código de autorización por tokens de acceso
    */
-  static async exchangeCodeForTokens(code: string, adminUserId: number = 1) {
+  static async exchangeCodeForTokens(code: string, adminUserId: number) {
     console.log('🔄 Iniciando intercambio de código por tokens');
     try {
-      const tokenUrl = 'https://api.mercadopago.com.ar/oauth/token';
+      const tokenUrl = 'https://api.mercadopago.com/oauth/token';
       console.log('Token URL:', tokenUrl);
 
       const response = await fetch(tokenUrl, {
@@ -81,7 +82,7 @@ export class MercadoPagoService {
   /**
    * Verifica si hay una conexión activa
    */
-  static async isConnected(adminUserId: number = 1): Promise<boolean> {
+  static async isConnected(adminUserId: number): Promise<boolean> {
     try {
       const mpConfig = await MpConectado.findOne({
         where: { usuario_id: adminUserId }
@@ -100,7 +101,7 @@ export class MercadoPagoService {
   /**
    * Obtiene la configuración de MP para el admin
    */
-  static async getMpConfig(adminUserId: number = 1) {
+  static async getMpConfig(adminUserId: number) {
     return await MpConectado.findOne({
       where: { usuario_id: adminUserId }
     });
