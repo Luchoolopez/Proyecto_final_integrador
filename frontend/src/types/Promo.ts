@@ -11,6 +11,10 @@ export interface Coupon {
   fecha_inicio: string;
   fecha_fin: string;
   activo: boolean;
+
+  // Asociaciones para restricciones de uso
+  categoriasIds?: number[];
+  productosIds?: number[];
 }
 
 export interface CartTotals {

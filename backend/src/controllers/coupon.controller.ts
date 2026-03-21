@@ -5,7 +5,9 @@ export class CouponController {
     
     getAll = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const coupons = await Coupon.findAll();
+            const coupons = await Coupon.findAll({
+                include: ['categorias', 'productos']
+            });
             return res.status(200).json({ success: true, data: coupons });
         } catch (error: any) {
             return res.status(500).json({ success: false, message: error.message });
@@ -14,7 +16,17 @@ export class CouponController {
 
     create = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const newCoupon = await Coupon.create(req.body);
+            const { categoriasIds, productosIds, ...couponData } = req.body;
+            const newCoupon = await Coupon.create(couponData);
+
+            if (categoriasIds && categoriasIds.length > 0) {
+                await (newCoupon as any).setCategorias(categoriasIds); 
+            }
+
+            if (productosIds && productosIds.length > 0) {
+                await (newCoupon as any).setProductos(productosIds);
+            }
+
             return res.status(201).json({ success: true, data: newCoupon });
         } catch (error: any) {
             return res.status(400).json({ success: false, message: error.message });

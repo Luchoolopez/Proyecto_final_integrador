@@ -252,28 +252,43 @@ CREATE TABLE cupones_usados (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT
 );
 
--- ======================================
--- TABLA PROMOCIONES AUTOMÁTICAS
--- ======================================
+-- =============================================================
+-- RESTRICCIONES DE CUPONES (Opcionales)
+-- =============================================================
+CREATE TABLE cupon_categorias (
+    cupon_id INT NOT NULL,
+    categoria_id INT NOT NULL,
+    PRIMARY KEY (cupon_id, categoria_id),
+    FOREIGN KEY (cupon_id) REFERENCES cupones(id) ON DELETE CASCADE,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE
+);
+
+CREATE TABLE cupon_productos (
+    cupon_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    PRIMARY KEY (cupon_id, producto_id),
+    FOREIGN KEY (cupon_id) REFERENCES cupones(id) ON DELETE CASCADE,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);
+
+-- =============================================================
+-- SISTEMA DE PROMOCIONES AUTOMÁTICAS
+-- =============================================================
 CREATE TABLE promociones (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL, -- Ej: "3x2 en Remeras", "Hot Sale Indumentaria"
+    nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    tipo ENUM('descuento_porcentaje', 'descuento_fijo', 'n_x_m') NOT NULL,
-    valor_descuento DECIMAL(10,2) DEFAULT NULL, -- Usado si es porcentaje o fijo (ej: 20 para 20%)
-    lleva_n INT DEFAULT NULL, -- Para el 3x2 (Lleva 3)
-    paga_m INT DEFAULT NULL,  -- Para el 3x2 (Paga 2)
+    tipo ENUM('porcentaje', 'monto_fijo', 'nxm') NOT NULL,
+    valor DECIMAL(10,2) DEFAULT NULL, -- Ej: 20 para 20%, o 5000 para $5000
+    lleva_n INT DEFAULT NULL,         -- Ej: 3 (Llevas 3)
+    paga_m INT DEFAULT NULL,          -- Ej: 2 (Pagas 2)
     fecha_inicio DATETIME NOT NULL,
     fecha_fin DATETIME NOT NULL,
     activa BOOLEAN DEFAULT TRUE,
-    acumulable_con_cupones BOOLEAN DEFAULT FALSE, -- Clave: ¿Si hay Hot Sale, dejo que además metan un cupón?
+    acumulable BOOLEAN DEFAULT FALSE, -- ¿Se puede sumar un cupón arriba de esto?
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ======================================
--- TABLA PIVOTE: PROMOCIÓN -> CATEGORÍAS
--- ======================================
--- Define a qué categorías aplica esta promo (Ej: El 3x2 es solo para "Pantalones")
 CREATE TABLE promocion_categorias (
     promocion_id INT NOT NULL,
     categoria_id INT NOT NULL,
@@ -282,10 +297,6 @@ CREATE TABLE promocion_categorias (
     FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE
 );
 
--- ======================================
--- TABLA PIVOTE: PROMOCIÓN -> PRODUCTOS (Opcional)
--- ======================================
--- Por si el dueño quiere hacer descuento en un solo producto específico
 CREATE TABLE promocion_productos (
     promocion_id INT NOT NULL,
     producto_id INT NOT NULL,

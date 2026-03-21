@@ -112,6 +112,18 @@ export function setupAssociations() {
   UsedCoupon.belongsTo(Order, { foreignKey: 'pedido_id', as: 'pedido' });
 
   // =====================================
+  // RELACIÓN: Coupon <-> Category
+  // =====================================
+  Coupon.belongsToMany(Category, { through: 'cupon_categorias', as: 'categorias', foreignKey: 'cupon_id', otherKey: 'categoria_id', timestamps: false });
+  Category.belongsToMany(Coupon, { through: 'cupon_categorias', foreignKey: 'categoria_id', timestamps: false });
+
+  // =====================================
+  // RELACIÓN: Coupon <-> Product
+  // =====================================
+  Coupon.belongsToMany(Product, { through: 'cupon_productos', as: 'productos', foreignKey: 'cupon_id', otherKey: 'producto_id', timestamps: false });
+  Product.belongsToMany(Coupon, { through: 'cupon_productos', foreignKey: 'producto_id', timestamps: false });
+
+  // =====================================
   // RELACIÓN: Promotion <-> Category
   // =====================================
   Promotion.belongsToMany(Category, { 

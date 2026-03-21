@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Table, Spinner, Badge, Card } from 'react-bootstrap';
 import { couponService } from '../../api/couponService';
+import { categoryService } from '../../api/categoryService';
 import { type Coupon } from '../../types/Promo';
 import { ToastNotification } from '../../components/ToastNotification';
 
@@ -8,6 +9,9 @@ export const AdminCoupons = () => {
     const [cupones, setCupones] = useState<Coupon[]>([]);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
+
+    const [categorias, setCategorias] = useState<any[]>([]);
+    const [selectedCategorias, setSelectedCategorias] = useState<number[]>([]);
 
     // Estado para el Toast
     const [toast, setToast] = useState({
@@ -32,7 +36,17 @@ export const AdminCoupons = () => {
     // Cargar cupones al inicio
     useEffect(() => {
         fetchCupones();
+        fetchCategorias();
     }, []);
+
+    const fetchCategorias = async () => {
+        try {
+            const categoriasList = await categoryService.getCategories();
+            setCategorias(categoriasList); 
+        } catch (error) {
+            console.error("Error al cargar categorías", error);
+        }
+    };
 
     const fetchCupones = async () => {
         try {
@@ -54,6 +68,12 @@ export const AdminCoupons = () => {
         });
     };
 
+    const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const options = Array.from(e.target.selectedOptions);
+        const values = options.map(option => Number(option.value));
+        setSelectedCategorias(values);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -66,11 +86,13 @@ export const AdminCoupons = () => {
                 monto_minimo: Number(formData.monto_minimo),
                 usos_maximos: formData.usos_maximos ? Number(formData.usos_maximos) : null,
                 limite_uso_por_usuario: Number(formData.limite_uso_por_usuario),
+                categoriasIds: selectedCategorias
             };
 
             await couponService.create(payload);
             setToast({ show: true, message: 'Cupón creado exitosamente', variant: 'success' });
             setFormData(initialFormState); // Limpiar formulario
+            setSelectedCategorias([]);
             fetchCupones(); // Recargar la tabla
         } catch (error: any) {
             setToast({ show: true, message: error.response?.data?.message || 'Error al crear cupón', variant: 'error' });
@@ -162,6 +184,26 @@ export const AdminCoupons = () => {
                                 <Form.Group>
                                     <Form.Label>Fecha Fin</Form.Label>
                                     <Form.Control required type="date" name="fecha_fin" value={formData.fecha_fin} onChange={handleChange} />
+                                </Form.Group>
+                            </Col>
+                            <Col md={12}>
+                                <Form.Group>
+                                    <Form.Label>Limitar a Categorías Específicas (Opcional)</Form.Label>
+                                    <Form.Select 
+                                        multiple 
+                                        htmlSize={3}
+                                        value={selectedCategorias.map(String)} 
+                                        onChange={handleCategorySelect}
+                                    >
+                                        {categorias.map(cat => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.nombre}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                    <Form.Text className="text-muted">
+                                        Mantené presionado Ctrl (o Cmd en Mac) para seleccionar varias. Si no seleccionás ninguna, el cupón aplica a toda la tienda libremente.
+                                    </Form.Text>
                                 </Form.Group>
                             </Col>
                             <Col xs={12} className="d-flex justify-content-end mt-4">

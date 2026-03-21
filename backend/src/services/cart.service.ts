@@ -169,112 +169,83 @@ export class CartService {
     }
 
     async calculateTotals(usuario_id: number, codigoCuponIngresado?: string) {
+        const cartItemsRaw = await Cart.findAll({
+            where: { usuario_id },
+            include: [{
+                model: ProductVariant,
+                as: 'variante',
+                include: [{ model: Product, as: 'producto' }]
+            }]
+        });
+
+        if (!cartItemsRaw.length) {
+            return { subtotal: 0, descuentoPromociones: 0, descuentoCupon: 0, totalFinal: 0 };
+        }
+
         let subtotal = 0;
         let descuentoPromociones = 0;
         let descuentoCupon = 0;
+        let permiteAcumularCupon = true;
 
-        // 1. Obtener items del carrito
-        const cartItemsRaw = await Cart.findAll({
-            where: { usuario_id },
-            include: [
-                {
-                    model: ProductVariant,
-                    as: 'variante',
-                    include: [ 
-                        {
-                            model: Product,
-                            as: 'producto',
-                            include: [{ model: Category, as: 'categoria' }]
-                        }
-                    ]
-                }
-            ]
+        const items = cartItemsRaw.map((item: any) => {
+            const prod = item.variante.producto;
+            const precioBase = Number(prod.precio_base || 0);
+            const descNormal = Number(prod.descuento || 0);
+            return {
+                cartItemId: item.id,
+                producto_id: prod.id,
+                categoria_id: prod.categoria_id,
+                precio: precioBase * (1 - (descNormal / 100)),
+                cantidad: item.cantidad
+            };
         });
 
-        if (!cartItemsRaw || cartItemsRaw.length === 0) {
-            return { subtotal, descuentoPromociones, descuentoCupon, totalFinal: 0 };
-        }
-
-        // 1. Calcular Subtotal Base
-        const cartItemsProcessed = cartItemsRaw.map(item => {
-            const variante = (item as any).variante;
-            const producto = variante?.producto;
-            const precio_base = Number(producto?.precio_base || 0);
-            const desc_producto = Number(producto?.descuento || 0);
-            const precio_unitario = precio_base * (1 - desc_producto / 100);
-            subtotal += precio_unitario * item.cantidad;
-            return { item, variante, producto, precio_unitario };
+        items.forEach(item => {
+            subtotal += (item.precio * item.cantidad);
         });
 
-        // 2. Aplicar Promociones Automáticas
-        const promosActivas = await Promotion.findAll({ 
-            where: { 
-                activa: true,
-                fecha_inicio: { [Op.lte]: new Date() },
-                fecha_fin: { [Op.gte]: new Date() }
-            },
-            include: [
-                { model: Category, as: 'categorias' },
-                { model: Product, as: 'productos' }
-            ]
+        const ahora = new Date();
+        const promosActivas = await Promotion.findAll({
+            where: { activa: true, fecha_inicio: { [Op.lte]: ahora }, fecha_fin: { [Op.gte]: ahora } },
+            include: [{ as: 'categorias', model: Category }, { as: 'productos', model: Product }]
         });
-
-        let acumulableConCupones = true;
 
         for (const promo of promosActivas) {
-            if (!promo.acumulable_con_cupones) {
-                acumulableConCupones = false; 
-            }
-            
-            if (promo.tipo === 'descuento_porcentaje') {
-                for (const { item, producto, precio_unitario } of cartItemsProcessed) {
-                    if (!producto) continue;
-                    
-                    const catId = producto.categoria_id;
-                    const prodId = producto.id;
+            const itemsAplicables = items.filter(item => {
+                const aplicaPorCategoria = (promo as any).categorias?.some((c: any) => c.id === item.categoria_id);
+                const aplicaPorProducto = (promo as any).productos?.some((p: any) => p.id === item.producto_id);
+                return (!(promo as any).categorias?.length && !(promo as any).productos?.length) || aplicaPorCategoria || aplicaPorProducto;
+            });
 
-                    const aplicaCategoria = (promo as any).categorias?.some((c: any) => c.id === catId);
-                    const aplicaProducto = (promo as any).productos?.some((p: any) => p.id === prodId);
+            if (itemsAplicables.length > 0) {
+                if (!promo.acumulable) permiteAcumularCupon = false;
 
-                    if (aplicaCategoria || aplicaProducto) {
-                        descuentoPromociones += (precio_unitario * item.cantidad) * (Number(promo.valor_descuento) / 100);
-                    }
-                }
-            } else if (promo.tipo === 'descuento_fijo') {
-                for (const { item, producto } of cartItemsProcessed) {
-                    if (!producto) continue;
-                    
-                    const catId = producto.categoria_id;
-                    const prodId = producto.id;
-
-                    const aplicaCategoria = (promo as any).categorias?.some((c: any) => c.id === catId);
-                    const aplicaProducto = (promo as any).productos?.some((p: any) => p.id === prodId);
-
-                    if (aplicaCategoria || aplicaProducto) {
-                        descuentoPromociones += Number(promo.valor_descuento) * item.cantidad;
-                    }
-                }
-            } else if (promo.tipo === 'n_x_m') {
-                // Implementación simplificada para 3x2, etc. (lleva_n, paga_m)
-                const lleva = Number(promo.lleva_n);
-                const paga = Number(promo.paga_m);
+                if (promo.tipo === 'porcentaje') {
+                    const subtotalAplicable = itemsAplicables.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+                    descuentoPromociones += subtotalAplicable * (Number(promo.valor || 0) / 100);
+                } 
                 
-                if (lleva && paga) {
-                    for (const { item, producto, precio_unitario } of cartItemsProcessed) {
-                        if (!producto) continue;
-                        const catId = producto.categoria_id;
-                        const prodId = producto.id;
-    
-                        const aplicaCategoria = (promo as any).categorias?.some((c: any) => c.id === catId);
-                        const aplicaProducto = (promo as any).productos?.some((p: any) => p.id === prodId);
-    
-                        if (aplicaCategoria || aplicaProducto) {
-                            const cantidad = item.cantidad;
-                            const multiplicador = Math.floor(cantidad / lleva);
-                            if (multiplicador > 0) {
-                                // Descontar la diferencia de items que no paga (lleva - paga) por cada grupo
-                                const articulosGratis = multiplicador * (lleva - paga);
-                                descuentoPromociones += articulosGratis * precio_unitario;
+                if (promo.tipo === 'monto_fijo') {
+                    const cantidadAplicable = itemsAplicables.reduce((acc, item) => acc + item.cantidad, 0);
+                    descuentoPromociones += Number(promo.valor || 0) * cantidadAplicable;
+                }
+                
+                if (promo.tipo === 'nxm' && promo.lleva_n && promo.paga_m) {
+                    const llevaN = promo.lleva_n;
+                    const pagaM = promo.paga_m;
+                    let itemsIndividuales: number[] = [];
+                    itemsAplicables.forEach(item => {
+                        for(let i=0; i < item.cantidad; i++) itemsIndividuales.push(item.precio);
+                    });
+                    
+                    itemsIndividuales.sort((a, b) => b - a);
+
+                    for (let i = 0; i < itemsIndividuales.length; i += llevaN) {
+                        const grupo = itemsIndividuales.slice(i, i + llevaN);
+                        if (grupo.length === llevaN) {
+                            const itemsDescontados = llevaN - pagaM;
+                            for (let j = 1; j <= itemsDescontados; j++) {
+                                descuentoPromociones += grupo[grupo.length - j] || 0;
                             }
                         }
                     }
@@ -282,30 +253,36 @@ export class CartService {
             }
         }
 
-        // 3. Aplicar Cupón Manual
         if (codigoCuponIngresado) {
-            if (!acumulableConCupones && descuentoPromociones > 0) {
-                throw new Error("No podés aplicar cupones junto con las ofertas actuales de Hot Sale.");
+            if (!permiteAcumularCupon && descuentoPromociones > 0) {
+                throw new Error("No podés aplicar este cupón porque ya tenés ofertas aplicadas en tu carrito que no son acumulables.");
             }
 
             const cupon = await Coupon.findOne({ 
-                where: { 
-                    codigo: codigoCuponIngresado, 
-                    activo: true,
-                    fecha_inicio: { [Op.lte]: new Date() },
-                    fecha_fin: { [Op.gte]: new Date() }
-                } 
+                where: { codigo: codigoCuponIngresado, activo: true, fecha_inicio: { [Op.lte]: ahora }, fecha_fin: { [Op.gte]: ahora } },
+                include: [{ as: 'categorias', model: Category }, { as: 'productos', model: Product }]
             });
 
-            if (!cupon) {
-                throw new Error("El cupón no existe o no se encuentra vigente.");
+            if (!cupon) throw new Error("Cupón inválido o expirado.");
+
+            const itemsAplicablesCupon = items.filter(item => {
+                const aplicaPorCategoria = (cupon as any).categorias?.some((c: any) => c.id === item.categoria_id);
+                const aplicaPorProducto = (cupon as any).productos?.some((p: any) => p.id === item.producto_id);
+                return (!(cupon as any).categorias?.length && !(cupon as any).productos?.length) || aplicaPorCategoria || aplicaPorProducto;
+            });
+
+            const subtotalParaCupon = itemsAplicablesCupon.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+
+            if (subtotalParaCupon === 0) {
+                throw new Error("Este cupón no aplica a los productos que tenés en el carrito.");
             }
 
-            if (cupon.monto_minimo && subtotal < cupon.monto_minimo) {
-                throw new Error(`El monto mínimo para usar este cupón es de $${cupon.monto_minimo}`);
+            if (subtotalParaCupon < (cupon.monto_minimo || 0)) {
+                throw new Error(`Tenés que sumar $${cupon.monto_minimo} en productos válidos para usar este cupón.`);
             }
 
-            if (cupon.usos_maximos && cupon.usos_actuales >= cupon.usos_maximos) {
+            const usosGenerales = cupon.usos_actuales || 0;
+            if (cupon.usos_maximos && usosGenerales >= cupon.usos_maximos) {
                 throw new Error("Este cupón ya alcanzó su límite máximo de usos.");
             }
             
@@ -314,22 +291,22 @@ export class CartService {
                 throw new Error("Ya utilizaste este cupón el máximo de veces permitido.");
             }
 
-            const subtotalConPromos = subtotal - descuentoPromociones;
             if (cupon.tipo === 'porcentaje') {
-                descuentoCupon = subtotalConPromos * (Number(cupon.valor) / 100);
+                descuentoCupon = subtotalParaCupon * (Number(cupon.valor || 0) / 100);
             } else {
-                descuentoCupon = Number(cupon.valor);
-                if (descuentoCupon > subtotalConPromos) descuentoCupon = subtotalConPromos;
+                descuentoCupon = Number(cupon.valor || 0);
+                if (descuentoCupon > subtotalParaCupon) descuentoCupon = subtotalParaCupon; 
             }
         }
 
-        const totalFinal = subtotal - descuentoPromociones - descuentoCupon;
+        let totalFinal = subtotal - descuentoPromociones - descuentoCupon;
+        if (totalFinal < 0) totalFinal = 0;
 
         return {
             subtotal,
             descuentoPromociones,
             descuentoCupon,
-            totalFinal: totalFinal > 0 ? totalFinal : 0
+            totalFinal
         };
     }
 }
