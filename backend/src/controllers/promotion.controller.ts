@@ -1,73 +1,66 @@
-import { Request, Response } from "express";
-import { Promotion, Category, Product } from "../models";
+import { Request, Response } from 'express';
+import { Promotion, Category, Product } from '../models';
 
 export class PromotionController {
     
-    getAll = async (req: Request, res: Response): Promise<Response> => {
+    static async create(req: Request, res: Response) {
         try {
-            const promotions = await Promotion.findAll({
+            const { categoriasIds, productosIds, ...promoData } = req.body;
+
+            // 1. Crear la regla base de la promoción
+            const nuevaPromo = await Promotion.create(promoData);
+
+            // 2. MAGIA DE SEQUELIZE: Si mandaron categorías, las vinculamos a la tabla intermedia
+            if (categoriasIds && categoriasIds.length > 0) {
+                await (nuevaPromo as any).setCategorias(categoriasIds);
+            }
+
+            // 3. Si mandaron productos específicos, los vinculamos
+            if (productosIds && productosIds.length > 0) {
+                await (nuevaPromo as any).setProductos(productosIds);
+            }
+
+            return res.status(201).json({ success: true, data: nuevaPromo, message: 'Promoción creada' });
+        } catch (error: any) {
+            console.error('Error al crear promoción:', error);
+            return res.status(500).json({ success: false, message: 'Error al crear la promoción', error: error.message });
+        }
+    }
+
+    static async getAll(req: Request, res: Response) {
+        try {
+            const promociones = await Promotion.findAll({
                 include: [
-                    { model: Category, as: 'categorias' },
-                    { model: Product, as: 'productos' }
+                    { model: Category, as: 'categorias', attributes: ['id', 'nombre'] },
+                    { model: Product, as: 'productos', attributes: ['id', 'nombre'] }
                 ]
             });
-            return res.status(200).json({ success: true, data: promotions });
-        } catch (error: any) {
-            return res.status(500).json({ success: false, message: error.message });
+            return res.json({ success: true, data: promociones });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Error al obtener promociones' });
         }
     }
 
-    create = async (req: Request, res: Response): Promise<Response> => {
-        try {
-            const { categorias, productos, ...promoData } = req.body;
-            const newPromotion = await Promotion.create(promoData);
-
-            if (categorias && categorias.length > 0) {
-                await (newPromotion as any).setCategorias(categorias);
-            }
-            if (productos && productos.length > 0) {
-                await (newPromotion as any).setProductos(productos);
-            }
-
-            return res.status(201).json({ success: true, data: newPromotion });
-        } catch (error: any) {
-            return res.status(400).json({ success: false, message: error.message });
-        }
-    }
-
-    update = async (req: Request, res: Response): Promise<Response> => {
+    static async toggleStatus(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const { categorias, productos, ...promoData } = req.body;
-
-            const promotion = await Promotion.findByPk(id);
-            if (!promotion) return res.status(404).json({ success: false, message: 'Promoción no encontrada' });
-
-            await promotion.update(promoData);
-
-            if (categorias !== undefined) {
-                await (promotion as any).setCategorias(categorias);
-            }
-            if (productos !== undefined) {
-                await (promotion as any).setProductos(productos);
-            }
-
-            return res.status(200).json({ success: true, data: promotion });
-        } catch (error: any) {
-            return res.status(400).json({ success: false, message: error.message });
+            const promo = await Promotion.findByPk(id);
+            if (!promo) return res.status(404).json({ success: false, message: 'Promoción no encontrada' });
+            
+            await promo.update({ activa: !promo.activa });
+            return res.json({ success: true, message: 'Estado de la promoción actualizado' });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Error al actualizar estado' });
         }
     }
 
-    delete = async (req: Request, res: Response): Promise<Response> => {
+    static async delete(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const promotion = await Promotion.findByPk(id);
-            if (!promotion) return res.status(404).json({ success: false, message: 'Promoción no encontrada' });
-
-            await promotion.destroy();
-            return res.status(200).json({ success: true, message: 'Promoción eliminada' });
-        } catch (error: any) {
-            return res.status(500).json({ success: false, message: error.message });
+            await Promotion.destroy({ where: { id } });
+            return res.json({ success: true, message: 'Promoción eliminada' });
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Error al eliminar' });
         }
     }
 }

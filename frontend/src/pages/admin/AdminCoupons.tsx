@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Table, Spinner, Badge, Card } from 'react-bootstrap';
 import { couponService } from '../../api/couponService';
 import { categoryService } from '../../api/categoryService';
+import { productService } from '../../api/productService';
 import { type Coupon } from '../../types/Promo';
 import { ToastNotification } from '../../components/ToastNotification';
 
@@ -10,8 +11,10 @@ export const AdminCoupons = () => {
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
 
-    const [categorias, setCategorias] = useState<any[]>([]);
+    const [categoriasBD, setCategoriasBD] = useState<any[]>([]);
+    const [productosBD, setProductosBD] = useState<any[]>([]);
     const [selectedCategorias, setSelectedCategorias] = useState<number[]>([]);
+    const [selectedProductos, setSelectedProductos] = useState<number[]>([]);
 
     // Estado para el Toast
     const [toast, setToast] = useState({
@@ -29,23 +32,41 @@ export const AdminCoupons = () => {
         usos_maximos: '',
         limite_uso_por_usuario: 1,
         fecha_inicio: '',
-        fecha_fin: ''
+        fecha_fin: '',
+        acumulable: false
     };
     const [formData, setFormData] = useState(initialFormState);
 
     // Cargar cupones al inicio
     useEffect(() => {
         fetchCupones();
-        fetchCategorias();
+        fetchCategoriasYProductos();
     }, []);
 
-    const fetchCategorias = async () => {
+    // Cargamos tanto las categorías como los productos para mostrar en las listas
+    const fetchCategoriasYProductos = async () => {
         try {
-            const categoriasList = await categoryService.getCategories();
-            setCategorias(categoriasList); 
-        } catch (error) {
-            console.error("Error al cargar categorías", error);
+            const [categorias, resProd] = await Promise.all([
+                categoryService.getCategories(),
+                productService.getProducts({ limit: 1000 })
+            ]);
+            setCategoriasBD(categorias);
+            setProductosBD(resProd.productos);
+        } catch (err) {
+            console.error("Error al cargar datos auxiliares", err);
         }
+    };
+
+    const toggleCategoria = (id: number) => {
+        setSelectedCategorias(prev => 
+            prev.includes(id) ? prev.filter(cId => cId !== id) : [...prev, id]
+        );
+    };
+
+    const toggleProducto = (id: number) => {
+        setSelectedProductos(prev => 
+            prev.includes(id) ? prev.filter(pId => pId !== id) : [...prev, id]
+        );
     };
 
     const fetchCupones = async () => {
@@ -61,17 +82,12 @@ export const AdminCoupons = () => {
     };
 
     const handleChange = (e: React.ChangeEvent<any>) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
+        const finalValue = type === 'checkbox' ? checked : (name === 'codigo' ? value.toUpperCase() : value);
         setFormData({ 
             ...formData, 
-            [name]: name === 'codigo' ? value.toUpperCase() : value 
+            [name]: finalValue
         });
-    };
-
-    const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const options = Array.from(e.target.selectedOptions);
-        const values = options.map(option => Number(option.value));
-        setSelectedCategorias(values);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -86,13 +102,16 @@ export const AdminCoupons = () => {
                 monto_minimo: Number(formData.monto_minimo),
                 usos_maximos: formData.usos_maximos ? Number(formData.usos_maximos) : null,
                 limite_uso_por_usuario: Number(formData.limite_uso_por_usuario),
-                categoriasIds: selectedCategorias
+                categoriasIds: selectedCategorias,
+                productosIds: selectedProductos,
+                acumulable: formData.acumulable
             };
 
             await couponService.create(payload);
             setToast({ show: true, message: 'Cupón creado exitosamente', variant: 'success' });
             setFormData(initialFormState); // Limpiar formulario
             setSelectedCategorias([]);
+            setSelectedProductos([]);
             fetchCupones(); // Recargar la tabla
         } catch (error: any) {
             setToast({ show: true, message: error.response?.data?.message || 'Error al crear cupón', variant: 'error' });
@@ -186,26 +205,74 @@ export const AdminCoupons = () => {
                                     <Form.Control required type="date" name="fecha_fin" value={formData.fecha_fin} onChange={handleChange} />
                                 </Form.Group>
                             </Col>
-                            <Col md={12}>
-                                <Form.Group>
-                                    <Form.Label>Limitar a Categorías Específicas (Opcional)</Form.Label>
-                                    <Form.Select 
-                                        multiple 
-                                        htmlSize={3}
-                                        value={selectedCategorias.map(String)} 
-                                        onChange={handleCategorySelect}
-                                    >
-                                        {categorias.map(cat => (
-                                            <option key={cat.id} value={cat.id}>
-                                                {cat.nombre}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                    <Form.Text className="text-muted">
-                                        Mantené presionado Ctrl (o Cmd en Mac) para seleccionar varias. Si no seleccionás ninguna, el cupón aplica a toda la tienda libremente.
-                                    </Form.Text>
-                                </Form.Group>
+                            {/* --- SECCIÓN DE SELECCIÓN DE CATEGORÍAS Y PRODUCTOS --- */}
+                            <Col md={12} className="border-top pt-4 mt-4">
+                                <h5 className="fw-bold text-primary mb-3">¿A qué se aplica este cupón de descuento?</h5>
+                                <p className="text-muted small mb-4">
+                                    Si no seleccionás nada, el cupón aplicará a <strong>TODA LA TIENDA</strong>. Podés combinar categorías y productos específicos.
+                                </p>
+                                
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Label className="fw-bold">1. Limitar por Categorías</Form.Label>
+                                        <div className="border rounded p-3 bg-white" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                            {categoriasBD.length === 0 ? (
+                                                <span className="text-muted small">No hay categorías cargadas.</span>
+                                            ) : (
+                                                categoriasBD.map(cat => (
+                                                    <Form.Check 
+                                                        key={`cat-${cat.id}`}
+                                                        type="checkbox"
+                                                        id={`categoria-${cat.id}`}
+                                                        label={cat.nombre}
+                                                        checked={selectedCategorias.includes(cat.id)}
+                                                        onChange={() => toggleCategoria(cat.id)}
+                                                        className="mb-2"
+                                                    />
+                                                ))
+                                            )}
+                                        </div>
+                                    </Col>
+
+                                    <Col md={6}>
+                                        <Form.Label className="fw-bold">2. Limitar por Productos Específicos</Form.Label>
+                                        <div className="border rounded p-3 bg-white" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                            {productosBD.length === 0 ? (
+                                                <span className="text-muted small">No hay productos cargados.</span>
+                                            ) : (
+                                                productosBD.map(prod => (
+                                                    <Form.Check 
+                                                        key={`prod-${prod.id}`}
+                                                        type="checkbox"
+                                                        id={`producto-${prod.id}`}
+                                                        label={prod.nombre}
+                                                        checked={selectedProductos.includes(prod.id)}
+                                                        onChange={() => toggleProducto(prod.id)}
+                                                        className="mb-2"
+                                                    />
+                                                ))
+                                            )}
+                                        </div>
+                                    </Col>
+                                </Row>
+
+                                <Row className="mt-4">
+                                    <Col md={12}>
+                                        <div className="bg-white p-3 border rounded border-warning">
+                                            <Form.Check 
+                                                type="switch" 
+                                                id="acumulable-switch" 
+                                                name="acumulable" 
+                                                label="Permitir que el cliente sume un Cupón Manual a esta oferta" 
+                                                checked={formData.acumulable} 
+                                                onChange={handleChange}
+                                                className="fw-bold text-dark"
+                                            />
+                                        </div>
+                                    </Col>
+                                </Row>
                             </Col>
+                            {/* ------------------------------------- */}
                             <Col xs={12} className="d-flex justify-content-end mt-4">
                                 <Button variant="primary" type="submit" disabled={loading}>
                                     {loading ? <Spinner size="sm" animation="border" /> : 'Guardar Cupón'}

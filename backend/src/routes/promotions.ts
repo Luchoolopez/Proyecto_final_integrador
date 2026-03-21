@@ -1,16 +1,15 @@
-import { Router } from "express";
-import { PromotionController } from "../controllers/promotion.controller";
-import { AuthMiddleware } from "../middlewares/auth.middleware";
+import { Router } from 'express';
+import { PromotionController } from '../controllers/promotion.controller';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
 
-const promotionRouter = Router();
-const promotionController = new PromotionController();
+const router = Router();
 
-// Aquí podrías agregar un middleware adicional para verificar si es admin
-promotionRouter.use(AuthMiddleware.authenticate);
+// Rutas públicas (o podés dejarlas solo admin, total el carrito lee desde el service)
+router.get('/', PromotionController.getAll);
 
-promotionRouter.get('/', promotionController.getAll);
-promotionRouter.post('/', promotionController.create);
-promotionRouter.put('/:id', promotionController.update);
-promotionRouter.delete('/:id', promotionController.delete);
+// Rutas protegidas para el Admin
+router.post('/', AuthMiddleware.authenticate, AuthMiddleware.authorizeRoles('admin'), PromotionController.create);
+router.patch('/:id/status', AuthMiddleware.authenticate, AuthMiddleware.authorizeRoles('admin'), PromotionController.toggleStatus);
+router.delete('/:id', AuthMiddleware.authenticate, AuthMiddleware.authorizeRoles('admin'), PromotionController.delete);
 
-export default promotionRouter;
+export default router;
