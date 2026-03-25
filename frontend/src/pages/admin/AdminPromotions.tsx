@@ -125,7 +125,7 @@ export const AdminPromotions = () => {
                 <Card.Header className="bg-success text-white py-3">
                     <h5 className="mb-0 fw-bold"><i className="bi bi-lightning-charge-fill me-2"></i>Crear Nueva Oferta</h5>
                 </Card.Header>
-                <Card.Body className="p-4 bg-light">
+                <Card.Body className="p-4 bg-body-tertiary">
                     <Form onSubmit={handleSubmit}>
                         <Row className="g-4">
                             <Col md={6}>
@@ -193,7 +193,7 @@ export const AdminPromotions = () => {
                                     {/* LISTA DE CATEGORÍAS */}
                                     <Col md={6}>
                                         <Form.Label className="fw-bold">1. Limitar por Categorías</Form.Label>
-                                        <div className="border rounded p-3 bg-white" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                        <div className="border rounded p-3 bg-body" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                             {categoriasBD.length === 0 ? (
                                                 <span className="text-muted small">No hay categorías cargadas.</span>
                                             ) : (
@@ -215,7 +215,7 @@ export const AdminPromotions = () => {
                                     {/* LISTA DE PRODUCTOS */}
                                     <Col md={6}>
                                         <Form.Label className="fw-bold">2. Limitar por Productos Específicos</Form.Label>
-                                        <div className="border rounded p-3 bg-white" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                        <div className="border rounded p-3 bg-body" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                             {productosBD.length === 0 ? (
                                                 <span className="text-muted small">No hay productos cargados.</span>
                                             ) : (
@@ -237,7 +237,7 @@ export const AdminPromotions = () => {
 
                                 <Row className="mt-4">
                                     <Col md={12}>
-                                        <div className="bg-white p-3 border rounded border-warning">
+                                        <div className="bg-body p-3 border rounded border-warning">
                                             <Form.Check 
                                                 type="switch" 
                                                 id="acumulable-switch" 
@@ -245,7 +245,7 @@ export const AdminPromotions = () => {
                                                 label="Permitir que el cliente sume un Cupón Manual a esta oferta" 
                                                 checked={formData.acumulable} 
                                                 onChange={handleChange}
-                                                className="fw-bold text-dark"
+                                                className="fw-bold"
                                             />
                                         </div>
                                     </Col>

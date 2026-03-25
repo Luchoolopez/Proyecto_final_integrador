@@ -215,7 +215,7 @@ export const AdminCoupons = () => {
                                 <Row>
                                     <Col md={6}>
                                         <Form.Label className="fw-bold">1. Limitar por Categorías</Form.Label>
-                                        <div className="border rounded p-3 bg-white" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                        <div className="border rounded p-3 bg-body-tertiary" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                             {categoriasBD.length === 0 ? (
                                                 <span className="text-muted small">No hay categorías cargadas.</span>
                                             ) : (
@@ -236,7 +236,7 @@ export const AdminCoupons = () => {
 
                                     <Col md={6}>
                                         <Form.Label className="fw-bold">2. Limitar por Productos Específicos</Form.Label>
-                                        <div className="border rounded p-3 bg-white" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                        <div className="border rounded p-3 bg-body-tertiary" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                             {productosBD.length === 0 ? (
                                                 <span className="text-muted small">No hay productos cargados.</span>
                                             ) : (
@@ -258,7 +258,7 @@ export const AdminCoupons = () => {
 
                                 <Row className="mt-4">
                                     <Col md={12}>
-                                        <div className="bg-white p-3 border rounded border-warning">
+                                        <div className="bg-body-tertiary p-3 border rounded border-warning">
                                             <Form.Check 
                                                 type="switch" 
                                                 id="acumulable-switch" 
@@ -266,7 +266,7 @@ export const AdminCoupons = () => {
                                                 label="Permitir que el cliente sume un Cupón Manual a esta oferta" 
                                                 checked={formData.acumulable} 
                                                 onChange={handleChange}
-                                                className="fw-bold text-dark"
+                                                className="fw-bold"
                                             />
                                         </div>
                                     </Col>
