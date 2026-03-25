@@ -28,6 +28,7 @@ export const AdminPromotions = () => {
     const [formData, setFormData] = useState(initialFormState);
     const [selectedCategorias, setSelectedCategorias] = useState<number[]>([]);
     const [selectedProductos, setSelectedProductos] = useState<number[]>([]); // <-- NUEVO ESTADO
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchPromociones();
@@ -116,6 +117,10 @@ export const AdminPromotions = () => {
         await promotionService.toggleStatus(id);
         fetchPromociones();
     };
+
+    const productosFiltrados = productosBD.filter(prod => 
+        prod.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="admin-container p-4">
@@ -215,11 +220,18 @@ export const AdminPromotions = () => {
                                     {/* LISTA DE PRODUCTOS */}
                                     <Col md={6}>
                                         <Form.Label className="fw-bold">2. Limitar por Productos Específicos</Form.Label>
+                                        <Form.Control 
+                                            type="text"
+                                            placeholder="Buscar producto..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="mb-2"
+                                        />
                                         <div className="border rounded p-3 bg-body" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                            {productosBD.length === 0 ? (
-                                                <span className="text-muted small">No hay productos cargados.</span>
+                                            {productosFiltrados.length === 0 ? (
+                                                <span className="text-muted small">No se encontraron productos.</span>
                                             ) : (
-                                                productosBD.map(prod => (
+                                                productosFiltrados.map(prod => (
                                                     <Form.Check 
                                                         key={`prod-${prod.id}`}
                                                         type="checkbox"

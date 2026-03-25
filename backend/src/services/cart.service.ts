@@ -2,6 +2,7 @@ import { Product, ProductVariant, Category, Coupon, Promotion, UsedCoupon } from
 import { Cart } from "../models/cart.model";
 import { ERROR_MESSAGES } from "../utils/cart/cart.constants";
 import { Op } from "sequelize";
+import { productService } from "./product.service";
 
 export class CartService {
     async getCart(usuario_id: number): Promise<Cart[]> {
@@ -30,10 +31,15 @@ export class CartService {
                     const precio_base = Number(prod.precio_base);
                     const descuento = Number(prod.descuento || 0);
 
-                    itemJSON.variante.producto.precio_final = precio_base * (1 - descuento / 100);
+                    itemJSON.variante.producto.precio_final = Math.round(precio_base * (1 - descuento / 100) * 100) / 100;
                 }
                 return itemJSON;
             });
+
+            const productosList = cartItems.map(i => i.variante?.producto).filter(Boolean);
+            if (productosList.length > 0) {
+                await productService.inyectarOfertaTexto(productosList);
+            }
 
             return cartItems;
 
@@ -64,7 +70,8 @@ export class CartService {
                 const prod = itemJSON.variante.producto;
                 const precio_base = Number(prod.precio_base);
                 const descuento = Number(prod.descuento || 0);
-                itemJSON.variante.producto.precio_final = precio_base * (1 - descuento / 100);
+                itemJSON.variante.producto.precio_final = Math.round(precio_base * (1 - descuento / 100) * 100) / 100;
+                await productService.inyectarOfertaTexto([itemJSON.variante.producto]);
             }
             
             return itemJSON;
@@ -195,19 +202,34 @@ export class CartService {
                 cartItemId: item.id,
                 producto_id: prod.id,
                 categoria_id: prod.categoria_id,
+                precioBase: precioBase,
                 precio: precioBase * (1 - (descNormal / 100)),
                 cantidad: item.cantidad
             };
-        });
-
-        items.forEach(item => {
-            subtotal += (item.precio * item.cantidad);
         });
 
         const ahora = new Date();
         const promosActivas = await Promotion.findAll({
             where: { activa: true, fecha_inicio: { [Op.lte]: ahora }, fecha_fin: { [Op.gte]: ahora } },
             include: [{ as: 'categorias', model: Category }, { as: 'productos', model: Product }]
+        });
+
+        // PASO CLAVE: Si hay una promoción porcentual automática, DEBE ANULAR EL DESCUENTO MANUAL DEL PRODUCTO
+        items.forEach(item => {
+            for (const promo of promosActivas) {
+                if (promo.tipo === 'porcentaje') {
+                    const aplicaPorCategoria = (promo as any).categorias?.some((c: any) => c.id === item.categoria_id);
+                    const aplicaPorProducto = (promo as any).productos?.some((p: any) => p.id === item.producto_id);
+                    if ((!(promo as any).categorias?.length && !(promo as any).productos?.length) || aplicaPorCategoria || aplicaPorProducto) {
+                        item.precio = item.precioBase; // Restaurar el precio al original! Se descarta descNormal
+                        break;
+                    }
+                }
+            }
+        });
+
+        items.forEach(item => {
+            subtotal += (item.precio * item.cantidad);
         });
 
         for (const promo of promosActivas) {

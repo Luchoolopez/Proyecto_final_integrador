@@ -32,6 +32,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <Card className="h-100 border-0 shadow-sm product-card overflow-hidden">
         
         <Link to={`/producto/${product.id}`} className="text-decoration-none text-body position-relative d-block">
+            {/* EL CARTELITO MÁGICO (Solo se muestra si hay oferta) */}
+            {product.ofertaTexto && (
+                <Badge 
+                    bg="danger" 
+                    className={`position-absolute top-0 ${product.ofertaTipo === 'nxm' ? 'start-0' : 'end-0'} m-2 px-2 py-1 fw-bold shadow-sm`}
+                    style={{ zIndex: 10, borderRadius: '0px', fontSize: '0.75rem', letterSpacing: '1px' }}
+                >
+                    <i className="bi bi-lightning-charge-fill me-1 text-warning"></i>
+                    {product.ofertaTexto}
+                </Badge>
+            )}
+
             <div className="image-container">
                 <Card.Img 
                     variant="top" 
@@ -47,7 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </div>
             </div>
 
-            {product.descuento > 0 && (
+            {!product.ofertaTexto && product.descuento > 0 && (
                 <Badge 
                     bg="danger"
                     className="position-absolute top-0 end-0 m-2 px-2 py-1 fw-bold"
