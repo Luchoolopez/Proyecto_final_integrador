@@ -105,4 +105,19 @@ export const SubscriptionController = {
             return res.status(500).json({ success: false, message: 'No se pudieron obtener los suscriptores.' });
         }
     }
+    ,
+    searchSubscribers: async (req: Request, res: Response) => {
+        try {
+            const q = String(req.query.q || '').trim();
+            if (!q || q.length < 2) {
+                return res.status(400).json({ success: false, message: 'Query debe tener al menos 2 caracteres' });
+            }
+
+            const subscribers = await (await import('../services/subscription.service')).SubscriptionServiceHelpers.searchSubscribers(q);
+            return res.status(200).json({ success: true, data: subscribers });
+        } catch (error: any) {
+            console.error('Error searching subscribers:', error);
+            return res.status(500).json({ success: false, message: 'Error buscando suscriptores.' });
+        }
+    }
 };

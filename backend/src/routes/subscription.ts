@@ -22,5 +22,12 @@ subscriptionRouter.get(
     SubscriptionController.listSubscribers
 );
 
+subscriptionRouter.get(
+    '/search',
+    AuthMiddleware.authenticate,
+    AuthMiddleware.authorizeRoles('admin'),
+    SubscriptionController.searchSubscribers
+);
+
 export default subscriptionRouter;
 export { subscriptionRouter as Router };

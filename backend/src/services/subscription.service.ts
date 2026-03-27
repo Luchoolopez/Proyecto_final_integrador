@@ -1,4 +1,5 @@
 import { Subscription } from '../models'; 
+import { Op } from 'sequelize';
 import { CreateSubscriptionInput, SendNewsletterInput } from '../validations/subscription.schema';
 import { SUBSCRIPTION_MESSAGES } from '../utils/subscription/subscription.constants';
 import { sendNewsletterEmail } from '../utils/email/email.service';
@@ -108,6 +109,19 @@ export namespace SubscriptionServiceHelpers {
         const subscribers = await Subscription.findAll({
             where: { activo: true },
             attributes: ['email'],
+            raw: true
+        });
+        return subscribers.map((s: any) => s.email);
+    };
+    export const searchSubscribers = async (query: string) => {
+        const where: any = { activo: true };
+        if (query && query.trim().length) {
+            where.email = { [Op.like]: `%${query.trim()}%` };
+        }
+        const subscribers = await Subscription.findAll({
+            where,
+            attributes: ['email'],
+            limit: 50,
             raw: true
         });
         return subscribers.map((s: any) => s.email);
