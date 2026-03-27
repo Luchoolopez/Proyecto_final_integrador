@@ -15,5 +15,12 @@ subscriptionRouter.post(
     SubscriptionController.sendNewsletter
 );
 
+subscriptionRouter.get(
+    '/list',
+    AuthMiddleware.authenticate,
+    AuthMiddleware.authorizeRoles('admin'),
+    SubscriptionController.listSubscribers
+);
+
 export default subscriptionRouter;
 export { subscriptionRouter as Router };
