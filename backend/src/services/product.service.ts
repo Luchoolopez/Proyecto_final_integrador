@@ -8,6 +8,7 @@ import {
   includeCategory,
   ProductType,
   ProductVariantType,
+  Promotion,
 } from '../models';
 
 type GeneroFilter = 'Hombre' | 'Mujer' | 'Unisex';
@@ -33,6 +34,47 @@ interface PaginationOptions {
 }
 
 class ProductService {
+  public async inyectarOfertaTexto(productosObj: any[]) {
+    const ahora = new Date();
+    const promosActivas = await Promotion.findAll({
+        where: { 
+            activa: true, 
+            fecha_inicio: { [Op.lte]: ahora }, 
+            fecha_fin: { [Op.gte]: ahora } 
+        },
+        include: ['categorias', 'productos']
+    });
+
+    if (promosActivas.length === 0) return productosObj;
+
+    return productosObj.map((productData: any) => {
+        let ofertaTexto = null;
+        let ofertaTipo = null;
+        for (const promo of promosActivas) {
+            const promoJSON = promo.toJSON() as any;
+            const aplicaGlobal = (!promoJSON.categorias || promoJSON.categorias.length === 0) && (!promoJSON.productos || promoJSON.productos.length === 0);
+            const aplicaCategoria = promoJSON.categorias?.some((c: any) => c.id === productData.categoria_id);
+            const aplicaProducto = promoJSON.productos?.some((p: any) => p.id === productData.id);
+
+            if (aplicaGlobal || aplicaCategoria || aplicaProducto) {
+                ofertaTipo = promoJSON.tipo;
+                if (promoJSON.tipo === 'porcentaje') {
+                    ofertaTexto = `${Number(promoJSON.valor)}% OFF`;
+                    // Anular descuento manual por el de la promoción automática
+                    productData.descuento = Number(promoJSON.valor);
+                    productData.precio_final = Math.round(Number(productData.precio_base) * (1 - Number(promoJSON.valor) / 100) * 100) / 100;
+                } else if (promoJSON.tipo === 'nxm') {
+                    ofertaTexto = `${promoJSON.lleva_n}x${promoJSON.paga_m}`;
+                } else if (promoJSON.tipo === 'monto_fijo') {
+                    ofertaTexto = `-$${promoJSON.valor}`;
+                }
+                break;
+            }
+        }
+        return { ...productData, ofertaTexto, ofertaTipo };
+    });
+  }
+
   /**
    * Helper: convierte un producto Sequelize a objeto listo para API
    */
@@ -140,7 +182,8 @@ class ProductService {
       distinct: true,
     });
 
-    const productos = rows.map(p => this.mapProductData(p));
+    let productos = rows.map(p => this.mapProductData(p));
+    productos = await this.inyectarOfertaTexto(productos);
 
     return {
       productos,
@@ -162,7 +205,9 @@ class ProductService {
     });
 
     if (!producto) throw new Error('Producto no encontrado');
-    return this.mapProductData(producto);
+    const mapped = [this.mapProductData(producto)];
+    const conOferta = await this.inyectarOfertaTexto(mapped);
+    return conOferta[0];
   }
 
   /**
@@ -175,7 +220,8 @@ class ProductService {
       limit,
       order: [['fecha_actualizacion', 'DESC']],
     });
-    return productos.map(p => this.mapProductData(p));
+    const mapped = productos.map(p => this.mapProductData(p));
+    return this.inyectarOfertaTexto(mapped);
   }
 
   /**
@@ -188,7 +234,8 @@ class ProductService {
       limit,
       order: [['fecha_creacion', 'DESC']],
     });
-    return productos.map(p => this.mapProductData(p));
+    const mapped = productos.map(p => this.mapProductData(p));
+    return this.inyectarOfertaTexto(mapped);
   }
 
   /**

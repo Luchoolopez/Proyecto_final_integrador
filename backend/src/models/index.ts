@@ -10,6 +10,9 @@ import { Address } from './address.model';
 import { RefreshToken } from './refresh_token.model';
 import { Shipping } from './shipping.model';
 import { Subscription } from './subscription.model';
+import { Coupon } from './coupon.model';
+import { Promotion } from './promotion.model';
+import { UsedCoupon } from './used-coupon.model';
 import { CarouselImage } from './carousel-image.model';
 
 import {
@@ -36,6 +39,9 @@ export {
   RefreshToken,
   Shipping,
   Subscription,
+  Coupon,
+  Promotion,
+  UsedCoupon,
   CarouselImage,
   includeVariants,
   includeAllVariants,
@@ -53,5 +59,8 @@ export type { Order as OrderType } from './order.model';
 export type { OrderDetail as OrderDetailType } from './order-detail.model';
 export type { Cart as CartType } from './cart.model';
 export type { Address as AddressType } from './address.model';
-export type {Subscription as SubscriptionType} from './subscription.model';
+export type { Subscription as SubscriptionType } from './subscription.model';
+export type { Coupon as CouponType } from './coupon.model';
+export type { Promotion as PromotionType } from './promotion.model';
+export type { UsedCoupon as UsedCouponType } from './used-coupon.model';
 export type {CarouselImage as CarouselImageType} from './carousel-image.model';

@@ -5,6 +5,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import { FaBoxOpen, FaTag, FaStore, FaEnvelope, FaImages } from "react-icons/fa";
 import { LuClipboardList } from "react-icons/lu";
 import { HiMiniUsers } from "react-icons/hi2";
+import { BsLightningChargeFill, BsTicketPerforated } from "react-icons/bs";
 import { ThemeToggleButton } from "../ThemeToggleButton";
 import "./AdminSidebar.css";
 
@@ -58,6 +59,15 @@ export const AdminSidebar = () => {
             <span>Newsletter</span>
           </Nav.Link>
 
+          <Nav.Link as={Link} to="/admin/cupones" className="admin-nav-link text-white">
+            <BsTicketPerforated className="admin-nav-icon" />
+            <span>Cupones</span>
+          </Nav.Link>
+
+          <Nav.Link as={Link} to="/admin/promociones" className="admin-nav-link text-white">
+            <BsLightningChargeFill className="admin-nav-icon" />
+            <span>Ofertas Automáticas</span>
+            
           <Nav.Link as={Link} to="/admin/carousel" className="admin-nav-link text-white">
             <FaImages className="admin-nav-icon" />
             <span>Carrusel</span>

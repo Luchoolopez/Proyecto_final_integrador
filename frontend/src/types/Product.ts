@@ -23,4 +23,8 @@ export interface Product {
   categoria?: {
     nombre: string;
   };
+
+  // NUEVA PROPIEDAD PARA EL CARTELITO AUTOMÁTICO
+  ofertaTexto?: string;
+  ofertaTipo?: string;
 }

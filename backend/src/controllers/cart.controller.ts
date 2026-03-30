@@ -173,4 +173,28 @@ export class CartController {
             });
         }
     };
+
+    applyCoupon = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const usuario_id = req.user.id;
+            const { codigoCupon } = req.body;
+
+            const totals = await this.cartService.calculateTotals(usuario_id, codigoCupon);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Totales calculados',
+                data: totals
+            });
+        } catch (error) {
+            let errorMessage = 'Error al calcular totales';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            return res.status(400).json({
+                success: false,
+                message: errorMessage
+            });
+        }
+    };
 }

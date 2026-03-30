@@ -1,8 +1,9 @@
 import { sequelize } from '../config/database';
 import { Op } from 'sequelize';
-import { Order, OrderDetail, ProductVariant, User, Address, Cart, Product } from '../models';
+import { Order, OrderDetail, ProductVariant, User, Address, Cart, Product, Coupon, UsedCoupon } from '../models';
 import { CreateOrderInput } from '../validations/order.schema';
 import { ERROR_MESSAGES, ORDER_STATUS } from '../utils/order/order.constants';
+import { CartService } from './cart.service';
 
 export class OrderService {
 
@@ -26,16 +27,21 @@ export class OrderService {
                 throw new Error(ERROR_MESSAGES.CART_EMPTY);
             }
 
-            const direccion = await Address.findOne({
-                where: { id: orderData.direccion_id, usuario_id },
-                transaction,
-            });
+            if (orderData.direccion_id) {
+                const direccion = await Address.findOne({
+                    where: { id: orderData.direccion_id, usuario_id },
+                    transaction,
+                });
 
-            if (!direccion) {
-                throw new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
+                if (!direccion) {
+                    throw new Error(ERROR_MESSAGES.ADDRESS_NOT_FOUND);
+                }
             }
 
-            let totalPedido = 0;
+            const cartService = new CartService();
+            const totales = await cartService.calculateTotals(usuario_id, orderData.codigo_cupon);
+            const totalPedido = totales.totalFinal;
+
             const itemsParaDetalle: any[] = [];
 
             for (const item of cartItems) {
@@ -64,8 +70,6 @@ export class OrderService {
                 }
 
                 const precioFinalProducto = Math.round(precioBase * (1 - (descuento || 0) / 100) * 100) / 100;
-                
-                totalPedido += precioFinalProducto * item.cantidad;
 
                 itemsParaDetalle.push({
                     variante_id: item.variante_id,
@@ -82,11 +86,12 @@ export class OrderService {
             const random = Math.floor(Math.random() * 1000);
             const numeroPedidoGenerado = `PED-${timestamp}-${random}`;
 
+            // 2. Crear pedido con el total calculado
             const nuevoPedido = await Order.create(
                 {
                     usuario_id,
                     numero_pedido: numeroPedidoGenerado, 
-                    direccion_id: orderData.direccion_id,
+                    direccion_id: orderData.direccion_id || null,
                     total: totalPedido,
                     estado: ORDER_STATUS.PENDIENTE,
                     notas: orderData.notas,
@@ -104,6 +109,24 @@ export class OrderService {
             
             await OrderDetail.bulkCreate(detallesData, { transaction });
 
+            if (orderData.codigo_cupon && totales.descuentoCupon > 0) {
+                const cupon = await Coupon.findOne({ 
+                    where: { codigo: orderData.codigo_cupon }, 
+                    transaction 
+                });
+
+                if (cupon) {
+                    await UsedCoupon.create({
+                        cupon_id: cupon.id,
+                        pedido_id: nuevoPedido.id,
+                        usuario_id: usuario_id,
+                        descuento_aplicado: totales.descuentoCupon
+                    }, { transaction });
+
+                    await cupon.increment('usos_actuales', { by: 1, transaction });
+                }
+            }
+
             await Cart.destroy({
                 where: { usuario_id },
                 transaction
@@ -117,7 +140,7 @@ export class OrderService {
             if (transaction) {
                 await transaction.rollback();
             }
-
+            
             if (error instanceof Error) {
                 throw new Error(error.message || ERROR_MESSAGES.CREATE_ORDER_ERROR);
             }
@@ -125,7 +148,6 @@ export class OrderService {
         }
     }
 
-    //crea una venta manualmente - en el local
     async createManualOrder(usuario_id: number, items: { variante_id: number; cantidad: number }[], notas?: string): Promise<Order> {
         const transaction = await sequelize.transaction();
 
@@ -204,15 +226,14 @@ export class OrderService {
 
             return await this.getOrderById(nuevoPedido.id, usuario_id);
         } catch (error) {
-            await transaction.rollback();
+            if (transaction) await transaction.rollback();
+            
             if (error instanceof Error) {
                 throw new Error(error.message || ERROR_MESSAGES.CREATE_ORDER_ERROR);
             }
             throw error;
         }
     }
-
-
 
     async getOrderById(pedido_id: number, usuario_id: number): Promise<Order> {
         try {
@@ -314,7 +335,6 @@ export class OrderService {
         };
     }
 
-
     async updateOrderStatus(id: number, data: { estado: string; tracking_number?: string; shipping_provider?: string }) {
         const t = await sequelize.transaction();
 
@@ -358,6 +378,5 @@ export class OrderService {
         }
     }
 }
-
 
 export const orderService = new OrderService();

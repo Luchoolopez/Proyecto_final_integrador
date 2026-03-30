@@ -61,6 +61,8 @@ Order.init(
         },
         direccion_id: {
             type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: null,
             references: {
                 model: 'direcciones',
                 key: 'id',

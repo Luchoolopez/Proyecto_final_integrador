@@ -7,6 +7,9 @@ import { Order } from './order.model';
 import { OrderDetail } from './order-detail.model'; 
 import { Address } from './address.model';
 import { Cart } from './cart.model'; 
+import { Coupon } from './coupon.model';
+import { Promotion } from './promotion.model';
+import { UsedCoupon } from './used-coupon.model';
 
 /**
  * Define las relaciones entre todos los modelos
@@ -88,6 +91,72 @@ export function setupAssociations() {
   ProductImage.belongsTo(Product, {
     foreignKey: 'producto_id',
     as: 'producto',
+  });
+
+  // =====================================
+  // RELACIÓN: User <-> UsedCoupon
+  // =====================================
+  User.hasMany(UsedCoupon, { foreignKey: 'usuario_id', as: 'cupones_usados' });
+  UsedCoupon.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
+  // =====================================
+  // RELACIÓN: Coupon <-> UsedCoupon
+  // =====================================
+  Coupon.hasMany(UsedCoupon, { foreignKey: 'cupon_id', as: 'usos' });
+  UsedCoupon.belongsTo(Coupon, { foreignKey: 'cupon_id', as: 'cupon' });
+
+  // =====================================
+  // RELACIÓN: Order <-> UsedCoupon
+  // =====================================
+  Order.hasOne(UsedCoupon, { foreignKey: 'pedido_id', as: 'cupon_usado' });
+  UsedCoupon.belongsTo(Order, { foreignKey: 'pedido_id', as: 'pedido' });
+
+  // =====================================
+  // RELACIÓN: Coupon <-> Category
+  // =====================================
+  Coupon.belongsToMany(Category, { through: 'cupon_categorias', as: 'categorias', foreignKey: 'cupon_id', otherKey: 'categoria_id', timestamps: false });
+  Category.belongsToMany(Coupon, { through: 'cupon_categorias', foreignKey: 'categoria_id', timestamps: false });
+
+  // =====================================
+  // RELACIÓN: Coupon <-> Product
+  // =====================================
+  Coupon.belongsToMany(Product, { through: 'cupon_productos', as: 'productos', foreignKey: 'cupon_id', otherKey: 'producto_id', timestamps: false });
+  Product.belongsToMany(Coupon, { through: 'cupon_productos', foreignKey: 'producto_id', timestamps: false });
+
+  // =====================================
+  // RELACIÓN: Promotion <-> Category
+  // =====================================
+  Promotion.belongsToMany(Category, { 
+    through: 'promocion_categorias', 
+    foreignKey: 'promocion_id', 
+    otherKey: 'categoria_id',
+    as: 'categorias',
+    timestamps: false
+  });
+  Category.belongsToMany(Promotion, { 
+    through: 'promocion_categorias', 
+    foreignKey: 'categoria_id', 
+    otherKey: 'promocion_id',
+    as: 'promociones',
+    timestamps: false
+  });
+
+  // =====================================
+  // RELACIÓN: Promotion <-> Product
+  // =====================================
+  Promotion.belongsToMany(Product, { 
+    through: 'promocion_productos', 
+    foreignKey: 'promocion_id', 
+    otherKey: 'producto_id',
+    as: 'productos',
+    timestamps: false
+  });
+  Product.belongsToMany(Promotion, { 
+    through: 'promocion_productos', 
+    foreignKey: 'producto_id', 
+    otherKey: 'promocion_id',
+    as: 'promociones',
+    timestamps: false
   });
 
   console.log('✅ Asociaciones de modelos configuradas correctamente');

@@ -3,6 +3,7 @@ import Login from '../pages/Login.tsx';
 import Register from '../pages/Register.tsx';
 import Home from '../pages/Home.tsx';
 import CartPage from '../pages/CartPage.tsx';
+import CheckoutPage from '../pages/CheckoutPage.tsx';
 import { AdminHome } from '../pages/admin/AdminHome.tsx';
 import "../App.css";
 import { MainLayout } from '../layouts/MainLayout.tsx';
@@ -25,6 +26,8 @@ import { AddressForm } from '../pages/AdressForm.tsx';
 import { ForgotPassword } from '../pages/ForgotPassword.tsx';
 import { ResetPassword } from '../pages/ResetPassword.tsx';
 import { Newsletter } from '../pages/admin/Newsletter.tsx';
+import { AdminCoupons } from '../pages/admin/AdminCoupons.tsx';
+import { AdminPromotions } from '../pages/admin/AdminPromotions.tsx';
 import { CarouselManager } from '../pages/admin/CarouselManager.tsx';
 import ManualSale from '../pages/admin/ManualSale';
 
@@ -41,6 +44,7 @@ export function AppRouter() {
                 <Route path='/account/addresses/add' element={<AddressForm/>}/>
                 <Route path='/account/addresses/edit/:id' element={<AddressForm/>}/>
                 <Route path='/cart' element={<CartPage />} />
+                <Route path='/checkout' element={<CheckoutPage />} />
                 <Route path='/productos' element={<ProductListPage />} />
                 <Route path='/productos/:slug1/:slug2' element={<ProductListPage />} />
                 <Route path='/productos/:slug1' element={<ProductListPage />} />
@@ -61,6 +65,8 @@ export function AppRouter() {
                     <Route path='/admin/ordenes' element={<OrderList />} />
                     <Route path='/admin/ventas/manual' element={<ManualSale />} />
                     <Route path='/admin/usuarios' element={<UserList />} />
+                    <Route path='/admin/cupones' element={<AdminCoupons />} />
+                    <Route path='/admin/promociones' element={<AdminPromotions />} />
                     <Route path='/admin/newsletter' element={<Newsletter/>}/>
                     <Route path='/admin/carousel' element={<CarouselManager/>}/>
                 </Route>
