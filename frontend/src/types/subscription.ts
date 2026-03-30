@@ -8,6 +8,8 @@ export interface Subscription {
 export interface SendNewsletterDto {
     subject: string;
     content: string;
+    all?: boolean; // send to all active subscribers when true
+    recipients?: string[]; // specific recipient emails
 }
 
 export interface NewsletterResponse {

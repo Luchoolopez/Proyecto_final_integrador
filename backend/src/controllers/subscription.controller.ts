@@ -80,17 +80,44 @@ export const SubscriptionController = {
 
         try {
             const result = await SubscriptionService.sendNewsletterToAll(validation.data);
-
             return res.status(200).json(result);
-
         } catch (error: any) {
-            console.error('Error sending newsletter:', error); // DEBUG LOG
+            console.error('Error sending newsletter:', error);
             if (error.message === SUBSCRIPTION_MESSAGES.NO_ACTIVE_SUBSCRIBERS) {
                 return res.status(400).json({ success: false, message: error.message });
             }
 
+            if (error.message === 'No se especificaron destinatarios.') {
+                return res.status(400).json({ success: false, message: 'Debes enviar a todos o seleccionar destinatarios.' });
+            }
+
             console.error('Error en sendNewsletter:', error);
             return res.status(500).json({ success: false, message: SUBSCRIPTION_MESSAGES.SEND_NEWSLETTER_ERROR });
+        }
+    }
+,
+    listSubscribers: async (req: Request, res: Response) => {
+        try {
+            const subscribers = await (await import('../services/subscription.service')).SubscriptionServiceHelpers.getActiveSubscribers();
+            return res.status(200).json({ success: true, data: subscribers });
+        } catch (error: any) {
+            console.error('Error fetching subscribers:', error);
+            return res.status(500).json({ success: false, message: 'No se pudieron obtener los suscriptores.' });
+        }
+    }
+    ,
+    searchSubscribers: async (req: Request, res: Response) => {
+        try {
+            const q = String(req.query.q || '').trim();
+            if (!q || q.length < 2) {
+                return res.status(400).json({ success: false, message: 'Query debe tener al menos 2 caracteres' });
+            }
+
+            const subscribers = await (await import('../services/subscription.service')).SubscriptionServiceHelpers.searchSubscribers(q);
+            return res.status(200).json({ success: true, data: subscribers });
+        } catch (error: any) {
+            console.error('Error searching subscribers:', error);
+            return res.status(500).json({ success: false, message: 'Error buscando suscriptores.' });
         }
     }
 };
