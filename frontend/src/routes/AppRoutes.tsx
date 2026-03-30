@@ -25,6 +25,7 @@ import { AddressForm } from '../pages/AdressForm.tsx';
 import { ForgotPassword } from '../pages/ForgotPassword.tsx';
 import { ResetPassword } from '../pages/ResetPassword.tsx';
 import { Newsletter } from '../pages/admin/Newsletter.tsx';
+import { CarouselManager } from '../pages/admin/CarouselManager.tsx';
 import ManualSale from '../pages/admin/ManualSale';
 
 export function AppRouter() {
@@ -61,6 +62,7 @@ export function AppRouter() {
                     <Route path='/admin/ventas/manual' element={<ManualSale />} />
                     <Route path='/admin/usuarios' element={<UserList />} />
                     <Route path='/admin/newsletter' element={<Newsletter/>}/>
+                    <Route path='/admin/carousel' element={<CarouselManager/>}/>
                 </Route>
             </Route>
         </Routes>
