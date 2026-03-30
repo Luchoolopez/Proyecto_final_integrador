@@ -9,23 +9,28 @@ import { SearchProvider } from './context/SearchContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { CartProvider } from './context/CartContext'
 import { CategoryProvider } from './context/CategoryContext'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Suspense fallback={<div>Cargando...</div>}>
-        <AuthProvider>
-          <SearchProvider>
-            <ThemeProvider>
-              <CartProvider>
-                <CategoryProvider>
-                  <App />
-                </CategoryProvider>
-              </CartProvider>
-            </ThemeProvider>
-          </SearchProvider>
-        </AuthProvider>
-      </Suspense>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={clientId}>
+      <BrowserRouter>
+        <Suspense fallback={<div>Cargando...</div>}>
+          <AuthProvider>
+            <SearchProvider>
+              <ThemeProvider>
+                <CartProvider>
+                  <CategoryProvider>
+                    <App />
+                  </CategoryProvider>
+                </CartProvider>
+              </ThemeProvider>
+            </SearchProvider>
+          </AuthProvider>
+        </Suspense>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   </StrictMode>,
 )

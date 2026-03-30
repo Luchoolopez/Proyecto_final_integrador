@@ -42,6 +42,11 @@ export const AdminSidebar = () => {
             <span>Órdenes</span>
           </Nav.Link>
 
+          <Nav.Link as={Link} to="/admin/ventas/manual" className="admin-nav-link text-white">
+            <LuClipboardList className="admin-nav-icon" />
+            <span>Registar Venta</span>
+          </Nav.Link>
+
           <Nav.Link as={Link} to="/admin/usuarios" className="admin-nav-link text-white">
             <HiMiniUsers className="admin-nav-icon" />
             <span>Usuarios</span>
@@ -69,8 +74,8 @@ export const AdminSidebar = () => {
 
       <div className="mt-3">
         <div className="d-flex justify-content-center align-items-center mb-3 p-2 border rounded border-secondary text-white">
-            <span className="me-2 small">Tema:</span>
-            <ThemeToggleButton />
+          <span className="me-2 small">Tema:</span>
+          <ThemeToggleButton />
         </div>
         <Button variant="outline-light" className="w-100 logout-btn" onClick={logout}>
           Cerrar sesión

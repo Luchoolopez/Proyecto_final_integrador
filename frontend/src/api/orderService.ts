@@ -57,6 +57,11 @@ export const orderService = {
         return response.data;
     },
 
+    createManualSale: async (data: { usuario_id: number; items: { variante_id: number; cantidad: number }[]; notas?: string }) => {
+        const response = await apiClient.post('/order/admin/manual', data);
+        return response.data;
+    },
+
     
     getMyOrders: async () => {
         const response = await apiClient.get('/order'); 

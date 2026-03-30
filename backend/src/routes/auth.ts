@@ -11,6 +11,7 @@ authRouter.post('/login', authController.login);
 authRouter.post('/refresh-token', authController.refreshToken);
 authRouter.post('/forgot-password', authController.forgotPassword);
 authRouter.post('/reset-password', authController.resetPassword);
+authRouter.post('/google', authController.googleLogin);
 
 // Rutas protegidas
 authRouter.post('/logout', AuthMiddleware.authenticate, authController.logout);
