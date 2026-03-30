@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { OrderService } from "../services/order.service";
 import { createOrderSchema } from "../validations/order.schema";
+import { createManualSaleSchema } from '../validations/manual-sale.schema';
 import { ERROR_MESSAGES } from "../utils/order/order.constants";
 import { ZodError } from "zod";
 
@@ -38,6 +39,43 @@ export class OrderController {
             }
             
             let errorMessage = ERROR_MESSAGES.CREATE_ORDER_ERROR;
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: errorMessage,
+                error: error
+            });
+        }
+    };
+
+    createManualOrder = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const parsed = createManualSaleSchema.parse(req.body);
+
+            const newOrder = await this.orderService.createManualOrder(
+                parsed.usuario_id,
+                parsed.items,
+                parsed.notas
+            );
+
+            return res.status(201).json({
+                success: true,
+                message: 'Venta registrada correctamente',
+                data: newOrder
+            });
+        } catch (error) {
+            if (error instanceof ZodError) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Datos inválidos',
+                    errors: error.issues
+                });
+            }
+
+            let errorMessage = 'Error al registrar venta manual';
             if (error instanceof Error) {
                 errorMessage = error.message;
             }

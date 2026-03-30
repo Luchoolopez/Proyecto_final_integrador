@@ -1,32 +1,49 @@
+import { useEffect, useState } from 'react';
 import './Carousel.style.css';
-
-// Define la información de las imágenes que estarán en el carrusel.
-// IMPORTANTE: Reemplaza los nombres de archivo ('carousel-1.jpg', etc.) y los textos 'alt'
-// con los de tus imágenes reales que están en la carpeta `public`.
-const carouselImages = [
-    {
-        src: '/carousel/carousel_1.jpeg', 
-        alt: 'Descripción de la primera imagen para accesibilidad',
-    },
-    {
-        src: '/carousel/carousel_2.jpeg',
-        alt: 'Descripción de la segunda imagen para accesibilidad',
-    },
-    {
-        src: '/carousel/carousel_3.jpeg',
-        alt: 'Descripción de la tercera imagen para accesibilidad',
-    },
-    {
-        src: '/carousel/carousel_4.jpeg',
-        alt: 'Descripción de la cuarta imagen para accesibilidad',
-    }
-];
+import { carouselService } from '../api/carouselService';
+import type { CarouselImage } from '../api/carouselService';
 
 export const Carousel = () => {
+    const [images, setImages] = useState<CarouselImage[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchImages = async () => {
+            try {
+                const data = await carouselService.getActive();
+                setImages(data);
+            } catch (error) {
+                console.error('Error al cargar las imágenes del carrusel:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchImages();
+    }, []);
+
+    // --- LA FUNCIÓN PARA CELULARES (Vertical) ---
+    const generarImagenCelular = (urlOriginal: string) => {
+        if (!urlOriginal.includes('cloudinary.com')) return urlOriginal;
+        const transformacion = 'c_pad,b_auto,w_800,h_1200';
+        return urlOriginal.replace('/upload/', `/upload/${transformacion}/`);
+    };
+
+    // --- NUEVA FUNCIÓN PARA TABLETS Y NOTEBOOKS PEQUEÑAS (Casi Cuadrada) ---
+    const generarImagenTablet = (urlOriginal: string) => {
+        if (!urlOriginal.includes('cloudinary.com')) return urlOriginal;
+        // Ajustamos la imagen a un formato 4:3 (1200x900) ideal para esas pantallas medias
+        const transformacion = 'c_pad,b_auto,w_1200,h_900';
+        return urlOriginal.replace('/upload/', `/upload/${transformacion}/`);
+    };
+
+    if (loading) return null; 
+    if (images.length === 0) return null;
+
     return (
         <div id="carouselHomePage" className="carousel slide" data-bs-ride="carousel">
             <div className="carousel-indicators">
-                {carouselImages.map((_, index) => (
+                {images.map((_, index) => (
                     <button
                         key={index}
                         type="button"
@@ -40,9 +57,32 @@ export const Carousel = () => {
             </div>
 
             <div className="carousel-inner">
-                {carouselImages.map((image, index) => (
-                    <div key={index} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
-                        <img src={image.src} className="d-block w-100" alt={image.alt} />
+                {images.map((image, index) => (
+                    <div key={image.id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
+                        
+                        {/* ETIQUETA PICTURE MÚLTIPLE */}
+                        <picture>
+                            {/* 1. Celulares (hasta 767px) */}
+                            <source 
+                                media="(max-width: 767px)" 
+                                srcSet={generarImagenCelular(image.imagen)} 
+                            />
+                            
+                            {/* 2. Tablets y Laptops pequeñas (de 768px hasta 1259px) */}
+                            <source 
+                                media="(max-width: 1259px)" 
+                                srcSet={generarImagenTablet(image.imagen)} 
+                            />
+                            
+                            {/* 3. PC Grandes y Monitores Anchos (1260px en adelante) */}
+                            <img 
+                                src={image.imagen} 
+                                className="d-block w-100" 
+                                style={{ objectFit: 'cover' }}
+                                alt={image.alt_text || `Slide de carrusel ${index + 1}`} 
+                            />
+                        </picture>
+
                     </div>
                 ))}
             </div>

@@ -9,7 +9,7 @@ CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NULL,
     rol ENUM('usuario','admin') DEFAULT 'usuario', 
     telefono VARCHAR(20),
     activo BOOLEAN DEFAULT TRUE,
@@ -304,6 +304,19 @@ CREATE TABLE promocion_productos (
     FOREIGN KEY (promocion_id) REFERENCES promociones(id) ON DELETE CASCADE,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 );
+
+-- ======================================
+-- TABLA CARRUSEL DE IMÁGENES
+-- ======================================
+CREATE TABLE carousel_imagenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    imagen VARCHAR(255) NOT NULL COMMENT 'URL de la imagen en Cloudinary',
+    alt_text VARCHAR(200) NULL COMMENT 'Texto alternativo para SEO o descripción breve',
+    orden INT DEFAULT 0 COMMENT 'Para definir qué foto va primero (0, 1, 2...)',
+    activo TINYINT(1) DEFAULT 1 COMMENT 'Permite ocultar una foto sin borrarla',
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ======================================
 -- ÍNDICES PARA OPTIMIZAR PERFORMANCE

@@ -1,24 +1,26 @@
-/* frontend/src/components/Carousel.style.css */
-
-.carousel-item {
-  /* Cambiamos 500px por 85vh (85% del alto de la pantalla) */
-  height: 85vh; 
-  min-height: 600px; /* Aseguramos una altura mínima */
-  background-color: #000; /* Fondo negro por si la imagen tarda en cargar */
+/* Altura y fondo del contenedor del carrusel */
+.carousel-inner .carousel-item {
+    height: 60vh; /* En celular ocupa el 60% de la pantalla */
+    background-color: #f8f9fa; /* <-- CAMBIA ESTO por el color de fondo de la marca */
+    /* NO uses display: flex aquí porque rompe el ocultamiento de Bootstrap */
 }
 
-.carousel-item img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover; /* Cubre todo el espacio sin deformar */
-  object-position: center top; /* Enfoca la parte superior/centro de la imagen */
-  filter: brightness(0.9); /* (Opcional) Oscurece un poco la imagen para que resalte el texto si tuvieras */
+/* La imagen dentro del carrusel */
+.carousel-inner .carousel-item img {
+    width: 100%;
+    height: 100%;
+    /* LA MAGIA: 'contain' evita que se corte CUALQUIER parte de la foto */
+    object-fit: contain; 
 }
 
-/* Ajuste Responsive para celulares */
-@media (max-width: 768px) {
-  .carousel-item {
-    height: 60vh; /* En celular ocupa un poco menos */
-    min-height: 400px;
-  }
+/* Ajuste para pantallas de PC */
+@media (min-width: 768px) {
+    .carousel-inner .carousel-item {
+        height: 70vh; /* En PC lo hacemos un poco más alto */
+    }
+    
+    .carousel-inner .carousel-item img {
+        /* En PC sí usamos cover porque la foto original ya es panorámica */
+        object-fit: cover; 
+    }
 }

@@ -27,7 +27,6 @@ export class OrderService {
                 throw new Error(ERROR_MESSAGES.CART_EMPTY);
             }
 
-            // Solo buscamos y validamos la dirección si el usuario eligió envío
             if (orderData.direccion_id) {
                 const direccion = await Address.findOne({
                     where: { id: orderData.direccion_id, usuario_id },
@@ -39,7 +38,6 @@ export class OrderService {
                 }
             }
 
-            // 1. Calcular totales con promociones y cupones
             const cartService = new CartService();
             const totales = await cartService.calculateTotals(usuario_id, orderData.codigo_cupon);
             const totalPedido = totales.totalFinal;
@@ -62,9 +60,16 @@ export class OrderService {
                     throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_STOCK} Producto: ${variante.producto.nombre}`);
                 }
 
-                const precioBase = Number(variante.producto.precio_base);
-                const descuento = Number(variante.producto.descuento || 0);
-                const precioFinalProducto = precioBase * (1 - descuento / 100);
+                const rawPrecioBase = (variante as any).producto.precio_base;
+                const rawDescuento = (variante as any).producto.descuento;
+                const precioBase = Number(rawPrecioBase);
+                const descuento = Number(rawDescuento || 0);
+
+                if (Number.isNaN(precioBase)) {
+                    throw new Error(`Precio base inválido para producto ID ${(variante as any).producto.id}: ${rawPrecioBase}`);
+                }
+
+                const precioFinalProducto = Math.round(precioBase * (1 - (descuento || 0) / 100) * 100) / 100;
 
                 itemsParaDetalle.push({
                     variante_id: item.variante_id,
@@ -86,7 +91,6 @@ export class OrderService {
                 {
                     usuario_id,
                     numero_pedido: numeroPedidoGenerado, 
-                    // Si no hay direccion_id, se guarda como null en la DB
                     direccion_id: orderData.direccion_id || null,
                     total: totalPedido,
                     estado: ORDER_STATUS.PENDIENTE,
@@ -105,7 +109,6 @@ export class OrderService {
             
             await OrderDetail.bulkCreate(detallesData, { transaction });
 
-            // 3. Registrar el uso del cupón
             if (orderData.codigo_cupon && totales.descuentoCupon > 0) {
                 const cupon = await Coupon.findOne({ 
                     where: { codigo: orderData.codigo_cupon }, 
@@ -134,9 +137,96 @@ export class OrderService {
             return await this.getOrderById(nuevoPedido.id, usuario_id);
 
         } catch (error) {
-            if (!transaction.commit) {
+            if (transaction) {
                 await transaction.rollback();
             }
+            
+            if (error instanceof Error) {
+                throw new Error(error.message || ERROR_MESSAGES.CREATE_ORDER_ERROR);
+            }
+            throw error;
+        }
+    }
+
+    async createManualOrder(usuario_id: number, items: { variante_id: number; cantidad: number }[], notas?: string): Promise<Order> {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const user = await User.findByPk(usuario_id, { transaction });
+            if (!user) throw new Error('Usuario no encontrado');
+
+            let totalPedido = 0;
+            const itemsParaDetalle: any[] = [];
+
+            for (const item of items) {
+                const variante = await ProductVariant.findByPk(item.variante_id, {
+                    include: [{ model: Product, as: 'producto' }],
+                    transaction,
+                    lock: true,
+                });
+
+                if (!variante || !(variante as any).producto) {
+                    throw new Error('Variante de producto inválida');
+                }
+
+                if (variante.stock < item.cantidad) {
+                    throw new Error(`${ERROR_MESSAGES.INSUFFICIENT_STOCK} Producto: ${(variante as any).producto.nombre}`);
+                }
+
+                const rawPrecioBase = (variante as any).producto.precio_base;
+                const rawDescuento = (variante as any).producto.descuento;
+                const precioBase = Number(rawPrecioBase);
+                const descuento = Number(rawDescuento || 0);
+
+                if (Number.isNaN(precioBase)) {
+                    throw new Error(`Precio base inválido para producto ID ${(variante as any).producto.id}: ${rawPrecioBase}`);
+                }
+
+                const precioFinalProducto = Math.round(precioBase * (1 - (descuento || 0) / 100) * 100) / 100;
+
+                totalPedido += precioFinalProducto * item.cantidad;
+
+                itemsParaDetalle.push({
+                    variante_id: item.variante_id,
+                    sku_variante: variante.sku_variante,
+                    nombre_producto: (variante as any).producto.nombre,
+                    talle: variante.talle,
+                    cantidad: item.cantidad,
+                    precio_unitario: precioFinalProducto,
+                    descuento_aplicado: descuento,
+                });
+
+                await variante.decrement('stock', { by: item.cantidad, transaction });
+            }
+
+            const timestamp = Math.floor(Date.now() / 1000);
+            const random = Math.floor(Math.random() * 1000);
+            const numeroPedidoGenerado = `PED-${timestamp}-${random}`;
+
+            const nuevoPedido = await Order.create(
+                {
+                    usuario_id,
+                    numero_pedido: numeroPedidoGenerado,
+                    total: totalPedido,
+                    estado: ORDER_STATUS.ENTREGADO,
+                    notas: notas,
+                    shipping_cost: 0,
+                },
+                { transaction }
+            );
+
+            const detallesData = itemsParaDetalle.map(detalle => ({
+                ...detalle,
+                pedido_id: nuevoPedido.id,
+            }));
+
+            await OrderDetail.bulkCreate(detallesData, { transaction });
+
+            await transaction.commit();
+
+            return await this.getOrderById(nuevoPedido.id, usuario_id);
+        } catch (error) {
+            if (transaction) await transaction.rollback();
             
             if (error instanceof Error) {
                 throw new Error(error.message || ERROR_MESSAGES.CREATE_ORDER_ERROR);
@@ -245,7 +335,6 @@ export class OrderService {
         };
     }
 
-
     async updateOrderStatus(id: number, data: { estado: string; tracking_number?: string; shipping_provider?: string }) {
         const t = await sequelize.transaction();
 
@@ -289,6 +378,5 @@ export class OrderService {
         }
     }
 }
-
 
 export const orderService = new OrderService();

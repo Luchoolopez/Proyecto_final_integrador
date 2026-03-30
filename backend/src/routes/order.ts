@@ -9,6 +9,7 @@ OrderRouter.use(AuthMiddleware.authenticate);
 
 OrderRouter.get('/admin', AuthMiddleware.authorizeRoles('admin'), orderController.getAllOrders);
 OrderRouter.patch('/admin/:id', AuthMiddleware.authorizeRoles('admin'), orderController.updateStatus);
+OrderRouter.post('/admin/manual', AuthMiddleware.authorizeRoles('admin'), orderController.createManualOrder);
 
 OrderRouter.post('/', orderController.createOrder);
 OrderRouter.get('/', orderController.getOrdersByUser);

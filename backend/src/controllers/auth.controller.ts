@@ -10,6 +10,18 @@ export class AuthController {
         this.authService = new AuthService();
     }
 
+    googleLogin = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const { idToken } = req.body;
+            if (!idToken) return res.status(400).json({ success: false, message: 'Token requerido' });
+
+            const result = await this.authService.googleLogin(idToken);
+            return res.status(200).json({ success: true, data: result });
+        } catch (error: any) {
+            return res.status(401).json({ success: false, message: error.message });
+        }
+    };
+
     register = async (req: Request, res: Response): Promise<Response> => {
         try {
             const parsed = registerSchema.parse(req.body);

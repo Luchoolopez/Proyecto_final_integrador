@@ -33,6 +33,8 @@ export const sendNewsletterSchema = z.object({
         .string()
         .min(1, { message: "El mensaje es obligatorio" }) 
         .min(10, { message: "El contenido del mensaje es muy corto" }),
+    all: z.boolean().optional().default(false),
+    recipients: z.array(z.string().email({ message: 'Email inválido' })).optional(),
 });
 
 

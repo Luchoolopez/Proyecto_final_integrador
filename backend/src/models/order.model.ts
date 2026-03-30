@@ -6,7 +6,7 @@ interface OrderAttributes {
     id: number;
     numero_pedido?: string;
     usuario_id: number;
-    direccion_id: number | null;
+    direccion_id?: number | null;
     total: number;
     estado: 'pendiente' | 'confirmado' | 'armando' | 'enviado' | 'entregado' | 'cancelado';
     notas?: string;
@@ -19,13 +19,13 @@ interface OrderAttributes {
     shipping_cost: number;
 }
 
-type OrderCreationAttributes = Optional<OrderAttributes, 'id' | 'numero_pedido' | 'fecha' | 'fecha_envio' | 'fecha_entrega'>;
+type OrderCreationAttributes = Optional<OrderAttributes, 'id' | 'numero_pedido' | 'fecha' | 'fecha_envio' | 'fecha_entrega' | 'direccion_id'>;
 
 export class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
     id!: number;
     numero_pedido!: string;
     usuario_id!: number;
-    direccion_id!: number | null;
+    direccion_id?: number | null;
     total!: number;
     estado!: 'pendiente' | 'confirmado' | 'armando' | 'enviado' | 'entregado' | 'cancelado';
     notas?: string;

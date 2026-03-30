@@ -2,7 +2,7 @@ import { Nav, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 //import { MdDashboard } from "react-icons/md";
-import { FaBoxOpen, FaTag, FaStore, FaEnvelope } from "react-icons/fa";
+import { FaBoxOpen, FaTag, FaStore, FaEnvelope, FaImages } from "react-icons/fa";
 import { LuClipboardList } from "react-icons/lu";
 import { HiMiniUsers } from "react-icons/hi2";
 import { BsLightningChargeFill, BsTicketPerforated } from "react-icons/bs";
@@ -43,6 +43,11 @@ export const AdminSidebar = () => {
             <span>Órdenes</span>
           </Nav.Link>
 
+          <Nav.Link as={Link} to="/admin/ventas/manual" className="admin-nav-link text-white">
+            <LuClipboardList className="admin-nav-icon" />
+            <span>Registar Venta</span>
+          </Nav.Link>
+
           <Nav.Link as={Link} to="/admin/usuarios" className="admin-nav-link text-white">
             <HiMiniUsers className="admin-nav-icon" />
             <span>Usuarios</span>
@@ -62,6 +67,10 @@ export const AdminSidebar = () => {
           <Nav.Link as={Link} to="/admin/promociones" className="admin-nav-link text-white">
             <BsLightningChargeFill className="admin-nav-icon" />
             <span>Ofertas Automáticas</span>
+            
+          <Nav.Link as={Link} to="/admin/carousel" className="admin-nav-link text-white">
+            <FaImages className="admin-nav-icon" />
+            <span>Carrusel</span>
           </Nav.Link>
 
           <div className="border-top border-secondary my-2 opacity-50"></div>
@@ -75,8 +84,8 @@ export const AdminSidebar = () => {
 
       <div className="mt-3">
         <div className="d-flex justify-content-center align-items-center mb-3 p-2 border rounded border-secondary text-white">
-            <span className="me-2 small">Tema:</span>
-            <ThemeToggleButton />
+          <span className="me-2 small">Tema:</span>
+          <ThemeToggleButton />
         </div>
         <Button variant="outline-light" className="w-100 logout-btn" onClick={logout}>
           Cerrar sesión

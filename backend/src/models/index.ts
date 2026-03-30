@@ -13,6 +13,7 @@ import { Subscription } from './subscription.model';
 import { Coupon } from './coupon.model';
 import { Promotion } from './promotion.model';
 import { UsedCoupon } from './used-coupon.model';
+import { CarouselImage } from './carousel-image.model';
 
 import {
   setupAssociations,
@@ -41,6 +42,7 @@ export {
   Coupon,
   Promotion,
   UsedCoupon,
+  CarouselImage,
   includeVariants,
   includeAllVariants,
   includeImages,
@@ -61,3 +63,4 @@ export type { Subscription as SubscriptionType } from './subscription.model';
 export type { Coupon as CouponType } from './coupon.model';
 export type { Promotion as PromotionType } from './promotion.model';
 export type { UsedCoupon as UsedCouponType } from './used-coupon.model';
+export type {CarouselImage as CarouselImageType} from './carousel-image.model';

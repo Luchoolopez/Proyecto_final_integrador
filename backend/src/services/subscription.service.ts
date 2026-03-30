@@ -1,4 +1,5 @@
 import { Subscription } from '../models'; 
+import { Op } from 'sequelize';
 import { CreateSubscriptionInput, SendNewsletterInput } from '../validations/subscription.schema';
 import { SUBSCRIPTION_MESSAGES } from '../utils/subscription/subscription.constants';
 import { sendNewsletterEmail } from '../utils/email/email.service';
@@ -65,17 +66,25 @@ export const SubscriptionService = {
 
     sendNewsletterToAll: async (data: SendNewsletterInput) => {
         try {
-            const subscribers = await Subscription.findAll({
-                where: { activo: true },
-                attributes: ['email'], 
-                raw: true 
-            });
+            let emailList: string[] = [];
 
-            if (!subscribers.length) {
-                throw new Error(SUBSCRIPTION_MESSAGES.NO_ACTIVE_SUBSCRIBERS);
+            if (data.recipients && data.recipients.length) {
+                emailList = data.recipients;
+            } else if (data.all) {
+                const subscribers = await Subscription.findAll({
+                    where: { activo: true },
+                    attributes: ['email'],
+                    raw: true
+                });
+
+                if (!subscribers.length) {
+                    throw new Error(SUBSCRIPTION_MESSAGES.NO_ACTIVE_SUBSCRIBERS);
+                }
+
+                emailList = subscribers.map((sub: any) => sub.email);
+            } else {
+                throw new Error('No se especificaron destinatarios.');
             }
-
-            const emailList = subscribers.map((sub: any) => sub.email);
 
             await sendNewsletterEmail(emailList, data.subject, data.content);
 
@@ -94,3 +103,27 @@ export const SubscriptionService = {
         }
     }
 };
+
+export namespace SubscriptionServiceHelpers {
+    export const getActiveSubscribers = async () => {
+        const subscribers = await Subscription.findAll({
+            where: { activo: true },
+            attributes: ['email'],
+            raw: true
+        });
+        return subscribers.map((s: any) => s.email);
+    };
+    export const searchSubscribers = async (query: string) => {
+        const where: any = { activo: true };
+        if (query && query.trim().length) {
+            where.email = { [Op.like]: `%${query.trim()}%` };
+        }
+        const subscribers = await Subscription.findAll({
+            where,
+            attributes: ['email'],
+            limit: 50,
+            raw: true
+        });
+        return subscribers.map((s: any) => s.email);
+    };
+}
