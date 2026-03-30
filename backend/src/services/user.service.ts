@@ -117,6 +117,11 @@ export class UserService {
                 throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
             }
 
+            // Verificar si el usuario tiene una contraseña local establecida
+            if (!user.password) {
+                throw new Error("Esta cuenta utiliza inicio de sesión social y no tiene una contraseña local establecida.");
+            }
+
             const isMatch = await ServiceHelpers.comparePassword(oldPassword, user.password);
             if (!isMatch) {
                 throw new Error(ERROR_MESSAGES.INVALID_PASSWORD);
